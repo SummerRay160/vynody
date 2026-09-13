@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/widgets.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 import 'package:smtc_windows/smtc_windows.dart';
@@ -7,6 +9,26 @@ import 'package:window_manager/window_manager.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/audio/audio_service.dart';
 import 'package:vynody/utils/app_log.dart';
+
+typedef RegGetValueWNative = Int32 Function(
+  IntPtr hkey,
+  Pointer<Utf16> lpSubKey,
+  Pointer<Utf16> lpValue,
+  Uint32 dwFlags,
+  Pointer<Uint32> pdwType,
+  Pointer<Uint32> pvData,
+  Pointer<Uint32> pcbData,
+);
+
+typedef RegGetValueWDart = int Function(
+  int hkey,
+  Pointer<Utf16> lpSubKey,
+  Pointer<Utf16> lpValue,
+  int dwFlags,
+  Pointer<Uint32> pdwType,
+  Pointer<Uint32> pvData,
+  Pointer<Uint32> pcbData,
+);
 
 class WindowsIntegrationService with WindowListener, WidgetsBindingObserver {
   final AudioService audioService;
@@ -20,6 +42,7 @@ class WindowsIntegrationService with WindowListener, WidgetsBindingObserver {
 
   HttpServer? _artworkServer;
   int? _artworkServerPort;
+  bool? _lastTaskbarLightTheme;
 
   WindowsIntegrationService(this.audioService) {
     if (!Platform.isWindows) return;
@@ -68,6 +91,10 @@ class WindowsIntegrationService with WindowListener, WidgetsBindingObserver {
     AppLog.log('[WindowsTaskbar] onWindowFocus triggered, taskbarReady=$_taskbarReady', mirrorToConsole: true);
     if (!_taskbarReady) {
       reapplyTaskbarButtons();
+    } else if (_lastTaskbarLightTheme != _isTaskbarLightTheme()) {
+      // Windows mode (taskbar theme) changes emit no Flutter callback, so
+      // refresh the toolbar icons when the theme flipped since last apply.
+      unawaited(_setThumbnailToolbar());
     }
   }
 
@@ -257,6 +284,58 @@ class WindowsIntegrationService with WindowListener, WidgetsBindingObserver {
     }
   }
 
+  // HKEY_CURRENT_USER / RRF_RT_REG_DWORD / ERROR_SUCCESS.
+  static const int _hkeyCurrentUser = 0x80000001;
+  static const int _rrfRtRegDword = 0x00000002;
+  static const int _errorSuccess = 0;
+
+  /// Whether the Windows taskbar uses the light theme.
+  ///
+  /// The taskbar color follows the Windows mode (`SystemUsesLightTheme`),
+  /// while `platformBrightness` follows the app mode (`AppsUseLightTheme`);
+  /// the two can be set independently, so read the registry value directly
+  /// and fall back to `platformBrightness` when it is unavailable.
+  bool _isTaskbarLightTheme() {
+    int? systemUsesLightTheme;
+    if (Platform.isWindows) {
+      try {
+        final advapi32 = DynamicLibrary.open('advapi32.dll');
+        final regGetValueW =
+            advapi32.lookupFunction<RegGetValueWNative, RegGetValueWDart>('RegGetValueW');
+        final subKey =
+            'Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize'.toNativeUtf16();
+        final valueName = 'SystemUsesLightTheme'.toNativeUtf16();
+        final data = calloc<Uint32>();
+        final dataSize = calloc<Uint32>()..value = 4;
+        try {
+          final status = regGetValueW(
+            _hkeyCurrentUser,
+            subKey,
+            valueName,
+            _rrfRtRegDword,
+            nullptr,
+            data,
+            dataSize,
+          );
+          if (status == _errorSuccess) {
+            systemUsesLightTheme = data.value;
+          } else {
+            AppLog.log('[WindowsTaskbar] RegGetValueW(SystemUsesLightTheme) failed: $status', mirrorToConsole: true);
+          }
+        } finally {
+          malloc.free(subKey);
+          malloc.free(valueName);
+          calloc.free(data);
+          calloc.free(dataSize);
+        }
+      } catch (e) {
+        AppLog.log('[WindowsTaskbar] Failed to read SystemUsesLightTheme: $e', mirrorToConsole: true);
+      }
+    }
+    if (systemUsesLightTheme != null) return systemUsesLightTheme == 1;
+    return WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.light;
+  }
+
   Future<bool> _setThumbnailToolbar({bool logError = true}) async {
     if (_disposed) return false;
 
@@ -266,10 +345,11 @@ class WindowsIntegrationService with WindowListener, WidgetsBindingObserver {
         AppLog.log('[WindowsTaskbar] _setThumbnailToolbar skipped because window is not visible', mirrorToConsole: true);
         return false;
       }
-      final isLightMode = WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.light;
-      final iconFolder = isLightMode ? 'assets/icons/dark' : 'assets/icons/light';
+      final taskbarLight = _isTaskbarLightTheme();
+      final iconFolder = taskbarLight ? 'assets/icons/dark' : 'assets/icons/light';
+      _lastTaskbarLightTheme = taskbarLight;
 
-      AppLog.log('[WindowsTaskbar] Calling WindowsTaskbar.setThumbnailToolbar (isLightMode=$isLightMode, folder=$iconFolder)...', mirrorToConsole: true);
+      AppLog.log('[WindowsTaskbar] Calling WindowsTaskbar.setThumbnailToolbar (taskbarLight=$taskbarLight, folder=$iconFolder)...', mirrorToConsole: true);
       await WindowsTaskbar.setThumbnailToolbar([
         ThumbnailToolbarButton(
           ThumbnailToolbarAssetIcon('$iconFolder/skip_previous.ico'),
