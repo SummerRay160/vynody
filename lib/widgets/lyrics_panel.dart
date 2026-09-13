@@ -267,14 +267,14 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
             height: 1.4,
             leadingDistribution: TextLeadingDistribution.even,
           )
-        : TextStyle(
+        : Theme.of(context).textTheme.bodyLarge!.copyWith(
             fontSize: plainLyricFontSize,
             fontWeight: lyricsStyle == LyricsStyle.apple ? FontWeight.w700 : FontWeight.w400,
             height: 1.6,
             leadingDistribution: TextLeadingDistribution.even,
           );
 
-    final translationStyle = TextStyle(
+    final translationStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
       fontSize: translationFontSize,
       fontWeight: lyricsStyle == LyricsStyle.apple ? FontWeight.w700 : FontWeight.w400,
       height: 1.3,
@@ -2317,7 +2317,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
 
                 return ListTile(
                   leading: Icon(icon, color: isSelected ? theme.colorScheme.primary : null),
-                  title: Text(title, style: TextStyle(fontWeight: isSelected ? FontWeight.bold : null)),
+                  title: Text(title, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: isSelected ? FontWeight.bold : null)),
                   trailing: isSelected ? Icon(Icons.check_circle_rounded, color: theme.colorScheme.primary) : null,
                   onTap: () async {
                     Navigator.pop(context);

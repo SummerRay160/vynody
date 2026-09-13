@@ -74,7 +74,7 @@ class LyricsPanelEmptyState extends StatelessWidget {
               Text(
                 isLoading ? l10n.searchingLyrics : l10n.noLyrics,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: textColor.withValues(alpha: 0.7),
                   fontSize: 16,
                 ),
@@ -349,7 +349,7 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
                                 height: 1.4,
                                 leadingDistribution: TextLeadingDistribution.even,
                               )
-                            : TextStyle(
+                            : Theme.of(context).textTheme.bodyLarge!.copyWith(
                                 color: widget.textColor,
                                 fontSize: plainLyricFontSize,
                                 fontWeight: widget.lyricsStyle == LyricsStyle.apple
@@ -432,7 +432,7 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
                                                       child: AnimatedDefaultTextStyle(
                                                         duration: const Duration(milliseconds: 300),
                                                         curve: Curves.easeOutCubic,
-                                                        style: TextStyle(
+                                                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                                           color: isHovered
                                                               ? widget.secondaryTextColor.withValues(alpha: 1.0)
                                                               : (isActive
@@ -482,7 +482,7 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
                                                     child: AnimatedDefaultTextStyle(
                                                       duration: const Duration(milliseconds: 300),
                                                       curve: Curves.easeOutCubic,
-                                                      style: TextStyle(
+                                                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                                         color: isHovered
                                                             ? widget.secondaryTextColor.withValues(alpha: 1.0)
                                                             : (isActive
