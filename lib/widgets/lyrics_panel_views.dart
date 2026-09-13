@@ -12,6 +12,7 @@ import 'package:vynody/player/audio/audio_riverpod.dart';
 import '../l10n/app_localizations.dart';
 import 'package:vynody/player/lyrics/lyrics_controller_state.dart';
 import 'package:vynody/player/settings/settings_service.dart';
+import 'package:vynody/utils/app_log.dart';
 import 'playback_ui_tuning.dart';
 
 class LyricsPanelEmptyState extends StatelessWidget {
@@ -991,10 +992,17 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget> wit
     }
   }
 
+  DateTime _lastLogTime = DateTime.fromMillisecondsSinceEpoch(0);
+
   @override
   void didUpdateWidget(covariant WordWordLyricsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isActive != widget.isActive) {
+      // final lineStr = widget.words.map((w) => w.text).join();
+      // AppLog.log(
+      //   '[LyricsDebug] Line isActive changed: ${oldWidget.isActive} -> ${widget.isActive} | line="$lineStr"',
+      //   mirrorToConsole: true,
+      // );
       _updateTickerState();
     }
   }
@@ -1063,6 +1071,26 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget> wit
       currentPosition = _lastObservedPosition;
     }
 
+    final currentMusic = ref.watch(audioCurrentMusicProvider);
+    final timelineOffsetMs =
+        currentMusic?.lyrics?.timelineOffset.inMilliseconds ?? 0;
+    final currentMs = currentPosition.inMilliseconds - timelineOffsetMs;
+
+    final now = DateTime.now();
+    if (now.difference(_lastLogTime).inMilliseconds >= 250 && validWords.isNotEmpty) {
+      _lastLogTime = now;
+      // final lastWord = validWords.last;
+      // final lastStart = lastWord.timestamp.inMilliseconds;
+      // final lastDur = lastWord.durationMs;
+      // final lastProg = (lastDur > 0) ? ((currentMs - lastStart) / lastDur).clamp(0.0, 1.0) : 0.0;
+      // AppLog.log(
+      //   '[LyricsDebug] ActiveLine currentMs=$currentMs | lastWord="${lastWord.text.trim()}" '
+      //   'range=[$lastStart..${lastStart + lastDur}] dur=${lastDur}ms progress=${(lastProg * 100).toStringAsFixed(1)}% '
+      //   'allWords=[${validWords.map((w) => "${w.text.trim()}(${w.timestamp.inMilliseconds}+${w.durationMs}ms)").join(", ")}]',
+      //   mirrorToConsole: true,
+      // );
+    }
+
     return ExcludeSemantics(
       child: Wrap(
         alignment: widget.isLeftAligned ? WrapAlignment.start : WrapAlignment.center,
@@ -1070,7 +1098,6 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget> wit
         children: validWords.map((word) {
           final startMs = word.timestamp.inMilliseconds;
           final durationMs = word.durationMs;
-          final currentMs = currentPosition.inMilliseconds;
 
           double progress = 0.0;
           if (currentMs >= startMs + durationMs) {
@@ -1123,10 +1150,12 @@ class WordHighlightText extends StatelessWidget {
       );
     }
 
-    // Smooth transition from left to right with a soft edge
-    final double softEdge = 0.15;
-    final double start = (progress - softEdge).clamp(0.0, 1.0);
-    final double end = (progress + softEdge).clamp(0.0, 1.0);
+    // Smooth transition from left to right with a soft edge.
+    // Map progress so that the soft edge fully clears the text boundary from 0.0 to 1.0.
+    const double softEdge = 0.15;
+    final double center = -softEdge + progress * (1.0 + 2 * softEdge);
+    final double start = (center - softEdge / 2).clamp(0.0, 1.0);
+    final double end = (center + softEdge / 2).clamp(0.0, 1.0);
 
     return ShaderMask(
       blendMode: BlendMode.srcIn,

@@ -359,7 +359,7 @@ class LyricsControllerSupport {
     String fallbackPlainLyrics,
   ) {
     if (syncedLines.isNotEmpty) {
-      return syncedLines;
+      return LrcUtils.refineWordDurations(syncedLines);
     }
 
     if (fallbackPlainLyrics.trim().isEmpty) {

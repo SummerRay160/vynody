@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:vynody/models/lyric_line.dart';
+import 'package:vynody/utils/lrc_utils.dart';
 
 enum LyricsCacheSource {
   none,
@@ -238,8 +239,9 @@ List<LyricLine> _decodeSyncedLines(Object? rawValue) {
   final decodedValue = rawValue is String ? jsonDecode(rawValue) : rawValue;
   if (decodedValue is! List) return const <LyricLine>[];
 
-  return decodedValue
+  final lines = decodedValue
       .whereType<Map>()
       .map((item) => LyricLine.fromJson(Map<String, dynamic>.from(item)))
       .toList(growable: false);
+  return LrcUtils.refineWordDurations(lines);
 }

@@ -90,7 +90,6 @@ class LyricsPanel extends rpod.ConsumerStatefulWidget {
 
 class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   static const double _lyricsDragSeekThreshold = 24.0;
-  static const int _lyricsActiveLineSeekEpsilonMilliseconds = 120;
   static const double _timelineOffsetMinSeconds = -10.0;
   static const double _timelineOffsetMaxSeconds = 10.0;
   static const double _seekToastTopOffset = 88.0;
@@ -1556,7 +1555,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     int calculateNormal() {
       final current = math.max(
         0,
-        _adjustedPositionMilliseconds + _lyricsActiveLineSeekEpsilonMilliseconds,
+        _adjustedPositionMilliseconds,
       );
       int low = 0;
       int high = displayLines.length - 1;
@@ -1581,8 +1580,16 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
 
     if (overrideIdx != null && targetTs != null) {
       final timeSinceSeek = DateTime.now().difference(_seekSetTime);
-      final positionDiff = (widget.position - targetTs).abs();
-      if (positionDiff < const Duration(milliseconds: 800) ||
+      final isBeforeTarget = widget.position < targetTs;
+      final diff = (widget.position - targetTs).abs();
+      // If audio position landed slightly before targetTs (common decoder seek jitter, e.g. -50ms),
+      // keep the seek target line active until position reaches targetTs or moves past.
+      if (isBeforeTarget &&
+          diff < const Duration(milliseconds: 400) &&
+          timeSinceSeek < const Duration(seconds: 2)) {
+        return overrideIdx;
+      }
+      if (diff < const Duration(milliseconds: 800) ||
           timeSinceSeek > const Duration(seconds: 2)) {
         _overrideActiveIndex = null;
         _seekTargetTimestamp = null;

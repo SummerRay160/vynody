@@ -102,7 +102,7 @@ class LrcUtils {
 
       syncedLines.sort((a, b) => a.timestamp.compareTo(b.timestamp));
       return ParsedLyricsResult(
-        syncedLines: syncedLines,
+        syncedLines: refineWordDurations(syncedLines),
         translatedLines: translatedLines,
       );
     }
@@ -148,13 +148,49 @@ class LrcUtils {
       }
 
       return ParsedLyricsResult(
-        syncedLines: syncedLines,
+        syncedLines: refineWordDurations(syncedLines),
         translatedLines: translatedLines,
       );
     }
 
     allParsedLines.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-    return ParsedLyricsResult(syncedLines: allParsedLines);
+    return ParsedLyricsResult(syncedLines: refineWordDurations(allParsedLines));
+  }
+
+  static List<LyricLine> refineWordDurations(List<LyricLine> lines) {
+    if (lines.isEmpty) return lines;
+
+    final result = <LyricLine>[];
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i];
+      final words = line.words;
+      if (words == null || words.isEmpty) {
+        result.add(line);
+        continue;
+      }
+
+      final lastWord = words.last;
+      Duration? nextTimestamp;
+      for (int j = i + 1; j < lines.length; j++) {
+        if (lines[j].timestamp > lastWord.timestamp) {
+          nextTimestamp = lines[j].timestamp;
+          break;
+        }
+      }
+
+      if (nextTimestamp != null) {
+        final availableMs = (nextTimestamp - lastWord.timestamp).inMilliseconds;
+        if (availableMs > 0 && availableMs < lastWord.durationMs) {
+          final adjustedMs = max(60, availableMs);
+          final updatedWords = List<LyricWord>.from(words);
+          updatedWords[updatedWords.length - 1] = lastWord.copyWith(durationMs: adjustedMs);
+          result.add(line.copyWith(words: updatedWords));
+          continue;
+        }
+      }
+      result.add(line);
+    }
+    return result;
   }
 
   static bool _hasInlineTranslationDelimiter(String text) {

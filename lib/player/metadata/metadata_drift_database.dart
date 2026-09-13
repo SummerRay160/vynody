@@ -2554,10 +2554,11 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
     }
     final decodedValue = jsonDecode(rawValue);
     if (decodedValue is! List) return const <LyricLine>[];
-    return decodedValue
+    final lines = decodedValue
         .whereType<Map>()
         .map((item) => LyricLine.fromJson(Map<String, dynamic>.from(item)))
         .toList(growable: false);
+    return LrcUtils.refineWordDurations(lines);
   }
 
   List<String> _decodeTranslatedLines(String? rawValue) {

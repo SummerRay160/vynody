@@ -57,7 +57,29 @@ void main() {
       
       expect(line.words![2].text, '你');
       expect(line.words![2].timestamp, const Duration(milliseconds: 50030));
-      expect(line.words![2].durationMs, 1000); // default
+      expect(line.words![2].durationMs, 1000); // default for single line with no next line
+    });
+
+    test('refines last word duration in multi-line word-by-word lyrics', () {
+      const lrc = '[00:07.78]When [00:08.10]I [00:08.20]was [00:08.35]a [00:08.48]young [00:08.77]boy [00:08.97]living [00:09.28]in [00:09.37]the [00:09.52]city\n'
+          '[00:09.87]All [00:10.16]I [00:10.35]did [00:10.48]was [00:10.66]run, [00:10.96]run, [00:11.16]run, [00:11.37]run, [00:11.60]run';
+      final parsed = LrcUtils.parseTimedLyrics(lrc);
+      expect(parsed.length, 2);
+
+      final line1 = parsed[0];
+      expect(line1.words, isNotNull);
+      final lastWordLine1 = line1.words!.last;
+      expect(lastWordLine1.text.trim(), 'city');
+      // city starts at 00:09.52 (9520ms), next line at 00:09.87 (9870ms).
+      // availableMs = 350ms. Since 350 > 200, adjustedMs = 350 - 40 = 310ms.
+      expect(lastWordLine1.durationMs, 310);
+
+      final line2 = parsed[1];
+      expect(line2.words, isNotNull);
+      final lastWordLine2 = line2.words!.last;
+      expect(lastWordLine2.text.trim(), 'run');
+      // line2 is the last line with no next line, so it retains the default 1000ms.
+      expect(lastWordLine2.durationMs, 1000);
     });
 
     test('parses word-by-word with trailing timestamp', () {
