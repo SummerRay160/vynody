@@ -2014,6 +2014,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get copyTranslationResults => '翻訳結果をコピー';
 
   @override
+  String get copyTranslation => '复制译文';
+
+  @override
+  String get copyTranslationWithTimestamps => '复制带时间戳译文';
+
+  @override
   String get writeLyricsToFile => '歌詞をファイルに書き込む';
 
   @override

@@ -2088,6 +2088,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get copyTranslationResults => 'Copier les résultats de traduction';
 
   @override
+  String get copyTranslation => '复制译文';
+
+  @override
+  String get copyTranslationWithTimestamps => '复制带时间戳译文';
+
+  @override
   String get writeLyricsToFile => 'Écrire les paroles dans le fichier';
 
   @override

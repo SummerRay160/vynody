@@ -1992,6 +1992,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get copyTranslationResults => '复制翻译结果';
 
   @override
+  String get copyTranslation => '复制译文';
+
+  @override
+  String get copyTranslationWithTimestamps => '复制带时间戳译文';
+
+  @override
   String get writeLyricsToFile => '将歌词写入文件';
 
   @override

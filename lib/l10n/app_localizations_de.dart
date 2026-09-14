@@ -2084,6 +2084,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get copyTranslationResults => 'Übersetzungsergebnisse kopieren';
 
   @override
+  String get copyTranslation => '复制译文';
+
+  @override
+  String get copyTranslationWithTimestamps => '复制带时间戳译文';
+
+  @override
   String get writeLyricsToFile => 'Songtexte in Datei schreiben';
 
   @override

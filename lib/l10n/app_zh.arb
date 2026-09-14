@@ -1345,6 +1345,8 @@
   "openSettingsButton": "前往设置",
   "closeButton": "关闭",
   "copyTranslationResults": "复制翻译结果",
+  "copyTranslation": "复制译文",
+  "copyTranslationWithTimestamps": "复制带时间戳译文",
   "writeLyricsToFile": "将歌词写入文件",
   "selectLyricSource": "选择歌词来源",
   "regenerateLyrics": "重新生成歌词",

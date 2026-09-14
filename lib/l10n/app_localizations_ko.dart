@@ -2016,6 +2016,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get copyTranslationResults => '번역 결과 복사';
 
   @override
+  String get copyTranslation => '复制译文';
+
+  @override
+  String get copyTranslationWithTimestamps => '复制带时间戳译文';
+
+  @override
   String get writeLyricsToFile => '가사를 파일에 쓰기';
 
   @override

@@ -2065,6 +2065,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get copyTranslationResults => 'Çeviri sonuçlarını kopyala';
 
   @override
+  String get copyTranslation => '复制译文';
+
+  @override
+  String get copyTranslationWithTimestamps => '复制带时间戳译文';
+
+  @override
   String get writeLyricsToFile => 'Sözleri dosyaya yaz';
 
   @override

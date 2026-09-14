@@ -3873,6 +3873,18 @@ abstract class AppLocalizations {
   /// **'复制翻译结果'**
   String get copyTranslationResults;
 
+  /// No description provided for @copyTranslation.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制译文'**
+  String get copyTranslation;
+
+  /// No description provided for @copyTranslationWithTimestamps.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制带时间戳译文'**
+  String get copyTranslationWithTimestamps;
+
   /// No description provided for @writeLyricsToFile.
   ///
   /// In zh, this message translates to:
