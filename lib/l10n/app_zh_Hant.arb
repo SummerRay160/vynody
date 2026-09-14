@@ -623,6 +623,8 @@
   "openSettingsButton": "前往設定",
   "closeButton": "關閉",
   "copyTranslationResults": "複製翻譯結果",
+  "copyTranslation": "複製譯文",
+  "copyTranslationWithTimestamps": "複製帶時間戳譯文",
   "writeLyricsToFile": "將歌詞寫入檔案",
   "selectLyricSource": "選擇歌詞來源",
   "regenerateLyrics": "重新生成歌詞",

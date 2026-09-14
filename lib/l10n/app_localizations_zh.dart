@@ -6519,6 +6519,12 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get copyTranslationResults => '複製翻譯結果';
 
   @override
+  String get copyTranslation => '複製譯文';
+
+  @override
+  String get copyTranslationWithTimestamps => '複製帶時間戳譯文';
+
+  @override
   String get writeLyricsToFile => '將歌詞寫入檔案';
 
   @override

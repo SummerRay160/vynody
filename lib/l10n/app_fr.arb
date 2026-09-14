@@ -789,6 +789,8 @@
   "openSettingsButton": "Ouvrir les paramètres",
   "closeButton": "Fermer",
   "copyTranslationResults": "Copier les résultats de traduction",
+  "copyTranslation": "Copier la traduction",
+  "copyTranslationWithTimestamps": "Copier la traduction avec horodatage",
   "writeLyricsToFile": "Écrire les paroles dans le fichier",
   "selectLyricSource": "Choisir la source des paroles",
   "regenerateLyrics": "Régénérer les paroles",
