@@ -286,7 +286,7 @@ class WindowsIntegrationService with WindowListener, WidgetsBindingObserver {
 
   // HKEY_CURRENT_USER / RRF_RT_REG_DWORD / ERROR_SUCCESS.
   static const int _hkeyCurrentUser = 0x80000001;
-  static const int _rrfRtRegDword = 0x00000002;
+  static const int _rrfRtRegDword = 0x00000010;
   static const int _errorSuccess = 0;
 
   /// Whether the Windows taskbar uses the light theme.
