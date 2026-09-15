@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vynody/player/remote/remote_server_models.dart';
 import 'package:vynody/player/remote/clients/subsonic_client.dart';
 import 'package:vynody/player/remote/clients/webdav_client.dart';
 import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
+import 'package:vynody/player/remote/remote_server_riverpod.dart';
 
 void main() {
   group('RemoteServer Model Tests', () {
@@ -295,6 +297,58 @@ void main() {
       expect(musicFile.durationMillis, 391000);
       expect(musicFile.trackNumber, 1);
       expect(musicFile.thumbnailPath, '/path/to/thumb.jpg');
+    });
+  });
+
+  group('ActiveRemoteSessionNotifier playlist cache removal tests', () {
+    test('removeNavidromePlaylist removes playlist from list and details cache', () {
+      final server = RemoteServer(
+        id: 'test-jellyfin',
+        name: 'Jellyfin Test',
+        type: RemoteServerType.jellyfin,
+        url: 'https://jellyfin.example.com',
+        username: 'user',
+        createdAt: DateTime.now(),
+      );
+
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(activeRemoteSessionProvider.notifier);
+      notifier.setSession(
+        ActiveRemoteSession(
+          server: server,
+          password: 'pass',
+        ),
+      );
+
+      notifier.updateNavidromePlaylists(
+        playlists: [
+          {'id': 'pl-1', 'name': 'Playlist 1'},
+          {'id': 'pl-2', 'name': 'Playlist 2'},
+        ],
+        selectedPlaylistId: 'pl-1',
+      );
+
+      notifier.updateNavidromePlaylistDetail(
+        playlistId: 'pl-1',
+        playlistData: {'id': 'pl-1', 'name': 'Playlist 1'},
+        tracks: [],
+        starredSongIds: {},
+      );
+
+      expect(container.read(activeRemoteSessionProvider)?.navidromePlaylists?.length, 2);
+      expect(container.read(activeRemoteSessionProvider)?.navidromeSelectedPlaylistId, 'pl-1');
+      expect(container.read(activeRemoteSessionProvider)?.navidromePlaylistDetailsCache.containsKey('pl-1'), true);
+
+      // Remove pl-1
+      notifier.removeNavidromePlaylist('pl-1');
+
+      final state = container.read(activeRemoteSessionProvider)!;
+      expect(state.navidromePlaylists?.length, 1);
+      expect(state.navidromePlaylists?.first['id'], 'pl-2');
+      expect(state.navidromeSelectedPlaylistId, isNull);
+      expect(state.navidromePlaylistDetailsCache.containsKey('pl-1'), false);
     });
   });
 }

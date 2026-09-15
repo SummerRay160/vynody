@@ -10,6 +10,7 @@ import '../../../player/audio/playback_source.dart';
 import '../../../player/remote/clients/remote_media_library_client.dart';
 import '../../../player/remote/remote_server_models.dart';
 import '../../../player/remote/services/remote_download_service.dart';
+import '../../../player/remote/remote_server_riverpod.dart';
 import '../../../utils/app_snack_bar.dart';
 import '../../../utils/remote_context_menu_utils.dart';
 import '../../../player/library/playlist_service.dart';
@@ -471,6 +472,8 @@ class RemoteLibrarySelectionActions {
     required Set<String> selectedPlaylistIds,
     required VoidCallback onClearSelection,
     required VoidCallback onReloadPlaylists,
+    BuildContext? context,
+    WidgetRef? ref,
   }) async {
     final toDelete = selectedPlaylistIds
         .where((id) => id != starredPlaylistId && id != 'starred_songs')
@@ -480,11 +483,39 @@ class RemoteLibrarySelectionActions {
       server: server,
       password: password,
     );
+    int failedCount = 0;
     for (final plId in toDelete) {
-      await client.deletePlaylist(plId);
+      final ok = await client.deletePlaylist(plId);
+      if (!ok) {
+        failedCount++;
+      } else if (ref != null) {
+        final activeSession = ref.read(activeRemoteSessionProvider);
+        if (activeSession != null && activeSession.server.id == server.id) {
+          ref
+              .read(activeRemoteSessionProvider.notifier)
+              .removeNavidromePlaylist(plId);
+        }
+      }
     }
     onClearSelection();
     onReloadPlaylists();
+
+    if (failedCount > 0 && context != null && context.mounted) {
+      final l10n = AppLocalizations.of(context)!;
+      final isZh = l10n.localeName.startsWith('zh');
+      final permHint = server.type == RemoteServerType.jellyfin
+          ? (isZh
+              ? '（请检查 Jellyfin 用户是否开启“允许删除媒体”权限）'
+              : ' (Please check Jellyfin "Allow media deletion" permission)')
+          : '';
+      AppSnackBar.show(
+        context,
+        ref,
+        SnackBar(
+          content: Text('${l10n.deletePlaylistFailed}$permHint'),
+        ),
+      );
+    }
   }
 }
 

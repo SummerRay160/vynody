@@ -5,6 +5,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../../player/remote/clients/remote_media_library_client.dart';
 import '../../../player/remote/remote_library_navigation.dart';
 import '../../../player/remote/remote_server_models.dart';
+import '../../../player/remote/remote_server_riverpod.dart';
+import '../../../utils/app_snack_bar.dart';
 import '../../../utils/remote_context_menu_utils.dart';
 import '../../../utils/selection_utils.dart';
 import '../../../widgets/remote_artwork_widget.dart';
@@ -427,6 +429,143 @@ class RemoteLibraryPlaylistItem extends ConsumerWidget {
     required this.onTap,
   });
 
+  void _showDeleteDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String name,
+    String playlistId,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.deletePlaylist),
+        content: Text(l10n.confirmDeletePlaylist(name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final client = RemoteMediaLibraryClient.create(
+                server: server,
+                password: password,
+              );
+              final ok = await client.deletePlaylist(playlistId);
+              if (ok) {
+                final activeSession = ref.read(activeRemoteSessionProvider);
+                if (activeSession != null &&
+                    activeSession.server.id == server.id) {
+                  ref
+                      .read(activeRemoteSessionProvider.notifier)
+                      .removeNavidromePlaylist(playlistId);
+                }
+                showToast(l10n.playlistDeleted);
+                onRefreshPlaylists();
+              } else {
+                if (context.mounted) {
+                  final isZh = l10n.localeName.startsWith('zh');
+                  final permHint = server.type == RemoteServerType.jellyfin
+                      ? (isZh
+                          ? '（请检查 Jellyfin 用户是否开启“允许删除媒体”权限）'
+                          : ' (Please check Jellyfin "Allow media deletion" permission)')
+                      : '';
+                  AppSnackBar.show(
+                    context,
+                    ref,
+                    SnackBar(
+                      content: Text('${l10n.deletePlaylistFailed}$permHint'),
+                    ),
+                  );
+                }
+              }
+            },
+            child: Text(l10n.delete,
+                style: const TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRenameDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String currentName,
+    String playlistId,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController(text: currentName);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.renamePlaylist),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: l10n.playlistName,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              final newName = controller.text.trim();
+              if (newName.isNotEmpty && newName != currentName) {
+                final client = RemoteMediaLibraryClient.create(
+                  server: server,
+                  password: password,
+                );
+                final ok = await client.updatePlaylist(
+                  playlistId: playlistId,
+                  name: newName,
+                );
+                if (ok) {
+                  final activeSession = ref.read(activeRemoteSessionProvider);
+                  if (activeSession != null &&
+                      activeSession.server.id == server.id) {
+                    final currentPlaylists =
+                        activeSession.navidromePlaylists ?? [];
+                    final updatedPlaylists = currentPlaylists.map((p) {
+                      if (p['id'] == playlistId) {
+                        return Map<String, dynamic>.from(p)..['name'] = newName;
+                      }
+                      return p;
+                    }).toList();
+                    ref
+                        .read(activeRemoteSessionProvider.notifier)
+                        .updateNavidromePlaylists(
+                          playlists: updatedPlaylists,
+                        );
+                  }
+                  onRefreshPlaylists();
+                } else if (context.mounted) {
+                  AppSnackBar.show(
+                    context,
+                    ref,
+                    SnackBar(
+                      content: Text('${l10n.renamePlaylist}: failed'),
+                    ),
+                  );
+                }
+              }
+              if (ctx.mounted) {
+                Navigator.pop(ctx);
+              }
+            },
+            child: Text(l10n.confirm),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
@@ -460,8 +599,10 @@ class RemoteLibraryPlaylistItem extends ConsumerWidget {
                 playlistId: playlistId,
                 playlistName: name,
                 onViewDetails: onTap,
-                onRename: onRefreshPlaylists,
-                onDelete: onRefreshPlaylists,
+                onRename: () =>
+                    _showRenameDialog(context, ref, name, playlistId),
+                onDelete: () =>
+                    _showDeleteDialog(context, ref, name, playlistId),
               );
             },
       onLongPressStart: (details) {
@@ -603,8 +744,10 @@ class RemoteLibraryPlaylistItem extends ConsumerWidget {
                         playlistId: playlistId,
                         playlistName: name,
                         onViewDetails: onTap,
-                        onRename: onRefreshPlaylists,
-                        onDelete: onRefreshPlaylists,
+                        onRename: () =>
+                            _showRenameDialog(context, ref, name, playlistId),
+                        onDelete: () =>
+                            _showDeleteDialog(context, ref, name, playlistId),
                       );
                     },
                   ),

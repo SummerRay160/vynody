@@ -1083,6 +1083,8 @@ class _RemoteLibraryPageState extends ConsumerState<RemoteLibraryPage>
             selectedPlaylistIds: _selectedPlaylistIds,
             onClearSelection: _cancelSelection,
             onReloadPlaylists: () => _loadPlaylists(forceRefresh: true),
+            context: context,
+            ref: ref,
           );
       panelDeleteLabel = l10n.deletePlaylist;
     } else if (_isSongSelectionMode) {

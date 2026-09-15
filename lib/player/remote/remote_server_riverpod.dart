@@ -296,6 +296,7 @@ class ActiveRemoteSession {
     String? navidromeSelectedArtistId,
     List<Map<String, dynamic>>? navidromePlaylists,
     String? navidromeSelectedPlaylistId,
+    bool clearSelectedPlaylistId = false,
     String? navidromePlaylistSearchQuery,
     Map<String, NavidromePlaylistCache>? navidromePlaylistDetailsCache,
     String? navidromeSearchQuery,
@@ -327,8 +328,9 @@ class ActiveRemoteSession {
       navidromeSelectedArtistId:
           navidromeSelectedArtistId ?? this.navidromeSelectedArtistId,
       navidromePlaylists: navidromePlaylists ?? this.navidromePlaylists,
-      navidromeSelectedPlaylistId:
-          navidromeSelectedPlaylistId ?? this.navidromeSelectedPlaylistId,
+      navidromeSelectedPlaylistId: clearSelectedPlaylistId
+          ? null
+          : (navidromeSelectedPlaylistId ?? this.navidromeSelectedPlaylistId),
       navidromePlaylistSearchQuery:
           navidromePlaylistSearchQuery ?? this.navidromePlaylistSearchQuery,
       navidromePlaylistDetailsCache:
@@ -472,6 +474,24 @@ class ActiveRemoteSessionNotifier extends Notifier<ActiveRemoteSession?> {
       );
       newCache.remove(playlistId);
       state = state!.copyWith(navidromePlaylistDetailsCache: newCache);
+    }
+  }
+
+  void removeNavidromePlaylist(String playlistId) {
+    if (state != null) {
+      final newPlaylists = state!.navidromePlaylists
+          ?.where((p) => p['id'] != playlistId)
+          .toList();
+      final newCache = Map<String, NavidromePlaylistCache>.from(
+        state!.navidromePlaylistDetailsCache,
+      );
+      newCache.remove(playlistId);
+      state = state!.copyWith(
+        navidromePlaylists: newPlaylists,
+        navidromePlaylistDetailsCache: newCache,
+        clearSelectedPlaylistId:
+            state!.navidromeSelectedPlaylistId == playlistId,
+      );
     }
   }
 

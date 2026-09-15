@@ -641,13 +641,27 @@ class _RemotePlaylistDetailContentState
                     activeSession.server.id == widget.server.id) {
                   ref
                       .read(activeRemoteSessionProvider.notifier)
-                      .removeNavidromePlaylistDetail(widget.playlistId);
+                      .removeNavidromePlaylist(widget.playlistId);
                 }
                 showToast(l10n.playlistDeleted);
                 widget.onPlaylistModified?.call();
                 widget.onDeleted?.call();
               } else {
-                showToast(l10n.deletePlaylistFailed);
+                if (mounted) {
+                  final isZh = l10n.localeName.startsWith('zh');
+                  final permHint = widget.server.type == RemoteServerType.jellyfin
+                      ? (isZh
+                          ? '（请检查 Jellyfin 用户是否开启“允许删除媒体”权限）'
+                          : ' (Please check Jellyfin "Allow media deletion" permission)')
+                      : '';
+                  AppSnackBar.show(
+                    context,
+                    ref,
+                    SnackBar(
+                      content: Text('${l10n.deletePlaylistFailed}$permHint'),
+                    ),
+                  );
+                }
               }
             },
             child: Text(l10n.delete, style: const TextStyle(color: Colors.redAccent)),

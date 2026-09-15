@@ -916,7 +916,18 @@ class JellyfinClient {
         ),
       );
       return true;
-    } catch (_) {
+    } catch (e) {
+      if (e is DioException) {
+        final statusCode = e.response?.statusCode;
+        debugPrint(
+            '[Jellyfin] Error deleting playlist $playlistId: status $statusCode, body: ${e.response?.data}');
+        if (statusCode == 403) {
+          debugPrint(
+              '[Jellyfin] Permission denied: Current user may lack "Allow media deletion" permission in Jellyfin dashboard.');
+        }
+      } else {
+        debugPrint('[Jellyfin] Error deleting playlist $playlistId: $e');
+      }
       return false;
     }
   }

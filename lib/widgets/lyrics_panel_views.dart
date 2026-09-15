@@ -12,7 +12,6 @@ import 'package:vynody/player/audio/audio_riverpod.dart';
 import '../l10n/app_localizations.dart';
 import 'package:vynody/player/lyrics/lyrics_controller_state.dart';
 import 'package:vynody/player/settings/settings_service.dart';
-import 'package:vynody/utils/app_log.dart';
 import 'playback_ui_tuning.dart';
 
 class LyricsPanelEmptyState extends StatelessWidget {
