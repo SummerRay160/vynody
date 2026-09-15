@@ -867,6 +867,8 @@
   "openSettingsButton": "Ayarları Aç",
   "closeButton": "Kapat",
   "copyTranslationResults": "Çeviri sonuçlarını kopyala",
+  "copyTranslation": "Çeviriyi kopyala",
+  "copyTranslationWithTimestamps": "Zaman damgalarıyla çeviriyi kopyala",
   "writeLyricsToFile": "Sözleri dosyaya yaz",
   "selectLyricSource": "Söz kaynağını seçin",
   "regenerateLyrics": "Şarkı Sözlerini Yeniden Oluştur",

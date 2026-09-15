@@ -789,6 +789,8 @@
   "openSettingsButton": "Einstellungen öffnen",
   "closeButton": "Schließen",
   "copyTranslationResults": "Übersetzungsergebnisse kopieren",
+  "copyTranslation": "Übersetzung kopieren",
+  "copyTranslationWithTimestamps": "Übersetzung mit Zeitstempeln kopieren",
   "writeLyricsToFile": "Songtexte in Datei schreiben",
   "selectLyricSource": "Songtext-Quelle auswählen",
   "regenerateLyrics": "Songtext neu generieren",

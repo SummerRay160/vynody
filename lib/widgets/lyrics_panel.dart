@@ -14,8 +14,10 @@ import 'package:oktoast/oktoast.dart';
 import 'package:vynody/models/lyric_line.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/models/music_lyric.dart';
+import 'package:vynody/models/music_lyric_translation.dart';
 import '../l10n/app_localizations.dart';
 import '../dialogs/ai_guide_dialog.dart';
+import '../dialogs/copy_translation_dialog.dart';
 import '../dialogs/lyrics_model_recommendation_dialog.dart';
 import '../dialogs/manual_lyrics_dialog.dart';
 import '../dialogs/online_lyrics_search_dialog.dart';
@@ -662,8 +664,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
         ),
       if (!requeryOnly && hasTranslation)
         buildContextMenuItem<String>(
-          value: 'copy_translation',
-          enabled: true,
+          value: 'copy_translation_results',
           label: l10n.copyTranslationResults,
           icon: Icons.copy_rounded,
           context: context,
@@ -901,13 +902,13 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
           _showGenerationErrorSnack(errorMessage);
         }
       }
-    } else if (selected == 'copy_translation') {
-      if (hasTranslation) {
-        final copyText = translation.translatedLines.isNotEmpty
-            ? translation.translatedLines.join('\n').trim()
-            : translation.translatedText.trim();
-        await Clipboard.setData(ClipboardData(text: copyText));
-        showToast(l10n.translationCopiedToClipboard);
+    } else if (selected == 'copy_translation_results') {
+      if (translation != null) {
+        await _copyTranslationViaDialog(
+          context,
+          translation: translation,
+          displayLines: displayLines,
+        );
       }
     } else if (selected == 'search_online_lyrics') {
       await _searchOnlineLyrics();
@@ -919,15 +920,13 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
       final currentSong = ref.read(audioCurrentMusicProvider);
       if (currentSong != null) {
         final lyricsToSave = _hasTimedLyrics(displayLines)
-            ? displayLines.map((line) {
-                if (!line.isTimed) return line.text;
-                final totalMs = line.timestamp.inMilliseconds;
-                final minutes = totalMs ~/ 60000;
-                final seconds = (totalMs % 60000) ~/ 1000;
-                final centiseconds = (totalMs % 1000) ~/ 10;
-                final timeStr = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}.${centiseconds.toString().padLeft(2, '0')}';
-                return '[$timeStr]${line.text}';
-              }).join('\n')
+            ? displayLines
+                .map(
+                  (line) => line.isTimed
+                      ? '[${_lrcTimestamp(line.timestamp)}]${line.text}'
+                      : line.text,
+                )
+                .join('\n')
             : displayPlainLyrics;
 
         showToast(l10n.writingLyrics);
@@ -1604,6 +1603,43 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
 
   bool _hasTimedLyrics(List<LyricLine> displayLines) {
     return displayLines.any((line) => line.isTimed);
+  }
+
+  static String _lrcTimestamp(Duration timestamp) {
+    final totalMs = timestamp.inMilliseconds;
+    final minutes = totalMs ~/ 60000;
+    final seconds = (totalMs % 60000) ~/ 1000;
+    final centiseconds = (totalMs % 1000) ~/ 10;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}.${centiseconds.toString().padLeft(2, '0')}';
+  }
+
+  /// 复制译文对话框：普通复制与带时间戳复制。
+  /// 译文行与主歌词行按索引对齐，空译文行保留占位以对齐时间轴。
+  Future<void> _copyTranslationViaDialog(
+    BuildContext context, {
+    required MusicLyricTranslation translation,
+    required List<LyricLine> displayLines,
+  }) async {
+    if (!context.mounted) return;
+    final mode = await showCopyTranslationDialog(
+      context,
+      hasTimedLyrics: _hasTimedLyrics(displayLines),
+    );
+    if (!context.mounted || mode == null) return;
+
+    final l10n = AppLocalizations.of(context)!;
+    final translatedLines = translation.translatedLines;
+    final copyText = translatedLines.isNotEmpty
+        ? (mode == CopyTranslationMode.withTimestamps
+              ? List<String>.generate(translatedLines.length, (i) {
+                  final line = i < displayLines.length ? displayLines[i] : null;
+                  if (line == null || !line.isTimed) return translatedLines[i];
+                  return '[${_lrcTimestamp(line.timestamp)}]${translatedLines[i]}';
+                }).join('\n').trim()
+              : translatedLines.join('\n').trim())
+        : translation.translatedText.trim();
+    await Clipboard.setData(ClipboardData(text: copyText));
+    showToast(l10n.translationCopiedToClipboard);
   }
 
   int get _adjustedPositionMilliseconds {

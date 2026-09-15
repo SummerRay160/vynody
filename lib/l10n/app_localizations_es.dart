@@ -2089,6 +2089,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get copyTranslationResults => 'Copiar resultados de traducción';
 
   @override
+  String get copyTranslation => 'Copiar traducción';
+
+  @override
+  String get copyTranslationWithTimestamps =>
+      'Copiar traducción con marcas de tiempo';
+
+  @override
   String get writeLyricsToFile => 'Escribir letras en archivo';
 
   @override

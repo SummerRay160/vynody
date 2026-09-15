@@ -2060,6 +2060,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copyTranslationResults => 'Copy translation results';
 
   @override
+  String get copyTranslation => 'Copy translation';
+
+  @override
+  String get copyTranslationWithTimestamps =>
+      'Copy translation with timestamps';
+
+  @override
   String get writeLyricsToFile => 'Write lyrics to file';
 
   @override

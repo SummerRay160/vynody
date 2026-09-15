@@ -10,6 +10,7 @@ import 'package:vynody/models/music_lyric_translation.dart';
 import 'package:vynody/utils/language_code_utils.dart';
 import 'package:vynody/utils/lrc_utils.dart';
 import 'package:vynody/utils/lyrics_id_utils.dart';
+import 'package:vynody/player/lyrics/lyrics_cache_models.dart';
 import 'package:vynody/player/lyrics/lyrics_controller_context.dart';
 import 'package:vynody/player/lyrics/lyrics_controller_utils.dart';
 import 'package:vynody/player/lyrics/lyrics_generation_phase.dart';
@@ -121,13 +122,24 @@ class LyricsFetchCoordinator {
         final langCode = LanguageCodeUtils.currentAppLanguageCode().isNotEmpty
             ? LanguageCodeUtils.currentAppLanguageCode()
             : 'zh';
-        translationsMap[langCode] = MusicLyricTranslation(
-          languageCode: langCode,
-          translatedLines: parsedResult.translatedLines!,
-          translatedText: parsedResult.translatedLines!.join('\n'),
-          provider: 'embedded_lrc',
-          updatedAt: DateTime.now(),
-        );
+        final existingTranslation = translationsMap[langCode];
+        if (existingTranslation == null || !existingTranslation.hasContent) {
+          translationsMap[langCode] = MusicLyricTranslation(
+            languageCode: langCode,
+            translatedLines: parsedResult.translatedLines!,
+            translatedText: parsedResult.translatedLines!.join('\n'),
+            provider: 'embedded_lrc',
+            updatedAt: DateTime.now(),
+          );
+          // 多段 LRC 解析出的译文必须落库：缓存监视（_syncLyricsCacheWatch）
+          // 只从译文缓存表读取译文，不落库的话同步时会用空译文覆盖上面的内存结果，
+          // 导致播放内嵌双语文词只显示原文一行
+          await _persistEmbeddedTranslationIfAbsent(
+            cacheKey: query.cacheKey,
+            languageCode: langCode,
+            translatedLines: parsedResult.translatedLines!,
+          );
+        }
       }
 
       final updated = _support.replaceCurrentSongIfPath(
@@ -197,6 +209,35 @@ class LyricsFetchCoordinator {
         );
         _context.lyricsFetchCancelToken = null;
       }
+    }
+  }
+
+  /// 将多段 LRC（原文/译文同时间轴）解析出的译文写入译文缓存表。
+  /// 已存在同一语言的译文记录时不覆盖，避免冲掉 AI 翻译等其他来源的结果。
+  Future<void> _persistEmbeddedTranslationIfAbsent({
+    required String cacheKey,
+    required String languageCode,
+    required List<String> translatedLines,
+  }) async {
+    if (cacheKey.isEmpty) return;
+    try {
+      final existing = await _context.lyricsCacheRepository
+          .getLyricsTranslationCaches(cacheKey);
+      if (existing.any((record) => record.languageCode == languageCode)) {
+        return;
+      }
+      await _context.lyricsCacheRepository.saveLyricsTranslationCache(
+        LyricsTranslationCacheRecord(
+          cacheKey: cacheKey,
+          languageCode: languageCode,
+          translatedText: translatedLines.join('\n'),
+          translatedLines: translatedLines,
+          provider: 'embedded_lrc',
+          updatedAtMillis: DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
+    } catch (e) {
+      debugPrint('[LyricsController] Failed to cache embedded translation: $e');
     }
   }
 

@@ -269,6 +269,18 @@ class LrcUtils {
     }
 
     final remainingContent = line.substring(index);
+    // 纯 "/"、"//" 占位行（双语 LRC 中表示该句无译文）不产生歌词行，
+    // 否则会被误当作行内斜杠译文的分隔符或原样显示成歌词
+    final textWithoutWordTimestamps = remainingContent.replaceAll(
+      _timestampLinePattern,
+      '',
+    );
+    if (textWithoutWordTimestamps.trim().isNotEmpty &&
+        textWithoutWordTimestamps
+            .replaceAll(RegExp(r'[/／\s]'), '')
+            .isEmpty) {
+      return;
+    }
     final wordMatches = _timestampLinePattern.allMatches(remainingContent).toList();
 
     final effectiveTimestamps = <Duration>[];
@@ -429,7 +441,9 @@ class LrcUtils {
         if (!isNextCandidate) break;
 
         final gap = next.timestamp - prev.timestamp;
-        if (gap <= Duration.zero || gap > const Duration(milliseconds: 3000)) {
+        // 逐字歌词的词间隔通常在 1 秒内；阈值过宽会把连续的短句
+        // （如四字词语连排的译文行）误当作逐字歌词合并
+        if (gap <= Duration.zero || gap > const Duration(milliseconds: 1200)) {
           break;
         }
 

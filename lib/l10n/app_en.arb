@@ -797,6 +797,8 @@
   "openSettingsButton": "Open Settings",
   "closeButton": "Close",
   "copyTranslationResults": "Copy translation results",
+  "copyTranslation": "Copy translation",
+  "copyTranslationWithTimestamps": "Copy translation with timestamps",
   "writeLyricsToFile": "Write lyrics to file",
   "selectLyricSource": "Select lyric source",
   "regenerateLyrics": "Regenerate Lyrics",
