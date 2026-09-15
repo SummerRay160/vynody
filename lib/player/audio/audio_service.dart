@@ -79,6 +79,7 @@ class AudioService extends Notifier<AudioSnapshot> {
   ScannerService? _scannerService;
   PlaylistService? _playlistService;
   void Function({required bool skipped})? _missingSongNoticeHandler;
+  void Function(String message)? _remotePlaybackErrorHandler;
   bool _isLyricsActive = false;
   Timer? _sleepTimer;
   DateTime? _sleepTimerEndAt;
@@ -179,10 +180,14 @@ class AudioService extends Notifier<AudioSnapshot> {
       if (RemoteMediaResolver.isRemoteUri(rawUri)) {
         try {
           final storage = await ref.read(remoteServerStorageProvider.future);
-          final resolver = RemoteMediaResolver(storage: storage);
+          final resolver = RemoteMediaResolver(
+            storage: storage,
+            cacheManager: _player.streamCacheManager,
+          );
           return await resolver.resolvePlayableSource(rawUri);
         } catch (e) {
           debugPrint('[AudioService] Custom URI resolver error: $e');
+          throw StateError('Failed to resolve remote audio source ($e): $rawUri');
         }
       }
       return rawUri;
@@ -420,11 +425,17 @@ class AudioService extends Notifier<AudioSnapshot> {
           await PlaybackSessionManager.resolveRestoredQueueIndex(session);
       if (restoredIndex >= 0) {
         _currentIndex = restoredIndex;
-        await _player.playlist.setActivePlaylist(
-          _player.playlist.queuePlaylistId,
-          startIndex: restoredIndex,
-          autoPlay: false,
-        );
+        try {
+          await _player.playlist.setActivePlaylist(
+            _player.playlist.queuePlaylistId,
+            startIndex: restoredIndex,
+            autoPlay: false,
+          );
+        } catch (e) {
+          debugPrint(
+            'AudioService: setActivePlaylist during restore failed (offline/unreachable): $e',
+          );
+        }
 
         await _restoreCurrentThemeColors();
         unawaited(_refreshCurrentWaveform());
@@ -438,7 +449,8 @@ class AudioService extends Notifier<AudioSnapshot> {
         final restorePosition = Duration(
           milliseconds: session.positionMs.clamp(0, safeMaxMs).toInt(),
         );
-        if (restorePosition > Duration.zero) {
+        if (restorePosition > Duration.zero &&
+            _player.player.currentState != PlayerState.error) {
           await seek(restorePosition);
         }
 
@@ -677,8 +689,18 @@ class AudioService extends Notifier<AudioSnapshot> {
     _missingSongNoticeHandler = handler;
   }
 
+  void setRemotePlaybackErrorHandler(
+    void Function(String message)? handler,
+  ) {
+    _remotePlaybackErrorHandler = handler;
+  }
+
   void _showMissingSongNotice({required bool skipped}) {
     _missingSongNoticeHandler?.call(skipped: skipped);
+  }
+
+  void _showRemotePlaybackError(String message) {
+    _remotePlaybackErrorHandler?.call(message);
   }
 
   Future<bool> _songExists(String path) async {
@@ -1169,6 +1191,11 @@ class AudioService extends Notifier<AudioSnapshot> {
       if (_lastReportedPlayerError != errKey) {
         _lastReportedPlayerError = errKey;
         debugPrint('[AudioService] Playback error state detected for track ${currentMusic?.title} (${currentMusic?.path}): $err');
+        if (_playbackSessionReady &&
+            currentMusic != null &&
+            RemoteMediaResolver.isRemoteUri(currentMusic!.path)) {
+          _showRemotePlaybackError('无法连接到媒体库服务器，请检查服务是否开启');
+        }
       }
     } else {
       _lastReportedPlayerError = null;

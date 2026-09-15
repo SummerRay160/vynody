@@ -257,6 +257,18 @@ class RemoteMediaResolver {
       return ResolvedAudioUri(uri: remoteUri);
     }
 
+    final cacheKey = '${info.serverId}:${info.trackIdOrPath}';
+    if (await cacheManager.isTrackCached(cacheKey)) {
+      final cachedFile = await cacheManager.getCacheFile(cacheKey);
+      if (await cachedFile.exists() && await cachedFile.length() > 0) {
+        await cacheManager.touchCacheFile(cachedFile);
+        return ResolvedAudioUri(
+          uri: cachedFile.path,
+          cacheKey: cacheKey,
+        );
+      }
+    }
+
     final servers = storage.loadServers();
     final server = servers.firstWhere(
       (s) => s.id == info.serverId,

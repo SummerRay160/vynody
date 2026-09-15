@@ -159,7 +159,8 @@ class PlaybackQueueProcessor {
       // Cache Phase: Ensure current and upcoming remote audio tracks are cached locally
       if (currentFilePath != null &&
           currentIndex != -1 &&
-          remoteMediaResolverGetter != null) {
+          remoteMediaResolverGetter != null &&
+          settingsService.remotePrefetchCount > 0) {
         unawaited(() async {
           if (currentIndex < playlist.length) {
             final currentSong = playlist[currentIndex];

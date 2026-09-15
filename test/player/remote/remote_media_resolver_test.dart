@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:audio_core/audio_core.dart';
 import 'package:vynody/player/remote/remote_server_models.dart';
 import 'package:vynody/player/remote/remote_server_storage.dart';
 import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
@@ -178,5 +179,28 @@ void main() {
     expect(normalized['year'], 2011);
     expect(normalized['isFavorite'], isTrue);
     expect(normalized['starred'], isNotNull);
+  });
+
+  test('RemoteMediaResolver hits local stream cache first without network call', () async {
+    final tempDir = await Directory.systemTemp.createTemp('resolver_cache_test_');
+    try {
+      final cacheManager = AudioStreamCacheManager(customCacheDirectory: tempDir);
+      final testResolver = RemoteMediaResolver(storage: storage, cacheManager: cacheManager);
+
+      // Pre-seed a cache file for a Jellyfin track
+      final cacheKey = 'jellyfin_test:item_cached';
+      final cacheFile = await cacheManager.getCacheFile(cacheKey);
+      await cacheFile.writeAsString('fake audio stream content');
+
+      // Resolve the cached URI - should return cached file path immediately without authenticating
+      final resolved = await testResolver.resolvePlayableSource('jellyfin://jellyfin_test/item_cached');
+      expect(resolved.uri, cacheFile.path);
+      expect(resolved.cacheKey, cacheKey);
+      expect(File(resolved.uri).existsSync(), isTrue);
+    } finally {
+      if (await tempDir.exists()) {
+        await tempDir.delete(recursive: true);
+      }
+    }
   });
 }

@@ -331,6 +331,14 @@ class _MainLayoutState extends ConsumerState<MainLayout>
       if (!mounted) return;
       showDeletedSongSnack(context, ref, skipped: skipped);
     });
+    _audioService.setRemotePlaybackErrorHandler((message) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      final text = message.isNotEmpty
+          ? message
+          : (l10n?.remoteConnectFailed ?? '无法连接到媒体库服务器');
+      AppSnackBar.show(context, ref, SnackBar(content: Text(text)));
+    });
   }
 
   @override
@@ -397,6 +405,7 @@ class _MainLayoutState extends ConsumerState<MainLayout>
       windowManager.removeListener(this);
     }
     _audioService.setMissingSongNoticeHandler(null);
+    _audioService.setRemotePlaybackErrorHandler(null);
     super.dispose();
   }
 
