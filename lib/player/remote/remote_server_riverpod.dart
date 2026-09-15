@@ -463,7 +463,68 @@ class ActiveRemoteSessionNotifier extends Notifier<ActiveRemoteSession?> {
         tracks: tracks,
         starredSongIds: starredSongIds,
       );
-      state = state!.copyWith(navidromePlaylistDetailsCache: newCache);
+      List<Map<String, dynamic>>? newPlaylists = state!.navidromePlaylists;
+      if (newPlaylists != null) {
+        newPlaylists = newPlaylists.map((p) {
+          if (p['id']?.toString() == playlistId.toString()) {
+            final updated = Map<String, dynamic>.from(p);
+            updated['songCount'] = tracks.length;
+            if (playlistData['name'] != null) {
+              updated['name'] = playlistData['name'];
+            }
+            if (playlistData['duration'] != null) {
+              updated['duration'] = playlistData['duration'];
+            }
+            return updated;
+          }
+          return p;
+        }).toList();
+      }
+      state = state!.copyWith(
+        navidromePlaylistDetailsCache: newCache,
+        navidromePlaylists: newPlaylists,
+      );
+    }
+  }
+
+  void addNavidromePlaylist(Map<String, dynamic> playlist) {
+    if (state != null) {
+      final current = state!.navidromePlaylists ?? [];
+      final playlistId = playlist['id']?.toString();
+      final exists = current.any((p) => p['id']?.toString() == playlistId);
+      final newPlaylists = exists
+          ? current
+              .map((p) => p['id']?.toString() == playlistId ? playlist : p)
+              .toList()
+          : [playlist, ...current];
+      state = state!.copyWith(navidromePlaylists: newPlaylists);
+    }
+  }
+
+  void updateNavidromePlaylistSummary(
+    String playlistId, {
+    String? name,
+    int? songCount,
+    int? songCountDelta,
+    int? duration,
+  }) {
+    if (state != null && state!.navidromePlaylists != null) {
+      final updated = state!.navidromePlaylists!.map((p) {
+        if (p['id']?.toString() == playlistId) {
+          final map = Map<String, dynamic>.from(p);
+          if (name != null) map['name'] = name;
+          if (songCount != null) {
+            map['songCount'] = songCount;
+          } else if (songCountDelta != null) {
+            final currentCount = (map['songCount'] as num?)?.toInt() ?? 0;
+            map['songCount'] = (currentCount + songCountDelta).clamp(0, 999999);
+          }
+          if (duration != null) map['duration'] = duration;
+          return map;
+        }
+        return p;
+      }).toList();
+      state = state!.copyWith(navidromePlaylists: updated);
     }
   }
 
@@ -475,6 +536,10 @@ class ActiveRemoteSessionNotifier extends Notifier<ActiveRemoteSession?> {
       newCache.remove(playlistId);
       state = state!.copyWith(navidromePlaylistDetailsCache: newCache);
     }
+  }
+
+  void invalidateNavidromePlaylistDetail(String playlistId) {
+    removeNavidromePlaylistDetail(playlistId);
   }
 
   void removeNavidromePlaylist(String playlistId) {

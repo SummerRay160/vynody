@@ -211,11 +211,10 @@ class RemoteLibraryPlaylistsView extends ConsumerWidget {
         final isLandscape =
             constraints.maxWidth >= 750 && playlists.isNotEmpty;
 
-        final selectedPlaylist = playlists.firstWhere(
-          (pl) => pl['id'] == selectedPlaylistId,
-          orElse: () =>
-              playlists.isNotEmpty ? playlists.first : const {},
-        );
+        final selectedPlaylist = playlists
+                .where((pl) => pl['id'] == selectedPlaylistId)
+                .firstOrNull ??
+            (playlists.isNotEmpty ? playlists.first : const <String, dynamic>{});
 
         if (isLandscape) {
           // Master-Detail Split View for Playlists (Desktop/Landscape)
@@ -570,14 +569,42 @@ class RemoteLibraryPlaylistItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final name = playlist['name'] as String? ?? l10n.playlist;
-    final songCount = playlist['songCount'] as int? ?? 0;
-    final durationSec = playlist['duration'] as int? ?? 0;
-    final durationMin = durationSec ~/ 60;
-    final coverArt = playlist['coverArt'] as String?;
     final playlistId = playlist['id'] as String? ?? '';
     final isStarredItem =
         playlist['isStarred'] == true || playlistId == starredPlaylistId;
+
+    final session = ref.watch(activeRemoteSessionProvider);
+    final isCurrentServer = session != null && session.server.id == server.id;
+
+    final cachedDetail = isCurrentServer
+        ? session.navidromePlaylistDetailsCache[playlistId]
+        : null;
+
+    final sessionPlaylist = isCurrentServer
+        ? session.navidromePlaylists
+            ?.where((p) => p['id']?.toString() == playlistId)
+            .firstOrNull
+        : null;
+
+    final name = (sessionPlaylist != null && sessionPlaylist['name'] != null)
+        ? (sessionPlaylist['name'] as String)
+        : (playlist['name'] as String? ?? l10n.playlist);
+
+    final songCount = isStarredItem
+        ? (session?.navidromeStarredSongIds?.length ??
+            (playlist['songCount'] as int? ?? 0))
+        : (cachedDetail != null
+            ? cachedDetail.tracks.length
+            : (sessionPlaylist != null && sessionPlaylist['songCount'] != null
+                ? (sessionPlaylist['songCount'] as int? ?? 0)
+                : (playlist['songCount'] as int? ?? 0)));
+
+    final durationSec = (sessionPlaylist != null &&
+            sessionPlaylist['duration'] != null)
+        ? (sessionPlaylist['duration'] as int? ?? 0)
+        : (playlist['duration'] as int? ?? 0);
+    final durationMin = durationSec ~/ 60;
+    final coverArt = playlist['coverArt'] as String?;
 
     final backgroundColor = isSelectionMode && isMultiSelected
         ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)

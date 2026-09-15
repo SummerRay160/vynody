@@ -168,6 +168,15 @@ class _RemotePlaylistDetailContentState
   final Set<String> _starredSongIds = {};
   String? _highlightedSongPath;
   Timer? _highlightTimer;
+  bool _isRevalidating = false;
+
+  bool _tracksEqual(List<MusicFile> a, List<MusicFile> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i].path != b[i].path) return false;
+    }
+    return true;
+  }
 
   Future<void> _deleteSelectedSongs() async {
     final selectedIndices = <int>[];
@@ -208,6 +217,12 @@ class _RemotePlaylistDetailContentState
               playlistData: _playlistData!,
               tracks: _tracks,
               starredSongIds: _starredSongIds,
+            );
+        ref
+            .read(activeRemoteSessionProvider.notifier)
+            .updateNavidromePlaylistSummary(
+              widget.playlistId,
+              songCount: _tracks.length,
             );
       }
       widget.onPlaylistModified?.call();
@@ -322,6 +337,7 @@ class _RemotePlaylistDetailContentState
             _scrollToTrack(targetPath);
           });
         }
+        _revalidatePlaylistDetails();
         return;
       }
     }
@@ -381,6 +397,13 @@ class _RemotePlaylistDetailContentState
                   playlistData: data,
                   tracks: parsedTracks,
                   starredSongIds: starred,
+                );
+            ref
+                .read(activeRemoteSessionProvider.notifier)
+                .updateNavidromePlaylistSummary(
+                  widget.playlistId,
+                  songCount: parsedTracks.length,
+                  duration: totalDur,
                 );
           }
         });
@@ -446,6 +469,14 @@ class _RemotePlaylistDetailContentState
                 tracks: parsedTracks,
                 starredSongIds: starred,
               );
+          ref
+              .read(activeRemoteSessionProvider.notifier)
+              .updateNavidromePlaylistSummary(
+                widget.playlistId,
+                name: pl['name'] as String? ?? widget.playlistName,
+                songCount: parsedTracks.length,
+                duration: pl['duration'] as int?,
+              );
         }
       });
     } catch (e) {
@@ -454,6 +485,143 @@ class _RemotePlaylistDetailContentState
         _error = e.toString();
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _revalidatePlaylistDetails() async {
+    if (_isRevalidating || !mounted) return;
+    _isRevalidating = true;
+    try {
+      final client = RemoteMediaLibraryClient.create(
+        server: widget.server,
+        password: widget.password,
+      );
+
+      if (_isStarredView) {
+        final songList = await client.getStarredSongs();
+        final List<MusicFile> parsedTracks = [];
+        final Set<String> starred = {};
+        int totalDur = 0;
+
+        for (final item in songList) {
+          final song = client.buildMusicFile(item);
+          parsedTracks.add(song);
+          final trackId = item['id']?.toString() ?? song.id.toString();
+          starred.add(trackId);
+          if (item['duration'] is int) {
+            totalDur += item['duration'] as int;
+          }
+        }
+
+        if (!mounted) return;
+        final data = {
+          'name': widget.playlistName,
+          'songCount': parsedTracks.length,
+          'duration': totalDur,
+        };
+
+        final tracksChanged = !_tracksEqual(_tracks, parsedTracks);
+        final starredChanged = _starredSongIds.length != starred.length ||
+            !_starredSongIds.containsAll(starred);
+
+        if (tracksChanged || starredChanged) {
+          if (!isSelectionMode) {
+            setState(() {
+              _playlistData = data;
+              _tracks = parsedTracks;
+              _starredSongIds
+                ..clear()
+                ..addAll(starred);
+            });
+          }
+          final activeSession = ref.read(activeRemoteSessionProvider);
+          if (activeSession != null &&
+              activeSession.server.id == widget.server.id) {
+            ref
+                .read(activeRemoteSessionProvider.notifier)
+                .updateNavidromePlaylistDetail(
+                  playlistId: widget.playlistId,
+                  playlistData: data,
+                  tracks: parsedTracks,
+                  starredSongIds: starred,
+                );
+            ref
+                .read(activeRemoteSessionProvider.notifier)
+                .updateNavidromePlaylistSummary(
+                  widget.playlistId,
+                  songCount: parsedTracks.length,
+                  duration: totalDur,
+                );
+          }
+          widget.onPlaylistModified?.call();
+        }
+        return;
+      }
+
+      final pl = await client.getPlaylist(widget.playlistId);
+      if (pl == null || !mounted) return;
+
+      final songList = pl['entry'] as List?;
+      final List<MusicFile> parsedTracks = [];
+      final Set<String> starred = {};
+
+      if (songList != null) {
+        for (final item in songList) {
+          if (item is Map<String, dynamic>) {
+            final song = client.buildMusicFile(item);
+            parsedTracks.add(song);
+            if (item['starred'] != null) {
+              final trackId = item['id']?.toString() ?? song.id.toString();
+              starred.add(trackId);
+            }
+          }
+        }
+      }
+
+      if (!mounted) return;
+      final newName = pl['name'] as String? ?? widget.playlistName;
+      final tracksChanged = !_tracksEqual(_tracks, parsedTracks);
+      final nameChanged = _currentName != newName;
+      final starredChanged = _starredSongIds.length != starred.length ||
+          !_starredSongIds.containsAll(starred);
+
+      if (tracksChanged || nameChanged || starredChanged) {
+        if (!isSelectionMode) {
+          setState(() {
+            _playlistData = pl;
+            _currentName = newName;
+            _tracks = parsedTracks;
+            _starredSongIds
+              ..clear()
+              ..addAll(starred);
+          });
+        }
+        final activeSession = ref.read(activeRemoteSessionProvider);
+        if (activeSession != null &&
+            activeSession.server.id == widget.server.id) {
+          ref
+              .read(activeRemoteSessionProvider.notifier)
+              .updateNavidromePlaylistDetail(
+                playlistId: widget.playlistId,
+                playlistData: pl,
+                tracks: parsedTracks,
+                starredSongIds: starred,
+              );
+          ref
+              .read(activeRemoteSessionProvider.notifier)
+              .updateNavidromePlaylistSummary(
+                widget.playlistId,
+                name: newName,
+                songCount: parsedTracks.length,
+                duration: pl['duration'] as int?,
+              );
+        }
+        widget.onPlaylistModified?.call();
+      }
+    } catch (_) {
+      // Revalidation silently catches network errors
+    } finally {
+      _isRevalidating = false;
     }
   }
 
@@ -540,6 +708,12 @@ class _RemotePlaylistDetailContentState
               tracks: _tracks,
               starredSongIds: _starredSongIds,
             );
+        ref
+            .read(activeRemoteSessionProvider.notifier)
+            .updateNavidromePlaylistSummary(
+              widget.playlistId,
+              songCount: _tracks.length,
+            );
       }
       widget.onPlaylistModified?.call();
       showToast(l10n.removedFromPlaylistSuccess(songToRemove.displayName));
@@ -599,6 +773,12 @@ class _RemotePlaylistDetailContentState
                           playlistData: _playlistData!,
                           tracks: _tracks,
                           starredSongIds: _starredSongIds,
+                        );
+                    ref
+                        .read(activeRemoteSessionProvider.notifier)
+                        .updateNavidromePlaylistSummary(
+                          widget.playlistId,
+                          name: newName,
                         );
                   }
                   widget.onPlaylistModified?.call();

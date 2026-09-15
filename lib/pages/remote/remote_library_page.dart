@@ -432,16 +432,29 @@ class _RemoteLibraryPageState extends ConsumerState<RemoteLibraryPage>
 
   List<Map<String, dynamic>> _getFilteredPlaylists() {
     final l10n = AppLocalizations.of(context)!;
+    final session = ref.read(activeRemoteSessionProvider);
+    final isCurrentServer =
+        session != null && session.server.id == widget.server.id;
+
+    final starredCount = isCurrentServer
+        ? (session.navidromeStarredSongIds?.length ?? _starredSongIds.length)
+        : _starredSongIds.length;
+
+    final sourcePlaylists =
+        (isCurrentServer && session.navidromePlaylists != null)
+            ? session.navidromePlaylists!
+            : _playlists;
+
     final allPlaylists = <Map<String, dynamic>>[
       {
         'id': _starredPlaylistId,
         'name': l10n.starredSongs,
-        'songCount': 0,
+        'songCount': starredCount,
         'duration': 0,
         'coverArt': null,
         'isStarred': true,
       },
-      ..._playlists,
+      ...sourcePlaylists,
     ];
     return allPlaylists.where((pl) {
       if (_playlistSearchQuery.isEmpty) return true;
@@ -852,6 +865,35 @@ class _RemoteLibraryPageState extends ConsumerState<RemoteLibraryPage>
     }
   }
 
+  bool _isRevalidatingPlaylists = false;
+
+  Future<void> _revalidatePlaylists() async {
+    if (_isRevalidatingPlaylists || !mounted) return;
+    _isRevalidatingPlaylists = true;
+    try {
+      final list = await _client.getPlaylists();
+      if (!mounted) return;
+      if (!_isPlaylistSelectionMode) {
+        setState(() {
+          _playlists = list;
+        });
+      }
+      final session = ref.read(activeRemoteSessionProvider);
+      if (session != null && session.server.id == widget.server.id) {
+        ref
+            .read(activeRemoteSessionProvider.notifier)
+            .updateNavidromePlaylists(
+              playlists: list,
+              selectedPlaylistId: _selectedPlaylistId,
+            );
+      }
+    } catch (_) {
+      // Ignore background revalidation error
+    } finally {
+      _isRevalidatingPlaylists = false;
+    }
+  }
+
   Future<void> _loadPlaylists({bool forceRefresh = false}) async {
     final session = ref.read(activeRemoteSessionProvider);
     final isSameServer =
@@ -866,6 +908,7 @@ class _RemoteLibraryPageState extends ConsumerState<RemoteLibraryPage>
         _playlistsError = null;
         _connectionError = null;
       });
+      _revalidatePlaylists();
       return;
     }
 
@@ -1028,6 +1071,12 @@ class _RemoteLibraryPageState extends ConsumerState<RemoteLibraryPage>
             _starredArtistIds
               ..clear()
               ..addAll(nextStarred);
+          });
+        }
+        final nextPlaylists = next.navidromePlaylists;
+        if (nextPlaylists != null && nextPlaylists != _playlists) {
+          setState(() {
+            _playlists = nextPlaylists;
           });
         }
       }

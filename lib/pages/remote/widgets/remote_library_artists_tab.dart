@@ -189,10 +189,10 @@ class RemoteLibraryArtistsView extends ConsumerWidget {
       builder: (context, constraints) {
         final isLandscape = constraints.maxWidth >= 750;
 
-        final selectedArtist = artists.firstWhere(
-          (a) => a['id'] == selectedArtistId,
-          orElse: () => artists.isNotEmpty ? artists.first : const {},
-        );
+        final selectedArtist = artists
+                .where((a) => a['id'] == selectedArtistId)
+                .firstOrNull ??
+            (artists.isNotEmpty ? artists.first : const <String, dynamic>{});
 
         if (isLandscape && artists.isNotEmpty) {
           // Master-Detail Split View for Desktop / Landscape

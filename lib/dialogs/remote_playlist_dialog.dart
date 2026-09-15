@@ -8,6 +8,7 @@ import '../player/library/playlist_service.dart';
 import '../player/remote/clients/remote_media_library_client.dart';
 import '../player/remote/proxy/remote_media_resolver.dart';
 import '../player/remote/remote_server_models.dart';
+import '../player/remote/remote_server_riverpod.dart';
 import '../utils/app_snack_bar.dart';
 import '../utils/playlist_name.dart';
 import '../widgets/remote_artwork_widget.dart';
@@ -132,6 +133,15 @@ class _RemotePlaylistDialogContentState
         songIdsToAdd: widget.songIds,
       );
       if (ok) {
+        final session = widget.ref.read(activeRemoteSessionProvider);
+        if (session != null && session.server.id == widget.client.server.id) {
+          final notifier = widget.ref.read(activeRemoteSessionProvider.notifier);
+          notifier.removeNavidromePlaylistDetail(playlistId);
+          notifier.updateNavidromePlaylistSummary(
+            playlistId,
+            songCountDelta: widget.songIds.length,
+          );
+        }
         showToast(
           widget.l10n.addedTracksToPlaylistSuccess(
             widget.songs.length,
@@ -209,6 +219,11 @@ class _RemotePlaylistDialogContentState
                   songIds: widget.songIds,
                 );
                 if (created != null) {
+                  final session = widget.ref.read(activeRemoteSessionProvider);
+                  if (session != null && session.server.id == widget.client.server.id) {
+                    final notifier = widget.ref.read(activeRemoteSessionProvider.notifier);
+                    notifier.addNavidromePlaylist(created);
+                  }
                   showToast(
                     widget.l10n.createdPlaylistWithTracksSuccess(
                       name,
