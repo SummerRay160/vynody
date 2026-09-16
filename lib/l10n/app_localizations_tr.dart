@@ -4796,4 +4796,61 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get doNotShowAgain => 'Bir daha gösterme';
+
+  @override
+  String get proxySettingsTitle => '网络代理';
+
+  @override
+  String get proxySettingsDescription => '配置网络请求、封面加载及音频流媒体使用的代理服务器';
+
+  @override
+  String get proxyMode => '代理模式';
+
+  @override
+  String get proxyModeSystem => '跟随系统';
+
+  @override
+  String get proxyModeSystemDesc => '自动读取操作系统配置的网络代理';
+
+  @override
+  String get proxyModeDirect => '直连 (不使用代理)';
+
+  @override
+  String get proxyModeDirectDesc => '直接连接网络，绕过系统代理与外部代理';
+
+  @override
+  String get proxyModeCustom => '自定义代理';
+
+  @override
+  String get proxyModeCustomDesc => '手动指定 HTTP 代理服务器地址与端口';
+
+  @override
+  String get proxyHost => '代理服务器地址';
+
+  @override
+  String get proxyHostHint => '例如 127.0.0.1 或 proxy.example.com';
+
+  @override
+  String get proxyPort => '代理端口';
+
+  @override
+  String get proxyPortHint => '例如 7890';
+
+  @override
+  String get proxyBypass => '绕过代理地址 (白名单)';
+
+  @override
+  String get proxyBypassHint => '以逗号或分号分隔，例如: localhost, 127.0.0.1, <local>';
+
+  @override
+  String get proxyTestConnection => '测试连接';
+
+  @override
+  String get proxyTestSuccess => '代理连接测试成功';
+
+  @override
+  String get proxyTestFailed => '代理连接测试失败';
+
+  @override
+  String get proxyHostPortInvalid => '请输入有效的代理地址和端口';
 }

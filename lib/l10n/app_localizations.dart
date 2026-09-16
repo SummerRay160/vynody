@@ -8481,6 +8481,120 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'以后不再弹出'**
   String get doNotShowAgain;
+
+  /// No description provided for @proxySettingsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'网络代理'**
+  String get proxySettingsTitle;
+
+  /// No description provided for @proxySettingsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'配置网络请求、封面加载及音频流媒体使用的代理服务器'**
+  String get proxySettingsDescription;
+
+  /// No description provided for @proxyMode.
+  ///
+  /// In zh, this message translates to:
+  /// **'代理模式'**
+  String get proxyMode;
+
+  /// No description provided for @proxyModeSystem.
+  ///
+  /// In zh, this message translates to:
+  /// **'跟随系统'**
+  String get proxyModeSystem;
+
+  /// No description provided for @proxyModeSystemDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'自动读取操作系统配置的网络代理'**
+  String get proxyModeSystemDesc;
+
+  /// No description provided for @proxyModeDirect.
+  ///
+  /// In zh, this message translates to:
+  /// **'直连 (不使用代理)'**
+  String get proxyModeDirect;
+
+  /// No description provided for @proxyModeDirectDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'直接连接网络，绕过系统代理与外部代理'**
+  String get proxyModeDirectDesc;
+
+  /// No description provided for @proxyModeCustom.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义代理'**
+  String get proxyModeCustom;
+
+  /// No description provided for @proxyModeCustomDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'手动指定 HTTP 代理服务器地址与端口'**
+  String get proxyModeCustomDesc;
+
+  /// No description provided for @proxyHost.
+  ///
+  /// In zh, this message translates to:
+  /// **'代理服务器地址'**
+  String get proxyHost;
+
+  /// No description provided for @proxyHostHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'例如 127.0.0.1 或 proxy.example.com'**
+  String get proxyHostHint;
+
+  /// No description provided for @proxyPort.
+  ///
+  /// In zh, this message translates to:
+  /// **'代理端口'**
+  String get proxyPort;
+
+  /// No description provided for @proxyPortHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'例如 7890'**
+  String get proxyPortHint;
+
+  /// No description provided for @proxyBypass.
+  ///
+  /// In zh, this message translates to:
+  /// **'绕过代理地址 (白名单)'**
+  String get proxyBypass;
+
+  /// No description provided for @proxyBypassHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'以逗号或分号分隔，例如: localhost, 127.0.0.1, <local>'**
+  String get proxyBypassHint;
+
+  /// No description provided for @proxyTestConnection.
+  ///
+  /// In zh, this message translates to:
+  /// **'测试连接'**
+  String get proxyTestConnection;
+
+  /// No description provided for @proxyTestSuccess.
+  ///
+  /// In zh, this message translates to:
+  /// **'代理连接测试成功'**
+  String get proxyTestSuccess;
+
+  /// No description provided for @proxyTestFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'代理连接测试失败'**
+  String get proxyTestFailed;
+
+  /// No description provided for @proxyHostPortInvalid.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入有效的代理地址和端口'**
+  String get proxyHostPortInvalid;
 }
 
 class _AppLocalizationsDelegate

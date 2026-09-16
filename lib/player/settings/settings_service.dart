@@ -12,7 +12,10 @@ import 'package:vynody/transcode/transcode_models.dart';
 import 'package:vynody/utils/language_code_utils.dart';
 
 import 'package:vynody/player/scanner/scanner_sorting.dart';
+import 'package:vynody/utils/app_proxy_manager.dart';
 import 'package:vynody/utils/localized_text.dart';
+
+export 'package:vynody/utils/app_proxy_manager.dart' show AppProxyMode;
 
 AppLocalizations _l10n() => currentAppL10n;
 
@@ -518,6 +521,13 @@ class SettingsService extends ChangeNotifier {
   static const String _keyPortraitGap = 'visualizer_portrait_gap';
   static const String _keyLandscapeGap = 'visualizer_landscape_gap';
   static const String _keyProgressBarStyle = 'progress_bar_style';
+  static const String _keyProxyMode = 'proxy_mode';
+  static const String _keyProxyCustomHost = 'proxy_custom_host';
+  static const String _keyProxyCustomPort = 'proxy_custom_port';
+  static const String _keyProxyCustomBypass = 'proxy_custom_bypass';
+  static const String defaultProxyCustomHost = '127.0.0.1';
+  static const int defaultProxyCustomPort = 7890;
+  static const String defaultProxyCustomBypass = 'localhost, 127.0.0.1, <local>';
   static const String _keyIsWaveformProgressBarEnabled =
       'waveform_progress_bar_enabled';
   static const String _keyWaveformLongPressSeekSpeed =
@@ -689,6 +699,47 @@ class SettingsService extends ChangeNotifier {
     prefs: _prefs,
     onChanged: notifyListeners,
   );
+
+  late final _proxyModeProperty = SettingProperty<AppProxyMode>(
+    key: _keyProxyMode,
+    defaultValue: AppProxyMode.system,
+    prefs: _prefs,
+    onChanged: _syncProxyToManager,
+    customRead: (prefs, key, def) =>
+        AppProxyMode.fromString(prefs.getString(key)),
+    customWrite: (prefs, key, val) => prefs.setString(key, val.id),
+  );
+
+  late final _proxyCustomHostProperty = SettingProperty<String>(
+    key: _keyProxyCustomHost,
+    defaultValue: defaultProxyCustomHost,
+    prefs: _prefs,
+    onChanged: _syncProxyToManager,
+  );
+
+  late final _proxyCustomPortProperty = SettingProperty<int>(
+    key: _keyProxyCustomPort,
+    defaultValue: defaultProxyCustomPort,
+    prefs: _prefs,
+    onChanged: _syncProxyToManager,
+  );
+
+  late final _proxyCustomBypassProperty = SettingProperty<String>(
+    key: _keyProxyCustomBypass,
+    defaultValue: defaultProxyCustomBypass,
+    prefs: _prefs,
+    onChanged: _syncProxyToManager,
+  );
+
+  void _syncProxyToManager() {
+    AppProxyManager.instance.updateSettings(
+      mode: proxyMode,
+      customHost: proxyCustomHost,
+      customPort: proxyCustomPort,
+      customBypass: proxyCustomBypass,
+    );
+    notifyListeners();
+  }
 
   late final _folderViewModeProperty = SettingProperty<FolderViewMode>(
     key: _keyFolderViewMode,
@@ -1796,10 +1847,25 @@ class SettingsService extends ChangeNotifier {
         _prefs.getString(customProviderNameStorageKey)?.trim() ?? '';
     LocalizedText.overrideLanguageCode =
         _prefs.getString(_keyLocale) ?? 'system';
+    _syncProxyToManager();
   }
 
   final FlutterSecureStorage? _secureStorage;
   final Map<String, String> _secureApiKeys;
+
+  AppProxyMode get proxyMode => _proxyModeProperty.value;
+  set proxyMode(AppProxyMode value) => _proxyModeProperty.value = value;
+
+  String get proxyCustomHost => _proxyCustomHostProperty.value;
+  set proxyCustomHost(String value) =>
+      _proxyCustomHostProperty.value = value.trim();
+
+  int get proxyCustomPort => _proxyCustomPortProperty.value;
+  set proxyCustomPort(int value) => _proxyCustomPortProperty.value = value;
+
+  String get proxyCustomBypass => _proxyCustomBypassProperty.value;
+  set proxyCustomBypass(String value) =>
+      _proxyCustomBypassProperty.value = value.trim();
 
   bool get hasShownOnboarding => _hasShownOnboardingProperty.value;
   set hasShownOnboarding(bool value) =>

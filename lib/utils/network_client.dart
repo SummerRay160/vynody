@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:proxy_getter/proxy_getter.dart';
+import 'app_proxy_manager.dart';
 
 export 'package:dio/dio.dart'
     show Response, Options, DioException, CancelToken, ProgressCallback;
@@ -162,9 +162,6 @@ class NetworkClient {
 class _SystemProxyHttpClientAdapter implements HttpClientAdapter {
   _SystemProxyHttpClientAdapter();
 
-  final Map<String, String> _proxyCache = {};
-  final Map<String, Future<String>> _proxyLookupsInFlight = {};
-  Future<SystemProxy>? _systemProxyFuture;
   bool _closed = false;
 
   @override
@@ -342,128 +339,6 @@ class _SystemProxyHttpClientAdapter implements HttpClientAdapter {
   }
 
   Future<String> _resolveProxyRule(Uri uri) async {
-    final cacheKey = uri.toString();
-    final cached = _proxyCache[cacheKey];
-    if (cached != null) return cached;
-
-    final inFlight = _proxyLookupsInFlight[cacheKey];
-    if (inFlight != null) return inFlight;
-
-    final future = _detectProxyRule(uri).whenComplete(() {
-      _proxyLookupsInFlight.remove(cacheKey);
-    });
-    _proxyLookupsInFlight[cacheKey] = future;
-
-    final rule = await future;
-    _proxyCache[cacheKey] = rule;
-    return rule;
-  }
-
-  Future<String> _detectProxyRule(Uri uri) async {
-    try {
-      if (_supportsSystemProxyPlugin) {
-        final proxy = await _loadSystemProxy();
-        if (proxy != null) {
-          if (!proxy.enable || proxy.host.trim().isEmpty || proxy.port <= 0) {
-            return 'DIRECT';
-          }
-
-          if (_isBypassed(uri, proxy.bypass)) {
-            return 'DIRECT';
-          }
-
-          final proxyAddress = _normalizeProxyAddress(
-            '${proxy.host}:${proxy.port}',
-          );
-          if (proxyAddress.isNotEmpty) {
-            return 'PROXY $proxyAddress; DIRECT';
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('[NetworkClient] system proxy detect failed for $uri: $e');
-    }
-
-    return HttpClient.findProxyFromEnvironment(uri);
-  }
-
-  bool get _supportsSystemProxyPlugin {
-    return Platform.isWindows ||
-        Platform.isMacOS ||
-        Platform.isAndroid ||
-        Platform.isIOS ||
-        Platform.isLinux;
-  }
-
-  Future<SystemProxy?> _loadSystemProxy() async {
-    _systemProxyFuture ??= getSystemProxy();
-    try {
-      return await _systemProxyFuture;
-    } catch (e) {
-      _systemProxyFuture = null;
-      debugPrint('[NetworkClient] failed to load system proxy: $e');
-      return null;
-    }
-  }
-
-  bool _isBypassed(Uri uri, String bypassList) {
-    final host = uri.host.trim().toLowerCase();
-    if (host.isEmpty || bypassList.trim().isEmpty) return false;
-
-    final entries = bypassList
-        .split(RegExp(r'[;,|]'))
-        .map((entry) {
-          return entry.trim().toLowerCase();
-        })
-        .where((entry) => entry.isNotEmpty);
-
-    for (final entry in entries) {
-      if (entry == '<local>' && !host.contains('.')) {
-        return true;
-      }
-      if (_matchesBypassPattern(host, entry)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  bool _matchesBypassPattern(String host, String pattern) {
-    if (pattern == '*') return true;
-
-    if (pattern.startsWith('*.')) {
-      final suffix = pattern.substring(2);
-      return host == suffix || host.endsWith('.$suffix');
-    }
-
-    if (pattern.startsWith('.')) {
-      final suffix = pattern.substring(1);
-      return host == suffix || host.endsWith('.$suffix');
-    }
-
-    if (!pattern.contains('*')) {
-      return host == pattern;
-    }
-
-    final escaped = RegExp.escape(pattern).replaceAll(r'\*', '.*');
-    return RegExp('^$escaped\$').hasMatch(host);
-  }
-
-  String _normalizeProxyAddress(String value) {
-    var text = value.trim();
-    if (text.isEmpty) return '';
-
-    final parsed = Uri.tryParse(text);
-    if (parsed != null && parsed.scheme.isNotEmpty && parsed.host.isNotEmpty) {
-      final port = parsed.hasPort ? parsed.port : null;
-      return port == null ? parsed.host : '${parsed.host}:$port';
-    }
-
-    text = text.replaceFirst(RegExp(r'^[a-zA-Z]+://'), '');
-    text = text.replaceFirst(RegExp(r'^PROXY\s+', caseSensitive: false), '');
-    text = text.replaceFirst(RegExp(r'^SOCKS\s+', caseSensitive: false), '');
-    text = text.replaceFirst(RegExp(r'/$'), '');
-    return text;
+    return AppProxyManager.instance.resolveProxyRule(uri);
   }
 }

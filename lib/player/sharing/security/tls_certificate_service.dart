@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import '../../../utils/app_proxy_manager.dart';
 
 /// Service responsible for generating, persisting, and providing self-signed TLS certificates
 /// and creating Certificate-Pinned HTTP/WebSocket clients for secure local network communication.
@@ -225,7 +226,15 @@ class LanHttpOverrides extends HttpOverrides {
     client.badCertificateCallback = (X509Certificate cert, String host, int port) {
       return TlsCertificateService.verifyCertificate(cert, host, port);
     };
+    client.findProxy = (uri) {
+      return AppProxyManager.instance.resolveProxyRuleSync(uri);
+    };
     return client;
+  }
+
+  @override
+  String findProxyFromEnvironment(Uri url, Map<String, String>? environment) {
+    return AppProxyManager.instance.resolveProxyRuleSync(url);
   }
 }
 

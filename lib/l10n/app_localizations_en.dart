@@ -4780,4 +4780,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get doNotShowAgain => 'Don\'t show again';
+
+  @override
+  String get proxySettingsTitle => 'Network Proxy';
+
+  @override
+  String get proxySettingsDescription =>
+      'Configure proxy server for network requests, artworks, and audio streaming';
+
+  @override
+  String get proxyMode => 'Proxy Mode';
+
+  @override
+  String get proxyModeSystem => 'Follow System';
+
+  @override
+  String get proxyModeSystemDesc =>
+      'Automatically detect operating system proxy settings';
+
+  @override
+  String get proxyModeDirect => 'Direct (No Proxy)';
+
+  @override
+  String get proxyModeDirectDesc =>
+      'Connect directly without routing through any proxy';
+
+  @override
+  String get proxyModeCustom => 'Custom Proxy';
+
+  @override
+  String get proxyModeCustomDesc =>
+      'Manually specify HTTP proxy server address and port';
+
+  @override
+  String get proxyHost => 'Proxy Host';
+
+  @override
+  String get proxyHostHint => 'e.g. 127.0.0.1 or proxy.example.com';
+
+  @override
+  String get proxyPort => 'Proxy Port';
+
+  @override
+  String get proxyPortHint => 'e.g. 7890';
+
+  @override
+  String get proxyBypass => 'Bypass Proxy For';
+
+  @override
+  String get proxyBypassHint =>
+      'Separated by comma or semicolon, e.g. localhost, 127.0.0.1, <local>';
+
+  @override
+  String get proxyTestConnection => 'Test Connection';
+
+  @override
+  String get proxyTestSuccess => 'Proxy connection test succeeded';
+
+  @override
+  String get proxyTestFailed => 'Proxy connection test failed';
+
+  @override
+  String get proxyHostPortInvalid => 'Please enter a valid proxy host and port';
 }

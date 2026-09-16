@@ -143,6 +143,13 @@ final List<SettingSearchItem> settingsSearchRegistry = [
     ),
   ],
   SettingSearchItem(
+    id: 'general.proxy',
+    section: SettingsSection.general,
+    icon: Icons.vpn_lock_rounded,
+    title: (l10n) => l10n.proxySettingsTitle,
+    description: (l10n) => l10n.proxySettingsDescription,
+  ),
+  SettingSearchItem(
     id: 'general.reset_onboarding',
     section: SettingsSection.general,
     icon: Icons.help_outline_rounded,
