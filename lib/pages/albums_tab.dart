@@ -61,6 +61,7 @@ class _AlbumsTabState extends ConsumerState<AlbumsTab>
   String? _lastSearchQuery;
   AlbumSortField? _lastSortField;
   bool? _lastSortAscending;
+  bool? _lastIsShuffledMode;
   List<AlbumSummary>? _cachedFilteredAlbums;
   List<AlbumSummary>? _cachedKnownAlbums;
   List<AlbumSummary>? _cachedUnknownAlbums;
@@ -136,7 +137,8 @@ class _AlbumsTabState extends ConsumerState<AlbumsTab>
         if (!identical(_lastRawAlbums, albums) ||
             _lastSearchQuery != _searchQuery ||
             _lastSortField != _sortField ||
-            _lastSortAscending != _sortAscending) {
+            _lastSortAscending != _sortAscending ||
+            _lastIsShuffledMode != _isShuffledMode) {
           if (_lastSortField != _sortField || _lastSortAscending != _sortAscending) {
             _isShuffledMode = false;
             _shuffledAlbums = null;
@@ -145,6 +147,7 @@ class _AlbumsTabState extends ConsumerState<AlbumsTab>
           _lastSearchQuery = _searchQuery;
           _lastSortField = _sortField;
           _lastSortAscending = _sortAscending;
+          _lastIsShuffledMode = _isShuffledMode;
           _cachedFilteredAlbums = _filterAndSortAlbums(albums);
           _cachedKnownAlbums = _cachedFilteredAlbums!
               .where((album) => !album.isUnknownAlbum)
@@ -477,6 +480,7 @@ class _AlbumsTabState extends ConsumerState<AlbumsTab>
     void doShuffle() {
       setState(() {
         _isShuffledMode = true;
+        _lastIsShuffledMode = true;
         final baseFiltered = _filterAndSortAlbums(albums, ignoreShuffle: true);
         _shuffledAlbums = List<AlbumSummary>.from(baseFiltered)..shuffle();
         _cachedFilteredAlbums = _shuffledAlbums;
