@@ -2455,7 +2455,7 @@ class AudioService extends Notifier<AudioSnapshot> {
   Future<void> _playQueueTracks({
     required List<MusicFile> songs,
     required int startIndex,
-    required bool clearPlayerQueue,
+    bool clearPlayerQueue = true,
     bool startBackgroundProcessing = true,
   }) async {
     if (songs.isEmpty) return;
@@ -2503,6 +2503,7 @@ class AudioService extends Notifier<AudioSnapshot> {
     int? id,
     String? mediaUri,
     bool append = false,
+    int? insertIndex,
   }) async {
     if (!await _songExists(path)) {
       setSongMissingStateByPath(path, true);
@@ -2521,17 +2522,53 @@ class AudioService extends Notifier<AudioSnapshot> {
         id: id,
         mediaUri: mediaUri,
       );
-      if (!append) {
+
+      if (!append || _queue.isEmpty) {
         _queue.clear();
         _currentSource = null;
-      }
+        _queue.add(song);
+        await _playQueueTracks(
+          songs: _queue,
+          startIndex: 0,
+          clearPlayerQueue: true,
+        );
+      } else {
+        final existingIndex = _queue.indexWhere((s) => s.path == song.path);
+        if (existingIndex >= 0) {
+          _currentIndex = existingIndex;
+          await _player.playlist.setActivePlaylist(
+            _player.playlist.queuePlaylistId,
+            startIndex: existingIndex,
+            autoPlay: true,
+          );
+          _position = Duration.zero;
+          _resetPlaybackTrackingForSong(_queue[existingIndex]);
+          await _syncCurrentPlaybackSong(_queue[existingIndex]);
+          await _player.player.setVolume(_volume / 100.0);
+          _startQueueBackgroundProcessing(priorityPath: song.path);
+          return;
+        }
 
-      _queue.add(song);
-      await _playQueueTracks(
-        songs: _queue,
-        startIndex: _queue.length - 1,
-        clearPlayerQueue: !append,
-      );
+        final targetIndex = (insertIndex == null ||
+                insertIndex < 0 ||
+                insertIndex > _queue.length)
+            ? _queue.length
+            : insertIndex;
+
+        _queue.insert(targetIndex, song);
+        _currentIndex = targetIndex;
+
+        await _player.insertAndPlayTrack(
+          _audioTrackForSong(song),
+          index: targetIndex,
+        );
+
+        _position = Duration.zero;
+        _resetPlaybackTrackingForSong(song);
+        await _syncCurrentPlaybackSong(song);
+        await _player.player.setVolume(_volume / 100.0);
+        _startQueueBackgroundProcessing(priorityPath: song.path);
+      }
     } finally {
       _isTransitioning = false;
       notifyListeners();
@@ -2615,7 +2652,7 @@ class AudioService extends Notifier<AudioSnapshot> {
       await _playQueueTracks(
         songs: _queue,
         startIndex: 0,
-        clearPlayerQueue: false,
+        clearPlayerQueue: true,
       );
       unawaited(_persistPlaybackSession());
       return;
