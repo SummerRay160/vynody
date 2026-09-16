@@ -1319,7 +1319,7 @@ class LyricsService {
     if (result.isSynced) {
       buffer.writeln('[Lyrics] synced lyrics:');
       for (final line in result.syncedLines) {
-        buffer.writeln('[${_formatTimestamp(line.timestamp)}] ${line.text}');
+        buffer.writeln('[${LrcUtils.formatLrcTimestamp(line.timestamp)}] ${line.text}');
       }
     } else {
       buffer.writeln('[Lyrics] plain lyrics:');
@@ -1327,14 +1327,6 @@ class LyricsService {
     }
 
     // debugPrint(buffer.toString());
-  }
-
-  String _formatTimestamp(Duration duration) {
-    final totalMilliseconds = duration.inMilliseconds;
-    final minutes = totalMilliseconds ~/ 60000;
-    final seconds = (totalMilliseconds % 60000) ~/ 1000;
-    final centiseconds = (totalMilliseconds % 1000) ~/ 10;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}.${centiseconds.toString().padLeft(2, '0')}';
   }
 
   void _logDebug(String message) {

@@ -809,11 +809,7 @@ class LyricsGenerationCoordinator {
       return state.currentLyricsLines
           .map((line) {
             if (!line.isTimed) return line.text.trimRight();
-            final ms = line.timestamp.inMilliseconds;
-            final m = ms ~/ 60000;
-            final s = (ms % 60000) ~/ 1000;
-            final cs = (ms % 1000) ~/ 10;
-            return '[${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}.${cs.toString().padLeft(2, '0')}]${line.text}';
+            return '[${LrcUtils.formatLrcTimestamp(line.timestamp)}]${line.text}';
           })
           .join('\n')
           .trim();

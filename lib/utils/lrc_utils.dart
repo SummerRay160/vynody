@@ -826,6 +826,20 @@ class LrcUtils {
     return stripped.join('\n').trim();
   }
 
+  /// 将时间戳格式化为 LRC 时间标签。
+  /// 亚秒部分按值保留精度：整厘秒用 2 位（[mm:ss.xx]），否则保留 3 位毫秒
+  /// （[mm:ss.xxx]），避免截断导致与歌词原文的时间戳精度/数值不一致。
+  static String formatLrcTimestamp(Duration timestamp) {
+    final totalMs = timestamp.inMilliseconds;
+    final minutes = totalMs ~/ 60000;
+    final seconds = (totalMs % 60000) ~/ 1000;
+    final fractionMs = totalMs % 1000;
+    final fraction = fractionMs % 10 == 0
+        ? (fractionMs ~/ 10).toString().padLeft(2, '0')
+        : fractionMs.toString().padLeft(3, '0');
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}.$fraction';
+  }
+
   static String cleanGeneratedLyricsText(String? text) {
     final trimmed = text?.trim();
     if (trimmed == null || trimmed.isEmpty) return '';

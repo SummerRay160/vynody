@@ -28,6 +28,7 @@ import 'package:vynody/player/lyrics/lyrics_controller.dart';
 import 'package:vynody/player/lyrics/lyrics_controller_state.dart';
 import 'package:vynody/player/lyrics/lyrics_riverpod.dart';
 import 'package:vynody/player/lyrics/lyrics_song_task_state.dart';
+import 'package:vynody/utils/lrc_utils.dart';
 import 'lyrics_panel_toasts.dart';
 import 'lyrics_panel_views.dart';
 import 'playback_ui_tuning.dart';
@@ -923,7 +924,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
             ? displayLines
                 .map(
                   (line) => line.isTimed
-                      ? '[${_lrcTimestamp(line.timestamp)}]${line.text}'
+                      ? '[${LrcUtils.formatLrcTimestamp(line.timestamp)}]${line.text}'
                       : line.text,
                 )
                 .join('\n')
@@ -1605,14 +1606,6 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     return displayLines.any((line) => line.isTimed);
   }
 
-  static String _lrcTimestamp(Duration timestamp) {
-    final totalMs = timestamp.inMilliseconds;
-    final minutes = totalMs ~/ 60000;
-    final seconds = (totalMs % 60000) ~/ 1000;
-    final centiseconds = (totalMs % 1000) ~/ 10;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}.${centiseconds.toString().padLeft(2, '0')}';
-  }
-
   /// 复制译文对话框：普通复制与带时间戳复制。
   /// 译文行与主歌词行按索引对齐，空译文行保留占位以对齐时间轴。
   Future<void> _copyTranslationViaDialog(
@@ -1634,7 +1627,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
               ? List<String>.generate(translatedLines.length, (i) {
                   final line = i < displayLines.length ? displayLines[i] : null;
                   if (line == null || !line.isTimed) return translatedLines[i];
-                  return '[${_lrcTimestamp(line.timestamp)}]${translatedLines[i]}';
+                  return '[${LrcUtils.formatLrcTimestamp(line.timestamp)}]${translatedLines[i]}';
                 }).join('\n').trim()
               : translatedLines.join('\n').trim())
         : translation.translatedText.trim();

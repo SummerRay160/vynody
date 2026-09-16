@@ -94,7 +94,7 @@ class LyricsControllerSupport {
     return lyrics.syncedLines
         .map((line) {
           if (!line.isTimed) return line.text.trimRight();
-          return '[${_formatTimestamp(line.timestamp)}] ${line.text}';
+          return '[${LrcUtils.formatLrcTimestamp(line.timestamp)}] ${line.text}';
         })
         .join('\n')
         .trim();
@@ -619,13 +619,5 @@ class LyricsControllerSupport {
 
   void logDebug(String message) {
     _context.logDebug(message);
-  }
-
-  String _formatTimestamp(Duration duration) {
-    final totalMilliseconds = duration.inMilliseconds;
-    final minutes = totalMilliseconds ~/ 60000;
-    final seconds = (totalMilliseconds % 60000) ~/ 1000;
-    final centiseconds = (totalMilliseconds % 1000) ~/ 10;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}.${centiseconds.toString().padLeft(2, '0')}';
   }
 }
