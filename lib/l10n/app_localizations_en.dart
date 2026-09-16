@@ -1483,6 +1483,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lyricsStyleApple => 'Line-by-Line Focus';
 
   @override
+  String get lyricsLatinFontLabel => 'Lyrics Latin Font';
+
+  @override
+  String get lyricsLatinFontDescription =>
+      'Set the font used for Latin, numbers, and symbols in lyrics.';
+
+  @override
+  String get lyricsCjkFontLabel => 'Lyrics Chinese Font';
+
+  @override
+  String get lyricsCjkFontDescription =>
+      'Set the font used for Chinese/CJK characters in lyrics.';
+
+  @override
+  String get customFontOption => 'Custom font...';
+
+  @override
+  String get customFontDialogTitle => 'Enter Font Family Name';
+
+  @override
+  String get customFontDialogHint => 'e.g. LXGW WenKai, Inter, Fira Code';
+
+  @override
   String get resumeLyricsSync => 'Resume Sync';
 
   @override

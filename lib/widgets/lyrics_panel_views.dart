@@ -149,8 +149,10 @@ class LyricsPanelTimedLyricsView extends StatefulWidget {
     required this.maxWidth,
     required this.isGenerating,
     this.isTranslating = false,
-    required this.isTransitioning,
-    required this.isLowMidEnd,
+    this.isTransitioning = false,
+    this.isLowMidEnd = false,
+    this.latinFontFamily = '',
+    this.cjkFontFamily = '',
   });
 
   final MusicLyric? lyrics;
@@ -185,6 +187,8 @@ class LyricsPanelTimedLyricsView extends StatefulWidget {
   final bool isTranslating;
   final bool isTransitioning;
   final bool isLowMidEnd;
+  final String latinFontFamily;
+  final String cjkFontFamily;
 
   @override
   State<LyricsPanelTimedLyricsView> createState() => _LyricsPanelTimedLyricsViewState();
@@ -333,8 +337,29 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
                             : PlaybackPageUiTuning.traditionalLyricsVerticalPadding;
                         final verticalItemPadding = basePadding * widget.lyricsFontScale;
                         final translatedSpacing = 3 * widget.lyricsFontScale;
+                        final effectiveFontFamily = widget.latinFontFamily.trim().isNotEmpty
+                            ? widget.latinFontFamily.trim()
+                            : null;
+                        final trimmedCjk = widget.cjkFontFamily.trim();
+                        const defaultFallback = [
+                          'Microsoft YaHei UI',
+                          'Microsoft YaHei',
+                          'PingFang SC',
+                          'Heiti SC',
+                          'Noto Sans CJK SC',
+                          'Noto Sans SC',
+                          'Source Han Sans SC',
+                          'sans-serif',
+                        ];
+                        final effectiveFontFamilyFallback = [
+                          if (trimmedCjk.isNotEmpty) trimmedCjk,
+                          ...defaultFallback.where((f) => f != trimmedCjk),
+                        ];
+
                         final lineStyle = widget.hasTimedLyrics
                             ? Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                        fontFamily: effectiveFontFamily,
+                                        fontFamilyFallback: effectiveFontFamilyFallback,
                                         color: isActive
                                             ? widget.textColor
                                             : (isHovered
@@ -350,6 +375,8 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
                                 leadingDistribution: TextLeadingDistribution.even,
                               )
                             : Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                fontFamily: effectiveFontFamily,
+                                fontFamilyFallback: effectiveFontFamilyFallback,
                                 color: widget.textColor,
                                 fontSize: plainLyricFontSize,
                                 fontWeight: widget.lyricsStyle == LyricsStyle.apple
@@ -433,6 +460,8 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
                                                         duration: const Duration(milliseconds: 300),
                                                         curve: Curves.easeOutCubic,
                                                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                                          fontFamily: effectiveFontFamily,
+                                                          fontFamilyFallback: effectiveFontFamilyFallback,
                                                           color: isHovered
                                                               ? widget.secondaryTextColor.withValues(alpha: 1.0)
                                                               : (isActive
@@ -483,6 +512,8 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
                                                       duration: const Duration(milliseconds: 300),
                                                       curve: Curves.easeOutCubic,
                                                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                                        fontFamily: effectiveFontFamily,
+                                                        fontFamilyFallback: effectiveFontFamilyFallback,
                                                         color: isHovered
                                                             ? widget.secondaryTextColor.withValues(alpha: 1.0)
                                                             : (isActive

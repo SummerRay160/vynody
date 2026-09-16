@@ -153,6 +153,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   bool? _lastMeasuredHasTimedLyrics;
   LyricsStyle? _lastMeasuredLyricsStyle;
   String? _lastMeasuredLang;
+  String? _lastMeasuredLatinFont;
+  String? _lastMeasuredCjkFont;
   ({List<double> heights, List<double> itemCenters, List<double> anchorCenters})? _cachedLineMetrics;
 
   Widget? _cachedLyricsView;
@@ -166,6 +168,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   Color? _lastBuiltSecondaryTextColor;
   LyricsControllerState? _lastBuiltLyricsState;
   MusicFile? _lastBuiltCurrentSong;
+  String? _lastBuiltLatinFont;
+  String? _lastBuiltCjkFont;
 
   LyricsController get _lyricsControllerActions =>
       ref.read(lyricsControllerProvider.notifier);
@@ -234,6 +238,9 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   }) {
     final targetLang = ref.read(lyricsControllerProvider).lyricsTranslationLanguageCode;
     final effectiveLang = lyrics?.getEffectiveTranslationLanguage(targetLang) ?? targetLang;
+    final settings = ref.read(settingsServiceProvider);
+    final latinFont = settings.lyricsLatinFontFamily;
+    final cjkFont = settings.lyricsCjkFontFamily;
 
     if (listEquals(_lastMeasuredLines, lines) &&
         _lastMeasuredLyrics == lyrics &&
@@ -242,6 +249,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
         _lastMeasuredHasTimedLyrics == hasTimedLyrics &&
         _lastMeasuredLyricsStyle == lyricsStyle &&
         _lastMeasuredLang == effectiveLang &&
+        _lastMeasuredLatinFont == latinFont &&
+        _lastMeasuredCjkFont == cjkFont &&
         _cachedLineMetrics != null) {
       return _cachedLineMetrics!;
     }
@@ -262,14 +271,37 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     final verticalItemPadding = basePadding * lyricsFontScale;
     final translatedSpacing = 3 * lyricsFontScale;
 
+    final effectiveFontFamily = latinFont.trim().isNotEmpty
+        ? latinFont.trim()
+        : null;
+    final trimmedCjk = cjkFont.trim();
+    const defaultFallback = [
+      'Microsoft YaHei UI',
+      'Microsoft YaHei',
+      'PingFang SC',
+      'Heiti SC',
+      'Noto Sans CJK SC',
+      'Noto Sans SC',
+      'Source Han Sans SC',
+      'sans-serif',
+    ];
+    final effectiveFontFamilyFallback = [
+      if (trimmedCjk.isNotEmpty) trimmedCjk,
+      ...defaultFallback.where((f) => f != trimmedCjk),
+    ];
+
     final lineStyle = hasTimedLyrics
         ? Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontFamily: effectiveFontFamily,
+            fontFamilyFallback: effectiveFontFamilyFallback,
             fontSize: timedLyricFontSize,
             fontWeight: lyricsStyle == LyricsStyle.apple ? FontWeight.w700 : FontWeight.w400,
             height: 1.4,
             leadingDistribution: TextLeadingDistribution.even,
           )
         : Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontFamily: effectiveFontFamily,
+            fontFamilyFallback: effectiveFontFamilyFallback,
             fontSize: plainLyricFontSize,
             fontWeight: lyricsStyle == LyricsStyle.apple ? FontWeight.w700 : FontWeight.w400,
             height: 1.6,
@@ -277,6 +309,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
           );
 
     final translationStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
+      fontFamily: effectiveFontFamily,
+      fontFamilyFallback: effectiveFontFamilyFallback,
       fontSize: translationFontSize,
       fontWeight: lyricsStyle == LyricsStyle.apple ? FontWeight.w700 : FontWeight.w400,
       height: 1.3,
@@ -361,6 +395,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     _lastMeasuredHasTimedLyrics = hasTimedLyrics;
     _lastMeasuredLyricsStyle = lyricsStyle;
     _lastMeasuredLang = effectiveLang;
+    _lastMeasuredLatinFont = latinFont;
+    _lastMeasuredCjkFont = cjkFont;
     _cachedLineMetrics = result;
 
     return result;
@@ -1729,6 +1765,12 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
               ? settings.lyricsFontScaleApple
               : settings.lyricsFontScaleTraditional),
     );
+    final lyricsLatinFont = ref.watch(
+      settingsServiceProvider.select((settings) => settings.lyricsLatinFontFamily),
+    );
+    final lyricsCjkFont = ref.watch(
+      settingsServiceProvider.select((settings) => settings.lyricsCjkFontFamily),
+    );
     final textColor = widget.textColor ?? Colors.white;
     final secondaryTextColor =
         widget.secondaryTextColor ?? textColor.withValues(alpha: PlaybackPageUiTuning.appleLyricsInactiveOpacity);
@@ -2044,7 +2086,9 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
             isGenerating != _lastBuiltIsGenerating ||
             isTranslating != _lastBuiltIsTranslating ||
             widget.isTransitioning != _lastBuiltIsTransitioning ||
-            isLowMidEnd != _lastBuiltIsLowMidEnd;
+            isLowMidEnd != _lastBuiltIsLowMidEnd ||
+            lyricsLatinFont != _lastBuiltLatinFont ||
+            lyricsCjkFont != _lastBuiltCjkFont;
 
         if (needsRebuild) {
           _lastBuiltActiveIndex = focusedIndex;
@@ -2067,6 +2111,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
           _lastBuiltIsTranslating = isTranslating;
           _lastBuiltIsTransitioning = widget.isTransitioning;
           _lastBuiltIsLowMidEnd = isLowMidEnd;
+          _lastBuiltLatinFont = lyricsLatinFont;
+          _lastBuiltCjkFont = lyricsCjkFont;
 
           _cachedLyricsView = LyricsPanelTimedLyricsView(
             lyrics: lyrics,
@@ -2077,6 +2123,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
             activeIndex: focusedIndex,
             isAutoScrollPaused: _isAutoScrollPaused,
             lyricsFontScale: calculatedFontScale,
+            latinFontFamily: lyricsLatinFont,
+            cjkFontFamily: lyricsCjkFont,
             textColor: textColor,
             secondaryTextColor: secondaryTextColor,
             scrollController: _scrollController,

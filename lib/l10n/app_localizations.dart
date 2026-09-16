@@ -2847,6 +2847,48 @@ abstract class AppLocalizations {
   /// **'逐行聚焦'**
   String get lyricsStyleApple;
 
+  /// No description provided for @lyricsLatinFontLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'歌词英文字体'**
+  String get lyricsLatinFontLabel;
+
+  /// No description provided for @lyricsLatinFontDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'设置歌词中西文字符及数字的展示字体。'**
+  String get lyricsLatinFontDescription;
+
+  /// No description provided for @lyricsCjkFontLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'歌词中文字体'**
+  String get lyricsCjkFontLabel;
+
+  /// No description provided for @lyricsCjkFontDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'设置歌词中中文字符的展示字体。'**
+  String get lyricsCjkFontDescription;
+
+  /// No description provided for @customFontOption.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义字体...'**
+  String get customFontOption;
+
+  /// No description provided for @customFontDialogTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'输入字体名称'**
+  String get customFontDialogTitle;
+
+  /// No description provided for @customFontDialogHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'例如: 霞鹜文楷 / Inter / Fira Code'**
+  String get customFontDialogHint;
+
   /// No description provided for @resumeLyricsSync.
   ///
   /// In zh, this message translates to:

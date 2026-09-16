@@ -434,6 +434,8 @@ class SettingsService extends ChangeNotifier {
       'lyrics_translation_target_language';
   static const String _keyLyricsSaveMethod = 'lyrics_save_method';
   static const String _keyLyricsStyle = 'lyrics_style';
+  static const String _keyLyricsLatinFontFamily = 'lyrics_latin_font_family';
+  static const String _keyLyricsCjkFontFamily = 'lyrics_cjk_font_family';
   static const String _keyLyricsFontScale = 'lyrics_font_scale';
   static const String _keyLyricsFontScaleTraditional =
       'lyrics_font_scale_traditional';
@@ -1029,6 +1031,20 @@ class SettingsService extends ChangeNotifier {
   late final _lyricsStyleProperty = SettingProperty<String>(
     key: _keyLyricsStyle,
     defaultValue: LyricsStyle.apple.name,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
+  late final _lyricsLatinFontFamilyProperty = SettingProperty<String>(
+    key: _keyLyricsLatinFontFamily,
+    defaultValue: '',
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
+  late final _lyricsCjkFontFamilyProperty = SettingProperty<String>(
+    key: _keyLyricsCjkFontFamily,
+    defaultValue: '',
     prefs: _prefs,
     onChanged: notifyListeners,
   );
@@ -1975,6 +1991,16 @@ class SettingsService extends ChangeNotifier {
     _lyricsStyleProperty.value = value.name;
   }
 
+  String get lyricsLatinFontFamily => _lyricsLatinFontFamilyProperty.value;
+  set lyricsLatinFontFamily(String value) {
+    _lyricsLatinFontFamilyProperty.value = value.trim();
+  }
+
+  String get lyricsCjkFontFamily => _lyricsCjkFontFamilyProperty.value;
+  set lyricsCjkFontFamily(String value) {
+    _lyricsCjkFontFamilyProperty.value = value.trim();
+  }
+
   double get lyricsFontScale => lyricsFontScaleTraditional;
   set lyricsFontScale(double value) => lyricsFontScaleTraditional = value;
 
@@ -2789,6 +2815,11 @@ class SettingsService extends ChangeNotifier {
 
   void resetLyricsFontScaleApple() {
     _lyricsFontScaleAppleProperty.reset();
+  }
+
+  void resetLyricsFonts() {
+    _lyricsLatinFontFamilyProperty.reset();
+    _lyricsCjkFontFamilyProperty.reset();
   }
 
   void resetLyricsAiModels() {

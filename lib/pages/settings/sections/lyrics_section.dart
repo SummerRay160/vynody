@@ -12,6 +12,7 @@ import 'package:vynody/player/settings/settings_service.dart';
 import 'package:vynody/utils/file_selector_helper.dart';
 import 'package:vynody/utils/language_code_utils.dart';
 import 'package:vynody/widgets/lyrics_provider_icon.dart';
+import 'package:vynody/dialogs/custom_font_family_dialog.dart';
 import '../dialogs/custom_provider_config_dialog.dart';
 import '../dialogs/lyrics_model_picker_dialog.dart';
 import '../widgets/settings_dropdown_tile.dart';
@@ -124,6 +125,147 @@ class LyricsSection extends ConsumerWidget {
       onChanged: (newValue) {
         if (newValue == null) return;
         settings.lyricsStyle = newValue;
+      },
+    );
+  }
+
+  Widget _buildLyricsLatinFontSection(
+    BuildContext context,
+    SettingsService settings,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    const customSentinel = '__custom__';
+    final currentFont = settings.lyricsLatinFontFamily;
+
+    const presetFonts = [
+      '',
+      'Segoe UI',
+      'Inter',
+      'Arial',
+      'Helvetica',
+      'SF Pro',
+      'Roboto',
+      'Georgia',
+      'Cascadia Code',
+      'Consolas',
+    ];
+
+    final isCustom = currentFont.isNotEmpty && !presetFonts.contains(currentFont);
+
+    final options = <SettingsDropdownOption<String>>[
+      SettingsDropdownOption<String>(
+        value: '',
+        label: l10n.followSystemLanguage,
+      ),
+      if (isCustom)
+        SettingsDropdownOption<String>(
+          value: currentFont,
+          label: currentFont,
+        ),
+      ...presetFonts.where((f) => f.isNotEmpty).map(
+            (font) => SettingsDropdownOption<String>(
+              value: font,
+              label: font,
+            ),
+          ),
+      SettingsDropdownOption<String>(
+        value: customSentinel,
+        label: l10n.customFontOption,
+        leading: const Icon(Icons.edit_outlined, size: 18),
+      ),
+    ];
+
+    return SettingsDropdownTile<String>(
+      title: l10n.lyricsLatinFontLabel,
+      subtitle: l10n.lyricsLatinFontDescription,
+      value: currentFont,
+      options: options,
+      onChanged: (newValue) async {
+        if (newValue == null) return;
+        if (newValue == customSentinel) {
+          final entered = await showCustomFontFamilyDialog(
+            context,
+            initialFontFamily: currentFont,
+            title: l10n.lyricsLatinFontLabel,
+          );
+          if (entered != null) {
+            settings.lyricsLatinFontFamily = entered;
+          }
+          return;
+        }
+        settings.lyricsLatinFontFamily = newValue;
+      },
+    );
+  }
+
+  Widget _buildLyricsCjkFontSection(
+    BuildContext context,
+    SettingsService settings,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    const customSentinel = '__custom__';
+    final currentFont = settings.lyricsCjkFontFamily;
+
+    const presetFonts = <(String, String)>[
+      ('', ''),
+      ('Microsoft YaHei', '微软雅黑 (Microsoft YaHei)'),
+      ('Microsoft YaHei UI', '微软雅黑 UI (YaHei UI)'),
+      ('PingFang SC', '苹方 (PingFang SC)'),
+      ('KaiTi', '楷体 (KaiTi)'),
+      ('SimSun', '宋体 (SimSun)'),
+      ('FangSong', '仿宋 (FangSong)'),
+      ('SimHei', '黑体 (SimHei)'),
+      ('LXGW WenKai', '霞鹜文楷 (LXGW WenKai)'),
+      ('Source Han Sans SC', '思源黑体 (Source Han Sans)'),
+      ('Source Han Serif SC', '思源宋体 (Source Han Serif)'),
+      ('HarmonyOS Sans SC', '鸿蒙黑体 (HarmonyOS Sans)'),
+    ];
+
+    final isCustom = currentFont.isNotEmpty &&
+        !presetFonts.any((element) => element.$1 == currentFont);
+
+    final options = <SettingsDropdownOption<String>>[
+      SettingsDropdownOption<String>(
+        value: '',
+        label: l10n.followSystemLanguage,
+      ),
+      if (isCustom)
+        SettingsDropdownOption<String>(
+          value: currentFont,
+          label: currentFont,
+        ),
+      ...presetFonts.where((pair) => pair.$1.isNotEmpty).map(
+            (pair) => SettingsDropdownOption<String>(
+              value: pair.$1,
+              label: pair.$2,
+            ),
+          ),
+      SettingsDropdownOption<String>(
+        value: customSentinel,
+        label: l10n.customFontOption,
+        leading: const Icon(Icons.edit_outlined, size: 18),
+      ),
+    ];
+
+    return SettingsDropdownTile<String>(
+      title: l10n.lyricsCjkFontLabel,
+      subtitle: l10n.lyricsCjkFontDescription,
+      value: currentFont,
+      options: options,
+      onChanged: (newValue) async {
+        if (newValue == null) return;
+        if (newValue == customSentinel) {
+          final entered = await showCustomFontFamilyDialog(
+            context,
+            initialFontFamily: currentFont,
+            title: l10n.lyricsCjkFontLabel,
+          );
+          if (entered != null) {
+            settings.lyricsCjkFontFamily = entered;
+          }
+          return;
+        }
+        settings.lyricsCjkFontFamily = newValue;
       },
     );
   }
@@ -751,6 +893,8 @@ class LyricsSection extends ConsumerWidget {
             _buildLyricsTranslationLanguageSection(context, settings),
             _buildLyricsSaveMethodSection(context, settings),
             _buildLyricsStyleSection(context, settings),
+            _buildLyricsLatinFontSection(context, settings),
+            _buildLyricsCjkFontSection(context, settings),
           ],
         ),
         SettingsGroupCard(

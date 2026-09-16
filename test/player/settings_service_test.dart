@@ -479,5 +479,32 @@ void main() {
       expect(restored.isWaveformProgressBarEnabled, isTrue);
     });
   });
+
+  group('SettingsService - Lyrics Fonts', () {
+    test('defaults to empty string (system default) and persists custom values', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final settings = SettingsService(prefs);
+
+      expect(settings.lyricsLatinFontFamily, '');
+      expect(settings.lyricsCjkFontFamily, '');
+
+      settings.lyricsLatinFontFamily = 'Inter';
+      settings.lyricsCjkFontFamily = 'LXGW WenKai';
+
+      expect(settings.lyricsLatinFontFamily, 'Inter');
+      expect(settings.lyricsCjkFontFamily, 'LXGW WenKai');
+
+      // Check persistence
+      final restored = SettingsService(prefs);
+      expect(restored.lyricsLatinFontFamily, 'Inter');
+      expect(restored.lyricsCjkFontFamily, 'LXGW WenKai');
+
+      // Reset
+      settings.resetLyricsFonts();
+      expect(settings.lyricsLatinFontFamily, '');
+      expect(settings.lyricsCjkFontFamily, '');
+    });
+  });
 }
 

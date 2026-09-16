@@ -1505,6 +1505,27 @@ class AppLocalizationsEs extends AppLocalizations {
   String get lyricsStyleApple => 'Enfoque línea por línea';
 
   @override
+  String get lyricsLatinFontLabel => '歌词英文字体';
+
+  @override
+  String get lyricsLatinFontDescription => '设置歌词中西文字符及数字的展示字体。';
+
+  @override
+  String get lyricsCjkFontLabel => '歌词中文字体';
+
+  @override
+  String get lyricsCjkFontDescription => '设置歌词中中文字符的展示字体。';
+
+  @override
+  String get customFontOption => '自定义字体...';
+
+  @override
+  String get customFontDialogTitle => '输入字体名称';
+
+  @override
+  String get customFontDialogHint => '例如: 霞鹜文楷 / Inter / Fira Code';
+
+  @override
   String get resumeLyricsSync => 'Reanudar sincronización';
 
   @override
