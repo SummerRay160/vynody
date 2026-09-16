@@ -11,6 +11,7 @@ import 'package:vynody/utils/app_log.dart';
 import 'package:flutter_desktop_tray/flutter_desktop_tray.dart' as ft;
 
 class DesktopTrayService with WindowListener {
+  static DesktopTrayService? _activeInstance;
   final AudioService audioService;
   final SettingsService settingsService;
   bool _initialized = false;
@@ -33,6 +34,7 @@ class DesktopTrayService with WindowListener {
     required this.audioService,
     required this.settingsService,
   }) {
+    _activeInstance = this;
     if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
       settingsService.addListener(_handleSettingsChange);
       windowManager.addListener(this);
@@ -132,6 +134,11 @@ class DesktopTrayService with WindowListener {
     } catch (e) {
       debugPrint('Failed to destroy tray: $e');
     }
+  }
+
+  /// 退出前移除托盘图标，避免通知区残留图标（未初始化时为空操作）。
+  static Future<void> destroyActiveTray() async {
+    await _activeInstance?._destroyTray();
   }
 
   Future<bool> _isWindowActiveOnScreen() async {

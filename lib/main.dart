@@ -22,6 +22,7 @@ import 'utils/app_orientation_manager.dart';
 import 'utils/memory_trace.dart';
 import 'package:vynody/player/sharing/security/tls_certificate_service.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
+import 'package:vynody/player/platform/desktop_tray_service.dart';
 import 'package:vynody/player/pro/iap_service.dart';
 import 'widgets/app_global_shortcuts.dart';
 
@@ -355,6 +356,16 @@ Future<void> performCleanExit() async {
     mirrorToConsole: true,
   );
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    // 退出前先移除托盘图标，避免 Windows 通知区在进程结束后残留图标。
+    await DesktopTrayService.destroyActiveTray().timeout(
+      const Duration(milliseconds: 500),
+      onTimeout: () {
+        AppLog.log(
+          'Tray destroy timed out during exit, continuing.',
+          mirrorToConsole: true,
+        );
+      },
+    );
     try {
       await windowManager.hide();
     } catch (_) {}
