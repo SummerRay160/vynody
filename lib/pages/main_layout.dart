@@ -25,9 +25,7 @@ import 'package:vynody/dialogs/transfer_dialogs.dart';
 import 'package:vynody/dialogs/remote_pair_dialogs.dart';
 import 'package:vynody/player/library/music_file_utils.dart';
 import 'package:vynody/player/pro/pro_license_service.dart';
-import 'package:vynody/player/pro/pro_models.dart';
 import 'package:vynody/player/settings/settings_service.dart';
-import 'package:vynody/player/settings/shortcut_bindings.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/player/audio/playback_source.dart';
@@ -171,66 +169,6 @@ Future<void> navigateToMainTab(
 }
 
 
-class PlayPauseIntent extends Intent {
-  const PlayPauseIntent();
-}
-
-class NextIntent extends Intent {
-  const NextIntent();
-}
-
-class PreviousIntent extends Intent {
-  const PreviousIntent();
-}
-
-class VolumeUpIntent extends Intent {
-  const VolumeUpIntent();
-}
-
-class VolumeDownIntent extends Intent {
-  const VolumeDownIntent();
-}
-
-class MuteIntent extends Intent {
-  const MuteIntent();
-}
-
-class SeekForwardIntent extends Intent {
-  const SeekForwardIntent();
-}
-
-class SeekBackwardIntent extends Intent {
-  const SeekBackwardIntent();
-}
-
-class ToggleFullScreenIntent extends Intent {
-  const ToggleFullScreenIntent();
-}
-
-class ToggleWasapiExclusiveIntent extends Intent {
-  const ToggleWasapiExclusiveIntent();
-}
-
-class ExitFullScreenIntent extends Intent {
-  const ExitFullScreenIntent();
-}
-
-class ExitFullScreenAction extends Action<ExitFullScreenIntent> {
-  final _MainLayoutState state;
-  ExitFullScreenAction(this.state);
-
-  @override
-  bool isEnabled(Intent intent) {
-    return state._isFullScreen;
-  }
-
-  @override
-  Object? invoke(ExitFullScreenIntent intent) {
-    state._setFullScreen(false);
-    return null;
-  }
-}
-
 class MainLayout extends ConsumerStatefulWidget {
   final List<String> args;
   final int initialIndex;
@@ -261,7 +199,6 @@ class _MainLayoutState extends ConsumerState<MainLayout>
   DateTime? _ignoreResizeEventsUntil;
   Timer? _windowResizeDebounceTimer;
   late final MainLayoutUiController _uiController;
-  late final AppShortcutManager _shortcutManager;
   final GlobalKey<FoldersPageState> _foldersPageKey =
       GlobalKey<FoldersPageState>();
 
@@ -355,7 +292,6 @@ class _MainLayoutState extends ConsumerState<MainLayout>
     _lastVolume = ref.read(audioVolumeProvider);
     _audioService = ref.read(audioServiceProvider);
     _uiController = ref.read(mainLayoutUiControllerProvider.notifier);
-    _shortcutManager = AppShortcutManager();
     _syncDeletedSongNoticeHandler();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -740,34 +676,6 @@ class _MainLayoutState extends ConsumerState<MainLayout>
         context,
       ).push(MaterialPageRoute<void>(builder: (_) => const SettingsPage()));
     }
-  }
-
-  Map<ShortcutActivator, Intent> _buildShortcutMap(SettingsService settings) {
-    final bindings = <AppShortcutAction, Intent>{
-      AppShortcutAction.playPause: const PlayPauseIntent(),
-      AppShortcutAction.next: const NextIntent(),
-      AppShortcutAction.previous: const PreviousIntent(),
-      AppShortcutAction.volumeUp: const VolumeUpIntent(),
-      AppShortcutAction.volumeDown: const VolumeDownIntent(),
-      AppShortcutAction.mute: const MuteIntent(),
-      AppShortcutAction.seekForward: const SeekForwardIntent(),
-      AppShortcutAction.seekBackward: const SeekBackwardIntent(),
-      AppShortcutAction.toggleFullScreen: const ToggleFullScreenIntent(),
-      AppShortcutAction.toggleWasapiExclusive:
-          const ToggleWasapiExclusiveIntent(),
-    };
-
-    final shortcuts = <ShortcutActivator, Intent>{};
-    for (final entry in bindings.entries) {
-      final activator = settings.shortcutBinding(entry.key).toActivator();
-      if (activator == null) {
-        continue;
-      }
-      shortcuts[activator] = entry.value;
-    }
-    shortcuts[const SingleActivator(LogicalKeyboardKey.escape)] =
-        const ExitFullScreenIntent();
-    return shortcuts;
   }
 
   Widget _buildTooltipIcon({
@@ -1342,126 +1250,9 @@ class _MainLayoutState extends ConsumerState<MainLayout>
 
     final double railWidth = (useSidebar && !isSidebarHidden) ? 80.0 : 0.0;
 
-    _shortcutManager.shortcuts = _buildShortcutMap(settings);
-
-    final mainAppWidget = Shortcuts.manager(
-      manager: _shortcutManager,
-      child: Actions(
-        actions: <Type, Action<Intent>>{
-          PlayPauseIntent: CallbackAction<PlayPauseIntent>(
-            onInvoke: (_) => _audioService.togglePlay(),
-          ),
-          NextIntent: CallbackAction<NextIntent>(
-            onInvoke: (_) => _audioService.next(),
-          ),
-          PreviousIntent: CallbackAction<PreviousIntent>(
-            onInvoke: (_) => _audioService.previous(),
-          ),
-          VolumeUpIntent: CallbackAction<VolumeUpIntent>(
-            onInvoke: (_) {
-              _ui.setVolumeHudVisible(true);
-              _audioService.setVolume(
-                (_audioService.volume + 5).roundToDouble(),
-              );
-              return null;
-            },
-          ),
-          VolumeDownIntent: CallbackAction<VolumeDownIntent>(
-            onInvoke: (_) {
-              _ui.setVolumeHudVisible(true);
-              _audioService.setVolume(
-                (_audioService.volume - 5).roundToDouble(),
-              );
-              return null;
-            },
-          ),
-          MuteIntent: CallbackAction<MuteIntent>(
-            onInvoke: (_) {
-              _audioService.toggleMute();
-              return null;
-            },
-          ),
-          SeekForwardIntent: CallbackAction<SeekForwardIntent>(
-            onInvoke: (_) =>
-                _audioService.seekRelative(const Duration(seconds: 5)),
-          ),
-          SeekBackwardIntent: CallbackAction<SeekBackwardIntent>(
-            onInvoke: (_) =>
-                _audioService.seekRelative(const Duration(seconds: -5)),
-          ),
-          ToggleFullScreenIntent: CallbackAction<ToggleFullScreenIntent>(
-            onInvoke: (_) async {
-              final isFullScreen = await windowManager.isFullScreen();
-              await _setFullScreen(!isFullScreen);
-              return null;
-            },
-          ),
-          ExitFullScreenIntent: ExitFullScreenAction(this),
-          ToggleWasapiExclusiveIntent:
-              CallbackAction<ToggleWasapiExclusiveIntent>(
-            onInvoke: (_) async {
-              if (!Platform.isWindows) return null;
-              final settings = ref.read(settingsServiceProvider);
-              // 防误触保护：如果从未在设置中手动开启过 WASAPI 独占模式，则快捷键不响应
-              if (!settings.hasUsedWasapiExclusive) {
-                return null;
-              }
-
-              final isProUnlocked = ref.read(isProUnlockedProvider);
-              final isCurrentlyExclusive =
-                  settings.windowsAudioOutputMode == 'wasapi_exclusive' &&
-                      isProUnlocked;
-
-              if (!isCurrentlyExclusive) {
-                if (!isProUnlocked) {
-                  if (mounted) {
-                    final allowed = await checkProGate(
-                      context,
-                      ref,
-                      feature: ProFeature.wasapiExclusive,
-                    );
-                    if (!allowed) return null;
-                  } else {
-                    return null;
-                  }
-                }
-                await _audioService.updateWindowsAudioOutput(
-                  mode: 'wasapi_exclusive',
-                );
-                if (mounted) {
-                  AppSnackBar.show(
-                    context,
-                    ref,
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.of(context)!
-                            .wasapiExclusiveEnabledNotice,
-                      ),
-                    ),
-                  );
-                }
-              } else {
-                await _audioService.updateWindowsAudioOutput(mode: 'shared');
-                if (mounted) {
-                  AppSnackBar.show(
-                    context,
-                    ref,
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.of(context)!
-                            .audioSharedModeEnabledNotice,
-                      ),
-                    ),
-                  );
-                }
-              }
-              return null;
-            },
-          ),
-        },
-        child: Focus(
-          autofocus: true,
-          child: PopScope(
+    final mainAppWidget = Focus(
+      autofocus: true,
+      child: PopScope(
             canPop: false,
             onPopInvokedWithResult: (didPop, result) {
               if (didPop) return;
@@ -1710,9 +1501,7 @@ class _MainLayoutState extends ConsumerState<MainLayout>
               ),
             ),
           ),
-        ),
-      ),
-    );
+        );
 
     final showOnboarding =
         !settings.hasShownOnboarding || _isOnboardingAnimatingOut;
@@ -1798,32 +1587,4 @@ class _MainLayoutState extends ConsumerState<MainLayout>
   }
 
 
-}
-
-class AppShortcutManager extends ShortcutManager {
-  @override
-  KeyEventResult handleKeypress(BuildContext context, KeyEvent event) {
-    if (_isTextInputFocused()) {
-      return KeyEventResult.ignored;
-    }
-    return super.handleKeypress(context, event);
-  }
-
-  bool _isTextInputFocused() {
-    final focusNode = FocusManager.instance.primaryFocus;
-    if (focusNode == null) return false;
-
-    final context = focusNode.context;
-    if (context == null) return false;
-
-    final widget = context.widget;
-    if (widget is EditableText ||
-        widget is TextField ||
-        widget is TextFormField) {
-      return true;
-    }
-    return context.findAncestorWidgetOfExactType<EditableText>() != null ||
-        context.findAncestorWidgetOfExactType<TextField>() != null ||
-        context.findAncestorWidgetOfExactType<TextFormField>() != null;
-  }
 }

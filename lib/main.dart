@@ -23,6 +23,7 @@ import 'utils/memory_trace.dart';
 import 'package:vynody/player/sharing/security/tls_certificate_service.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/player/pro/iap_service.dart';
+import 'widgets/app_global_shortcuts.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final List<String> _pendingFileOpenArgs = <String>[];
@@ -640,7 +641,9 @@ class _MyAppState extends ConsumerState<MyApp>
             child: ColoredBox(
               color: theme.colorScheme.surface,
               child: AppOrientationWatcher(
-                child: content,
+                child: AppGlobalShortcuts(
+                  child: content,
+                ),
               ),
             ),
           );
