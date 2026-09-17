@@ -18,6 +18,8 @@ class DesktopLyricsManager {
 
   int _lastActiveLineIndex = -1;
   int? _lastSongId;
+  Duration _lastSentPosition = Duration.zero;
+  DateTime _lastSentTime = DateTime.fromMillisecondsSinceEpoch(0);
 
   DesktopLyricsManager(this.ref) {
     if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) return;
@@ -93,6 +95,32 @@ class DesktopLyricsManager {
     }
   }
 
+  DesktopLyricsStyle _buildStyle(SettingsService settings) {
+    final latinFont = settings.lyricsLatinFontFamily.trim();
+    final cjkFont = settings.lyricsCjkFontFamily.trim();
+    const defaultFallback = [
+      'Microsoft YaHei UI',
+      'Microsoft YaHei',
+      'PingFang SC',
+      'Heiti SC',
+      'Noto Sans CJK SC',
+      'Noto Sans SC',
+      'Source Han Sans SC',
+      'sans-serif',
+    ];
+    final fallback = [
+      if (cjkFont.isNotEmpty) cjkFont,
+      ...defaultFallback.where((f) => f != cjkFont),
+    ];
+
+    return DesktopLyricsStyle(
+      fontSize: settings.desktopLyricsFontSize,
+      translationFontSize: (settings.desktopLyricsFontSize * 0.58).clamp(11.0, 36.0),
+      fontFamily: latinFont.isNotEmpty ? latinFont : 'Segoe UI',
+      fontFamilyFallback: fallback,
+    );
+  }
+
   void _onSettingsChanged(SettingsService settings) {
     if (settings.enableDesktopLyrics) {
       if (!DesktopLyrics.controller.isShowing) {
@@ -101,13 +129,9 @@ class DesktopLyricsManager {
         if (DesktopLyrics.controller.isLocked != settings.desktopLyricsLocked) {
           DesktopLyrics.controller.setLocked(settings.desktopLyricsLocked);
         }
-        if (DesktopLyrics.controller.style.fontSize != settings.desktopLyricsFontSize) {
-          DesktopLyrics.controller.setStyle(
-            DesktopLyrics.controller.style.copyWith(
-              fontSize: settings.desktopLyricsFontSize,
-              translationFontSize: (settings.desktopLyricsFontSize * 0.58).clamp(12.0, 32.0),
-            ),
-          );
+        final newStyle = _buildStyle(settings);
+        if (DesktopLyrics.controller.style != newStyle) {
+          DesktopLyrics.controller.setStyle(newStyle);
         }
       }
     } else {
@@ -123,10 +147,7 @@ class DesktopLyricsManager {
     final position = ref.read(audioPositionProvider);
 
     await DesktopLyrics.controller.show(
-      initialStyle: DesktopLyricsStyle(
-        fontSize: settings.desktopLyricsFontSize,
-        translationFontSize: (settings.desktopLyricsFontSize * 0.58).clamp(12.0, 32.0),
-      ),
+      initialStyle: _buildStyle(settings),
     );
 
     if (settings.desktopLyricsLocked) {
@@ -152,11 +173,14 @@ class DesktopLyricsManager {
     }
   }
 
-  void _syncPlaybackState() {
+  void _syncPlaybackState({Duration? currentPosition}) {
     if (!DesktopLyrics.controller.isShowing) return;
     final isPlaying = ref.read(audioIsPlayingProvider);
-    final position = ref.read(audioPositionProvider);
+    final Duration position = currentPosition ?? ref.read(audioPositionProvider);
     final currentMusic = ref.read(audioCurrentMusicProvider);
+
+    _lastSentPosition = position;
+    _lastSentTime = DateTime.now();
 
     DesktopLyrics.controller.updatePlaybackState(
       isPlaying: isPlaying,
@@ -168,7 +192,19 @@ class DesktopLyricsManager {
 
   void _onPositionChanged(Duration position) {
     if (!DesktopLyrics.controller.isShowing) return;
-    _syncCurrentLine(force: false);
+
+    final now = DateTime.now();
+    final elapsed = now.difference(_lastSentTime);
+    final expectedPos = _lastSentPosition + elapsed;
+    // 检测是否发生跳转（Seek）：实际位置与按时间流逝推算的位置偏差大于 500ms
+    final isSeek = (position - expectedPos).abs() > const Duration(milliseconds: 500);
+    final needPeriodicSync = elapsed > const Duration(seconds: 2);
+
+    if (isSeek || needPeriodicSync) {
+      _syncPlaybackState(currentPosition: position);
+    }
+
+    _syncCurrentLine(force: isSeek);
   }
 
   void _syncCurrentLine({bool force = false}) {
@@ -250,6 +286,7 @@ class DesktopLyricsManager {
         );
 
         DesktopLyrics.controller.updateLyricLine(desktopLine);
+        _syncPlaybackState(currentPosition: position);
       }
     }
   }
