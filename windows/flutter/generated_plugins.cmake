@@ -5,7 +5,9 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   bonsoir_windows
   desktop_drop
+  desktop_multi_window
   file_selector_windows
+  flutter_desktop_lyrics
   flutter_desktop_tray
   flutter_secure_storage_windows
   mobile_storage_listener

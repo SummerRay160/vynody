@@ -567,6 +567,10 @@ class SettingsService extends ChangeNotifier {
   static const String _keySmallWindowAlwaysOnTop = 'small_window_always_on_top';
   static const String _keySmallWindowQueueWidth = 'small_window_queue_width';
   static const String _keySmallWindowQueueHeight = 'small_window_queue_height';
+  static const String _keyEnableDesktopLyrics = 'enable_desktop_lyrics';
+  static const String _keyDesktopLyricsLocked = 'desktop_lyrics_locked';
+  static const String _keyDesktopLyricsFontSize = 'desktop_lyrics_font_size';
+  static const String _keyDesktopLyricsShowTranslation = 'desktop_lyrics_show_translation';
   static const String _keyHasShownOnboarding = 'has_shown_onboarding';
   static const String _keyHasShownCoverTapLyricTip =
       'has_shown_cover_tap_lyric_tip';
@@ -1763,6 +1767,34 @@ class SettingsService extends ChangeNotifier {
   late final _smallWindowQueueHeightProperty = SettingProperty<double>(
     key: _keySmallWindowQueueHeight,
     defaultValue: 600.0,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
+  late final _enableDesktopLyricsProperty = SettingProperty<bool>(
+    key: _keyEnableDesktopLyrics,
+    defaultValue: false,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
+  late final _desktopLyricsLockedProperty = SettingProperty<bool>(
+    key: _keyDesktopLyricsLocked,
+    defaultValue: false,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
+  late final _desktopLyricsFontSizeProperty = SettingProperty<double>(
+    key: _keyDesktopLyricsFontSize,
+    defaultValue: 28.0,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
+  late final _desktopLyricsShowTranslationProperty = SettingProperty<bool>(
+    key: _keyDesktopLyricsShowTranslation,
+    defaultValue: true,
     prefs: _prefs,
     onChanged: notifyListeners,
   );
@@ -3126,6 +3158,26 @@ class SettingsService extends ChangeNotifier {
 
   set isRegularWindowMaximized(bool value) {
     _regularWindowMaximizedProperty.value = value;
+  }
+
+  bool get enableDesktopLyrics => _enableDesktopLyricsProperty.value;
+  set enableDesktopLyrics(bool value) {
+    _enableDesktopLyricsProperty.value = value;
+  }
+
+  bool get desktopLyricsLocked => _desktopLyricsLockedProperty.value;
+  set desktopLyricsLocked(bool value) {
+    _desktopLyricsLockedProperty.value = value;
+  }
+
+  double get desktopLyricsFontSize => _desktopLyricsFontSizeProperty.value;
+  set desktopLyricsFontSize(double value) {
+    _desktopLyricsFontSizeProperty.value = value;
+  }
+
+  bool get desktopLyricsShowTranslation => _desktopLyricsShowTranslationProperty.value;
+  set desktopLyricsShowTranslation(bool value) {
+    _desktopLyricsShowTranslationProperty.value = value;
   }
 }
 

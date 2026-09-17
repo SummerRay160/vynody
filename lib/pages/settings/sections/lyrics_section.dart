@@ -874,6 +874,57 @@ class LyricsSection extends ConsumerWidget {
     );
   }
 
+  Widget _buildDesktopLyricsGroup(
+    BuildContext context,
+    SettingsService settings,
+  ) {
+    return SettingsGroupCard(
+      title: '桌面歌词',
+      icon: Icons.subtitles_rounded,
+      children: [
+        SwitchListTile(
+          title: const Text('启用桌面歌词'),
+          subtitle: const Text('在操作系统桌面上显示置顶半透明悬浮歌词'),
+          value: settings.enableDesktopLyrics,
+          onChanged: (val) {
+            settings.enableDesktopLyrics = val;
+          },
+        ),
+        if (settings.enableDesktopLyrics) ...[
+          SwitchListTile(
+            title: const Text('锁定歌词（鼠标穿透）'),
+            subtitle: const Text('开启后鼠标点击直接穿透至下层窗口；未锁定时悬停浮出控制条，可自由拖拽移动'),
+            value: settings.desktopLyricsLocked,
+            onChanged: (val) {
+              settings.desktopLyricsLocked = val;
+            },
+          ),
+          SwitchListTile(
+            title: const Text('显示翻译 / 双行歌词'),
+            subtitle: const Text('若当前歌曲包含翻译，则在桌面歌词中以双行形式同时展示'),
+            value: settings.desktopLyricsShowTranslation,
+            onChanged: (val) {
+              settings.desktopLyricsShowTranslation = val;
+            },
+          ),
+          ListTile(
+            title: Text('歌词字号大小 (${settings.desktopLyricsFontSize.toInt()} px)'),
+            subtitle: Slider(
+              value: settings.desktopLyricsFontSize.clamp(16.0, 56.0),
+              min: 16.0,
+              max: 56.0,
+              divisions: 20,
+              label: '${settings.desktopLyricsFontSize.toInt()} px',
+              onChanged: (val) {
+                settings.desktopLyricsFontSize = val;
+              },
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
@@ -886,6 +937,8 @@ class LyricsSection extends ConsumerWidget {
           title: l10n.lyricsSectionTitle,
           description: l10n.lyricsSectionDescription,
         ),
+        if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS))
+          _buildDesktopLyricsGroup(context, settings),
         SettingsGroupCard(
           title: l10n.lyricsSectionTitle,
           icon: Icons.tune_rounded,

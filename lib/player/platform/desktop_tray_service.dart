@@ -29,6 +29,8 @@ class DesktopTrayService with WindowListener {
   static const int _idToggleWindow = 6;
   static const int _idDisableTray = 7;
   static const int _idExit = 8;
+  static const int _idToggleDesktopLyrics = 9;
+  static const int _idToggleDesktopLyricsLock = 10;
 
   DesktopTrayService({
     required this.audioService,
@@ -44,6 +46,9 @@ class DesktopTrayService with WindowListener {
 
   void _handleSettingsChange() {
     _syncTrayState();
+    if (_initialized) {
+      updateMenu(force: true);
+    }
   }
 
   Future<void> _syncTrayState() async {
@@ -207,6 +212,20 @@ class DesktopTrayService with WindowListener {
         ),
         ft.MenuItem.separator(_idSeparator),
         ft.MenuItem(
+          id: _idToggleDesktopLyrics,
+          label: settingsService.enableDesktopLyrics
+              ? '关闭桌面歌词'
+              : '开启桌面歌词',
+        ),
+        if (settingsService.enableDesktopLyrics)
+          ft.MenuItem(
+            id: _idToggleDesktopLyricsLock,
+            label: settingsService.desktopLyricsLocked
+                ? '解锁桌面歌词 (可拖拽)'
+                : '锁定桌面歌词 (鼠标穿透)',
+          ),
+        ft.MenuItem.separator(_idSeparator),
+        ft.MenuItem(
           id: _idToggleWindow,
           label: isWindowVisible ? l10n.hideWindow : l10n.restoreWindow,
         ),
@@ -238,6 +257,14 @@ class DesktopTrayService with WindowListener {
         break;
       case _idToggleMute:
         audioService.toggleMute();
+        break;
+      case _idToggleDesktopLyrics:
+        settingsService.enableDesktopLyrics = !settingsService.enableDesktopLyrics;
+        updateMenu(force: true);
+        break;
+      case _idToggleDesktopLyricsLock:
+        settingsService.desktopLyricsLocked = !settingsService.desktopLyricsLocked;
+        updateMenu(force: true);
         break;
       case _idToggleWindow:
         _toggleWindowVisibility();

@@ -12,6 +12,8 @@ import 'package:window_manager/window_manager.dart';
 import '../l10n/app_localizations.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/audio/audio_service.dart';
+import 'package:vynody/player/lyrics/lyrics_riverpod.dart';
+import 'package:vynody/player/settings/settings_service.dart';
 import '../pages/folder_page.dart';
 import '../pages/playback_page.dart';
 import '../pages/library_page.dart';
@@ -293,6 +295,9 @@ class _MainLayoutState extends ConsumerState<MainLayout>
     _audioService = ref.read(audioServiceProvider);
     _uiController = ref.read(mainLayoutUiControllerProvider.notifier);
     _syncDeletedSongNoticeHandler();
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      ref.read(desktopLyricsManagerProvider);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       ref.read(mainTabIndexProvider.notifier).setIndex(_currentIndex);

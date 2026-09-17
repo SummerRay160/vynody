@@ -25,6 +25,7 @@ import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/player/platform/desktop_tray_service.dart';
 import 'package:vynody/player/pro/iap_service.dart';
 import 'widgets/app_global_shortcuts.dart';
+import 'package:flutter_desktop_lyrics/flutter_desktop_lyrics.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final List<String> _pendingFileOpenArgs = <String>[];
@@ -139,9 +140,32 @@ Future<void> _handleFileOpenArgs(
 }
 
 void main(List<String> args) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (DesktopLyrics.isLyricsWindow(args)) {
+    await runZonedGuarded(
+      () async {
+        FlutterError.onError = (FlutterErrorDetails details) {
+          FlutterError.presentError(details);
+          debugPrint('[DesktopLyrics FlutterError] ${details.exceptionAsString()}');
+          if (details.stack != null) {
+            debugPrint('[DesktopLyrics FlutterError Stack] ${details.stack}');
+          }
+        };
+        PlatformDispatcher.instance.onError = (error, stack) {
+          debugPrint('[DesktopLyrics PlatformDispatcher Error] $error\n$stack');
+          return false;
+        };
+        runApp(DesktopLyrics.createLyricsWindowApp(args));
+      },
+      (error, stack) {
+        debugPrint('[DesktopLyrics Uncaught Error] $error\n$stack');
+      },
+    );
+    return;
+  }
+
   await runZonedGuarded(
     () async {
-      WidgetsFlutterBinding.ensureInitialized();
       await AppLog.init();
       AppLog.install();
       FlutterError.onError = (FlutterErrorDetails details) {

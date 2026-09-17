@@ -354,6 +354,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.7.1"
+  desktop_multi_window:
+    dependency: "direct main"
+    description:
+      path: "flutter-plugins/packages/desktop_multi_window"
+      relative: true
+    source: path
+    version: "0.3.1"
   device_info_plus:
     dependency: "direct main"
     description:
@@ -535,6 +542,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
+  flutter_desktop_lyrics:
+    dependency: "direct main"
+    description:
+      path: flutter_desktop_lyrics
+      relative: true
+    source: path
+    version: "0.0.1"
   flutter_desktop_tray:
     dependency: "direct main"
     description:

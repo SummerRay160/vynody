@@ -65,6 +65,10 @@ dependencies:
       url: https://github.com/axel10/window_manager
       path: packages/window_manager
       ref: main
+  flutter_desktop_lyrics:
+    path: ./flutter_desktop_lyrics
+  desktop_multi_window:
+    path: ./flutter-plugins/packages/desktop_multi_window
   desktop_drop: ^0.7.0
   collection: ^1.19.1
   image: ^4.8.0

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:vynody/player/lyrics/desktop_lyrics_manager.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/lyrics/lyrics_controller_dependencies.dart';
 import 'package:vynody/player/lyrics/lyrics_cache_repository.dart';
@@ -109,3 +110,10 @@ final lyricsLayoutRevisionProvider =
     NotifierProvider<_LyricsLayoutRevisionNotifier, int>(
       _LyricsLayoutRevisionNotifier.new,
     );
+
+final desktopLyricsManagerProvider = Provider<DesktopLyricsManager>((ref) {
+  final manager = DesktopLyricsManager(ref);
+  ref.onDispose(() => manager.dispose());
+  return manager;
+});
+
