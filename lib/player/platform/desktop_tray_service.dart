@@ -222,8 +222,8 @@ class DesktopTrayService with WindowListener {
             ft.MenuItem(
               id: _idToggleDesktopLyricsLock,
               label: settingsService.desktopLyricsLocked
-                  ? '解锁桌面歌词 (可拖拽)'
-                  : '锁定桌面歌词 (鼠标穿透)',
+                  ? '解锁桌面歌词 (恢复拖拽)'
+                  : '锁定桌面歌词 (固定位置)',
             ),
         ],
         ft.MenuItem.separator(_idSeparator),

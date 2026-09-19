@@ -936,8 +936,8 @@ class LyricsSection extends ConsumerWidget {
         ),
         if (settings.enableDesktopLyrics) ...[
           SwitchListTile(
-            title: const Text('锁定歌词（鼠标穿透）'),
-            subtitle: const Text('开启后鼠标点击直接穿透至下层窗口；未锁定时悬停浮出控制条，可自由拖拽移动'),
+            title: const Text('锁定歌词位置'),
+            subtitle: const Text('开启后固定歌词窗口位置禁止拖拽移动；悬停依然可呼出控制条及解锁'),
             value: settings.desktopLyricsLocked,
             onChanged: (val) {
               settings.desktopLyricsLocked = val;
@@ -949,6 +949,14 @@ class LyricsSection extends ConsumerWidget {
             value: settings.desktopLyricsShowTranslation,
             onChanged: (val) {
               settings.desktopLyricsShowTranslation = val;
+            },
+          ),
+          SwitchListTile(
+            title: const Text('常驻暗色背景'),
+            subtitle: const Text('在桌面歌词底层常驻显示半透明胶囊背景，改善浅色壁纸或复杂窗口下的文字可读性'),
+            value: settings.desktopLyricsShowBackground,
+            onChanged: (val) {
+              settings.desktopLyricsShowBackground = val;
             },
           ),
           ListTile(

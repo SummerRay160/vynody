@@ -585,6 +585,7 @@ class SettingsService extends ChangeNotifier {
   static const String _keyDesktopLyricsLocked = 'desktop_lyrics_locked';
   static const String _keyDesktopLyricsFontSize = 'desktop_lyrics_font_size';
   static const String _keyDesktopLyricsShowTranslation = 'desktop_lyrics_show_translation';
+  static const String _keyDesktopLyricsShowBackground = 'desktop_lyrics_show_background';
   static const String _keyHasShownOnboarding = 'has_shown_onboarding';
   static const String _keyHasShownCoverTapLyricTip =
       'has_shown_cover_tap_lyric_tip';
@@ -1867,6 +1868,13 @@ class SettingsService extends ChangeNotifier {
   late final _desktopLyricsShowTranslationProperty = SettingProperty<bool>(
     key: _keyDesktopLyricsShowTranslation,
     defaultValue: true,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
+  late final _desktopLyricsShowBackgroundProperty = SettingProperty<bool>(
+    key: _keyDesktopLyricsShowBackground,
+    defaultValue: false,
     prefs: _prefs,
     onChanged: notifyListeners,
   );
@@ -3331,6 +3339,11 @@ class SettingsService extends ChangeNotifier {
   bool get desktopLyricsShowTranslation => _desktopLyricsShowTranslationProperty.value;
   set desktopLyricsShowTranslation(bool value) {
     _desktopLyricsShowTranslationProperty.value = value;
+  }
+
+  bool get desktopLyricsShowBackground => _desktopLyricsShowBackgroundProperty.value;
+  set desktopLyricsShowBackground(bool value) {
+    _desktopLyricsShowBackgroundProperty.value = value;
   }
 }
 

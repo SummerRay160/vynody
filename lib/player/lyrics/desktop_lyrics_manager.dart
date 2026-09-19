@@ -8,7 +8,6 @@ import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/lyrics/lyrics_riverpod.dart';
 import 'package:vynody/player/lyrics/lyrics_controller_state.dart';
 import 'package:vynody/player/settings/settings_service.dart';
-import 'package:vynody/utils/app_log.dart';
 
 class DesktopLyricsManager {
   final Ref ref;
@@ -97,6 +96,13 @@ class DesktopLyricsManager {
           settings.desktopLyricsLocked = !settings.desktopLyricsLocked;
         }
         break;
+      case DesktopLyricsActionType.toggleBackground:
+        if (action.data != null && action.data!['showBackground'] is bool) {
+          settings.desktopLyricsShowBackground = action.data!['showBackground'] as bool;
+        } else {
+          settings.desktopLyricsShowBackground = !settings.desktopLyricsShowBackground;
+        }
+        break;
       case DesktopLyricsActionType.increaseFontSize:
       case DesktopLyricsActionType.decreaseFontSize:
         if (action.data != null && action.data!['fontSize'] is num) {
@@ -129,7 +135,8 @@ class DesktopLyricsManager {
 
     return DesktopLyricsStyle(
       fontSize: settings.desktopLyricsFontSize,
-      translationFontSize: (settings.desktopLyricsFontSize * 0.58).clamp(11.0, 36.0),
+      translationFontSize: (settings.desktopLyricsFontSize * 0.68).clamp(14.0, 38.0),
+      showBackground: settings.desktopLyricsShowBackground,
       fontFamily: latinFont.isNotEmpty ? latinFont : 'Segoe UI',
       fontFamilyFallback: fallback,
     );
