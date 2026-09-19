@@ -1,10 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../player/lyrics/custom_font_service.dart';
 import '../player/lyrics/system_fonts_service.dart';
 import '../utils/app_snack_bar.dart';
-import 'custom_font_family_dialog.dart';
 
 /// Shows a comprehensive font picker dialog with live preview and grouped font listing.
 Future<String?> showLyricsFontPickerDialog(
@@ -46,8 +44,6 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
   FontCategory _category = FontCategory.all;
   List<FontItem> _allFonts = [];
   bool _isLoading = true;
-
-  bool get _isAndroid => Platform.isAndroid;
   bool get _hasCustomFonts => _allFonts.any((f) => f.isCustom);
 
   @override
@@ -168,10 +164,19 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final screenSize = MediaQuery.sizeOf(context);
-    final dialogWidth = (screenSize.width * 0.7).clamp(380.0, 560.0);
-    final dialogHeight = (screenSize.height * 0.8).clamp(480.0, 680.0);
+    final isCompact = screenSize.width < 600;
+    final dialogWidth = isCompact
+        ? (screenSize.width - 32).clamp(280.0, 560.0)
+        : (screenSize.width * 0.7).clamp(380.0, 560.0);
+    final dialogHeight = isCompact
+        ? (screenSize.height * 0.85).clamp(420.0, 720.0)
+        : (screenSize.height * 0.8).clamp(480.0, 680.0);
 
     return Dialog(
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isCompact ? 16.0 : 40.0,
+        vertical: 24.0,
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
@@ -301,29 +306,21 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
-                  FilledButton.tonalIcon(
-                    icon: const Icon(Icons.file_upload_outlined, size: 18),
-                    label: Text(l10n.importFontFile),
-                    onPressed: _handleImportFont,
-                  ),
-                  if (!_isAndroid) ...[
-                    const SizedBox(width: 8),
-                    TextButton.icon(
-                      icon: const Icon(Icons.edit_note_rounded, size: 18),
-                      label: Text(l10n.customFontOption),
-                      onPressed: () async {
-                        final entered = await showCustomFontFamilyDialog(
-                          context,
-                          initialFontFamily: _selectedFont,
-                          title: widget.title,
-                        );
-                        if (entered != null) {
-                          _selectFont(entered);
-                        }
-                      },
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: FilledButton.tonalIcon(
+                        icon: const Icon(Icons.file_upload_outlined, size: 18),
+                        label: Text(
+                          l10n.importFontFile,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        onPressed: _handleImportFont,
+                      ),
                     ),
-                  ],
-                  const Spacer(),
+                  ),
+                  const SizedBox(width: 8),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(l10n.cancel),
@@ -552,11 +549,15 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
             children: [
               Icon(Icons.visibility_rounded, size: 16, color: colorScheme.primary),
               const SizedBox(width: 6),
-              Text(
-                '${l10n.lyricsFontPreview} · $fontLabel',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.w600,
+              Expanded(
+                child: Text(
+                  '${l10n.lyricsFontPreview} · $fontLabel',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
             ],
