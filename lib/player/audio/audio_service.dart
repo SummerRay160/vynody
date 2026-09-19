@@ -218,7 +218,9 @@ class AudioService extends Notifier<AudioSnapshot> {
           _isAppBackgrounded = nextBackgrounded;
           _updateEffectiveVisualizerState();
           _updatePlaybackSessionAutoSaveTimer();
-          _player.setBackgroundThrottled(_isAppBackgrounded);
+          final shouldThrottle =
+              _isAppBackgrounded && !settingsService.enableDesktopLyrics;
+          _player.setBackgroundThrottled(shouldThrottle);
           if (_isAppBackgrounded) {
             unawaited(_persistPlaybackSession());
           } else {
@@ -240,6 +242,9 @@ class AudioService extends Notifier<AudioSnapshot> {
     ref.listen<bool>(isWindowMinimizedProvider, (previous, next) {
       _isWindowMinimized = next;
       _updateEffectiveVisualizerState();
+      final shouldThrottle =
+          _isWindowMinimized && !settingsService.enableDesktopLyrics;
+      _player.setBackgroundThrottled(shouldThrottle);
     });
     _visualizerOptions = VisualizerOptionsService(
       controller: _player,
@@ -319,6 +324,9 @@ class AudioService extends Notifier<AudioSnapshot> {
           settingsService.enableDesktopLyrics;
       if (_lastDesktopLyricsEnabled != desktopLyricsEnabled) {
         _lastDesktopLyricsEnabled = desktopLyricsEnabled;
+        final shouldThrottle =
+            (_isAppBackgrounded || _isWindowMinimized) && !desktopLyricsEnabled;
+        _player.setBackgroundThrottled(shouldThrottle);
         if (desktopLyricsEnabled) {
           ensureLyricsLoadedForCurrentSong();
         }
@@ -400,18 +408,31 @@ class AudioService extends Notifier<AudioSnapshot> {
 
   void notifyListeners() {
     if (_disposed) return;
+    final phase = WidgetsBinding.instance.schedulerPhase;
     void update() {
       if (_disposed) return;
       state = snapshot;
       _desktopTrayIntegration?.updateMenu();
     }
 
-    if (WidgetsBinding.instance.schedulerPhase ==
-        SchedulerPhase.persistentCallbacks) {
+    if (phase == SchedulerPhase.persistentCallbacks) {
+      debugPrint('[AudioService] notifyListeners queued in persistentCallbacks phase!');
       WidgetsBinding.instance.addPostFrameCallback((_) => update());
     } else {
       update();
     }
+  }
+
+  final List<void Function(Duration position)> _positionListeners = [];
+
+  void addPositionListener(void Function(Duration position) listener) {
+    if (!_positionListeners.contains(listener)) {
+      _positionListeners.add(listener);
+    }
+  }
+
+  void removePositionListener(void Function(Duration position) listener) {
+    _positionListeners.remove(listener);
   }
 
   Future<void> _restorePlaybackSession() async {
@@ -1268,6 +1289,14 @@ class AudioService extends Notifier<AudioSnapshot> {
     }
 
     final realPosition = _player.player.position;
+    final now = DateTime.now();
+    if (now.difference(_lastPositionDebugLogAt) >= const Duration(seconds: 1)) {
+      _lastPositionDebugLogAt = now;
+      debugPrint(
+        '[AudioService] _handlePlayerChanges: pos=${realPosition.inMilliseconds}ms '
+        'isPlaying=$_isPlaying isAppBg=$_isAppBackgrounded isMin=$_isWindowMinimized',
+      );
+    }
     if (_isSeeking) {
       final target = _seekTargetPosition ?? Duration.zero;
       final difference = (realPosition - target).abs();
@@ -1285,6 +1314,15 @@ class AudioService extends Notifier<AudioSnapshot> {
       }
     } else {
       _position = realPosition;
+    }
+
+    final currentPos = _position;
+    for (final listener in List<void Function(Duration)>.from(_positionListeners)) {
+      try {
+        listener(currentPos);
+      } catch (e) {
+        debugPrint('[AudioService] Error in position listener: $e');
+      }
     }
 
     if (_initialVolumeApplied) {

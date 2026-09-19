@@ -8,13 +8,13 @@ import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/lyrics/lyrics_riverpod.dart';
 import 'package:vynody/player/lyrics/lyrics_controller_state.dart';
 import 'package:vynody/player/settings/settings_service.dart';
+import 'package:vynody/utils/app_log.dart';
 
 class DesktopLyricsManager {
   final Ref ref;
 
   ProviderSubscription<SettingsService>? _settingsSub;
   ProviderSubscription<bool>? _isPlayingSub;
-  ProviderSubscription<Duration>? _positionSub;
   ProviderSubscription<MusicFile?>? _musicSub;
   ProviderSubscription<LyricsControllerState>? _lyricsSub;
 
@@ -22,6 +22,9 @@ class DesktopLyricsManager {
   String? _lastSongPath;
   Duration _lastSentPosition = Duration.zero;
   DateTime _lastSentTime = DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime _lastPositionLogTime = DateTime.fromMillisecondsSinceEpoch(0);
+
+  Duration _currentPosition = Duration.zero;
 
   DesktopLyricsManager(this.ref) {
     if (!Platform.isWindows && !Platform.isMacOS) return;
@@ -30,6 +33,7 @@ class DesktopLyricsManager {
 
   void _init() {
     final settings = ref.read(settingsServiceProvider);
+    final audio = ref.read(audioServiceProvider);
 
     // 1. 设置从桌面歌词子窗口发回的操作监听
     DesktopLyrics.controller.setActionListener(_handleChildAction);
@@ -48,10 +52,9 @@ class DesktopLyricsManager {
       (prev, next) => _syncPlaybackState(),
     );
 
-    _positionSub = ref.listen<Duration>(
-      audioPositionProvider,
-      (prev, next) => _onPositionChanged(next),
-    );
+    // 直接向 AudioService 注册原生高频播放位置监听
+    // 确保无论 Navigator 覆盖多少层页面（如设置页、下载管理页），歌词时钟都不受 Widget 树生命周期影响
+    audio.addPositionListener(_onPositionChanged);
 
     _musicSub = ref.listen<MusicFile?>(
       audioCurrentMusicProvider,
@@ -155,7 +158,9 @@ class DesktopLyricsManager {
   Future<void> _openDesktopLyrics(SettingsService settings) async {
     final currentMusic = ref.read(audioCurrentMusicProvider);
     final isPlaying = ref.read(audioIsPlayingProvider);
-    final position = ref.read(audioPositionProvider);
+    final position = _currentPosition != Duration.zero
+        ? _currentPosition
+        : ref.read(audioPositionProvider);
 
     await DesktopLyrics.controller.show(
       initialStyle: _buildStyle(settings),
@@ -173,7 +178,7 @@ class DesktopLyricsManager {
     );
 
     ref.read(audioServiceProvider).ensureLyricsLoadedForCurrentSong();
-    _syncCurrentLine(force: true);
+    _syncCurrentLine(currentPosition: position, force: true);
   }
 
   void _onMusicChanged(MusicFile? music) {
@@ -188,11 +193,13 @@ class DesktopLyricsManager {
   void _syncPlaybackState({Duration? currentPosition}) {
     if (!DesktopLyrics.controller.isShowing) return;
     final isPlaying = ref.read(audioIsPlayingProvider);
-    final Duration position = currentPosition ?? ref.read(audioPositionProvider);
+    final Duration position = currentPosition ?? _currentPosition;
     final currentMusic = ref.read(audioCurrentMusicProvider);
 
     _lastSentPosition = position;
     _lastSentTime = DateTime.now();
+
+
 
     DesktopLyrics.controller.updatePlaybackState(
       isPlaying: isPlaying,
@@ -203,9 +210,16 @@ class DesktopLyricsManager {
   }
 
   void _onPositionChanged(Duration position) {
-    if (!DesktopLyrics.controller.isShowing) return;
-
+    _currentPosition = position;
+    final isShowing = DesktopLyrics.controller.isShowing;
     final now = DateTime.now();
+
+    if (now.difference(_lastPositionLogTime) >= const Duration(seconds: 1)) {
+      _lastPositionLogTime = now;
+    }
+
+    if (!isShowing) return;
+
     final elapsed = now.difference(_lastSentTime);
     final expectedPos = _lastSentPosition + elapsed;
     // 检测是否发生跳转（Seek）：实际位置与按时间流逝推算的位置偏差大于 500ms
@@ -216,10 +230,10 @@ class DesktopLyricsManager {
       _syncPlaybackState(currentPosition: position);
     }
 
-    _syncCurrentLine(force: isSeek);
+    _syncCurrentLine(currentPosition: position, force: isSeek);
   }
 
-  void _syncCurrentLine({bool force = false}) {
+  void _syncCurrentLine({Duration? currentPosition, bool force = false}) {
     final currentMusic = ref.read(audioCurrentMusicProvider);
     final lyricsState = ref.read(lyricsControllerProvider);
     final lyricsController = ref.read(lyricsControllerProvider.notifier);
@@ -231,6 +245,11 @@ class DesktopLyricsManager {
         : (baseLyrics?.syncedLines ?? const []);
 
     if (lines.isEmpty) {
+      // AppLog.log(
+      //   '[DesktopLyrics] _syncCurrentLine lines EMPTY! song="${currentMusic?.title}" '
+      //   'hasLyrics=${lyricsState.hasLyrics} loading=${lyricsState.isLyricsLoading} force=$force',
+      //   mirrorToConsole: true,
+      // );
       if (_lastActiveLineIndex != -1 || force) {
         _lastActiveLineIndex = -1;
         DesktopLyrics.controller.updateLyricLine(
@@ -245,7 +264,7 @@ class DesktopLyricsManager {
       return;
     }
 
-    final position = ref.read(audioPositionProvider);
+    final position = currentPosition ?? _currentPosition;
     final timelineOffsetMs = baseLyrics?.timelineOffset.inMilliseconds ?? 0;
     final currentMs = position.inMilliseconds - timelineOffsetMs;
 
@@ -264,6 +283,11 @@ class DesktopLyricsManager {
     }
 
     if (activeIndex != _lastActiveLineIndex || force) {
+      // AppLog.log(
+      //   '[DesktopLyrics] _syncCurrentLine: activeIndex=$activeIndex (prev=$_lastActiveLineIndex) '
+      //   'force=$force text="${activeIndex >= 0 && activeIndex < lines.length ? lines[activeIndex].text : ''}"',
+      //   mirrorToConsole: true,
+      // );
       _lastActiveLineIndex = activeIndex;
       if (activeIndex >= 0 && activeIndex < lines.length) {
         final lyricLine = lines[activeIndex];
@@ -300,6 +324,10 @@ class DesktopLyricsManager {
           words: desktopWords,
         );
 
+        // AppLog.log(
+        //   '[DesktopLyrics] sending updateLyricLine -> "${desktopLine.text}"',
+        //   mirrorToConsole: true,
+        // );
         DesktopLyrics.controller.updateLyricLine(desktopLine);
         _syncPlaybackState(currentPosition: position);
       }
@@ -307,9 +335,12 @@ class DesktopLyricsManager {
   }
 
   void dispose() {
+    // AppLog.log('[DesktopLyrics] DesktopLyricsManager dispose() CALLED!', mirrorToConsole: true);
+    try {
+      ref.read(audioServiceProvider).removePositionListener(_onPositionChanged);
+    } catch (_) {}
     _settingsSub?.close();
     _isPlayingSub?.close();
-    _positionSub?.close();
     _musicSub?.close();
     _lyricsSub?.close();
     DesktopLyrics.controller.hide();
