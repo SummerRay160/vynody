@@ -44,6 +44,7 @@ import 'package:vynody/player/library/library_insights_service.dart';
 import 'package:vynody/player/lyrics/lyrics_riverpod.dart';
 import 'package:vynody/player/remote/remote_server_riverpod.dart';
 import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
+import 'package:vynody/player/pro/pro_license_service.dart';
 
 class AudioService extends Notifier<AudioSnapshot> {
   static const String _volumeStorageKey = 'player_volume';
@@ -329,7 +330,11 @@ class AudioService extends Notifier<AudioSnapshot> {
       _player.initialize().then((_) async {
         if (_disposed) return;
         final bandCount = settingsService.equalizerBandCount;
-        final savedEnabled = settingsService.equalizerEnabled;
+        final isProUnlocked = ref.read(isProUnlockedProvider);
+        final savedEnabled = isProUnlocked && settingsService.equalizerEnabled;
+        if (!isProUnlocked && settingsService.equalizerEnabled) {
+          settingsService.equalizerEnabled = false;
+        }
         final savedGains = settingsService.equalizerGains;
         final savedPreamp = settingsService.equalizerPreamp;
         final savedBassBoost = settingsService.equalizerBassBoost;
@@ -1677,6 +1682,9 @@ class AudioService extends Notifier<AudioSnapshot> {
   }
 
   Future<void> setEqualizerEnabled(bool value) async {
+    if (value && !ref.read(isProUnlockedProvider)) {
+      return;
+    }
     await _player.setEqualizerEnabled(value);
     settingsService.equalizerEnabled = value;
     notifyListeners();
@@ -3294,6 +3302,9 @@ class AudioService extends Notifier<AudioSnapshot> {
   }
 
   Future<void> setPlaybackSpeed(double speed) async {
+    if (speed != 1.0 && !ref.read(isProUnlockedProvider)) {
+      speed = 1.0;
+    }
     await _player.player.setPlaybackSpeed(speed);
     notifyListeners();
   }

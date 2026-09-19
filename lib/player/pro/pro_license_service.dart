@@ -17,16 +17,57 @@ const String _kProPurchasedKey = 'vynody_license_pro_purchased';
 
 /// Service managing trial periods and license verification.
 class ProLicenseService extends ChangeNotifier {
-  ProLicenseService({SharedPreferences? prefs}) : _prefs = prefs {
+  ProLicenseService({SharedPreferences? prefs})
+      : _prefs = prefs,
+        _state = _computeInitialState(prefs) {
     _init();
   }
 
   final SharedPreferences? _prefs;
   static const _secureStorage = appSecureStorage;
 
-  LicenseState _state = const LicenseState(
-    type: LicenseType.unlimitedCommunity,
-  );
+  LicenseState _state;
+
+  static LicenseState _computeInitialState(SharedPreferences? prefs) {
+    if (AppChannel.isGitHubRelease) {
+      return const LicenseState(type: LicenseType.unlimitedCommunity);
+    }
+    if (prefs == null) {
+      return const LicenseState(type: LicenseType.activeTrial);
+    }
+    if (prefs.getBool(_kProPurchasedKey) == true) {
+      return const LicenseState(type: LicenseType.purchasedPro);
+    }
+    final firstLaunchMs = prefs.getInt(_kFirstLaunchTimeKey);
+    if (firstLaunchMs != null && firstLaunchMs > 0) {
+      final firstLaunchTime =
+          DateTime.fromMillisecondsSinceEpoch(firstLaunchMs);
+      final expireTime =
+          firstLaunchTime.add(const Duration(days: ProConfig.trialDays));
+      final now = DateTime.now();
+      final remainingDifference = expireTime.difference(now);
+      final remainingDays = remainingDifference.inDays +
+          (remainingDifference.inHours % 24 > 0 ? 1 : 0);
+      if (now.isBefore(expireTime) && remainingDays > 0) {
+        return LicenseState(
+          type: LicenseType.activeTrial,
+          trialTotalDays: ProConfig.trialDays,
+          trialDaysRemaining: remainingDays.clamp(1, ProConfig.trialDays),
+          firstLaunchTime: firstLaunchTime,
+          trialExpireTime: expireTime,
+        );
+      } else {
+        return LicenseState(
+          type: LicenseType.expiredTrial,
+          trialTotalDays: ProConfig.trialDays,
+          trialDaysRemaining: 0,
+          firstLaunchTime: firstLaunchTime,
+          trialExpireTime: expireTime,
+        );
+      }
+    }
+    return const LicenseState(type: LicenseType.activeTrial);
+  }
 
   LicenseState get state => _state;
 
@@ -217,7 +258,8 @@ class ProLicenseService extends ChangeNotifier {
 
 /// Provider for the [ProLicenseService] instance.
 final proLicenseServiceProvider = ChangeNotifierProvider<ProLicenseService>((ref) {
-  return ProLicenseService();
+  final prefs = ref.watch(settingsServiceProvider).prefs;
+  return ProLicenseService(prefs: prefs);
 });
 
 /// Provider for the current [LicenseState].

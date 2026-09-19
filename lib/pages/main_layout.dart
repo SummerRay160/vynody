@@ -27,7 +27,6 @@ import 'package:vynody/dialogs/transfer_dialogs.dart';
 import 'package:vynody/dialogs/remote_pair_dialogs.dart';
 import 'package:vynody/player/library/music_file_utils.dart';
 import 'package:vynody/player/pro/pro_license_service.dart';
-import 'package:vynody/player/settings/settings_service.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/player/audio/playback_source.dart';
@@ -1211,6 +1210,9 @@ class _MainLayoutState extends ConsumerState<MainLayout>
                 .updateWindowsAudioOutput(mode: 'shared'),
           );
         }
+        final audio = ref.read(audioServiceProvider);
+        unawaited(audio.setEqualizerEnabled(false));
+        unawaited(audio.setPlaybackSpeed(1.0));
       } else if (lanEnabled && !serverState.isRunning) {
         ref.read(sharingServerStateProvider.notifier).start();
       }
