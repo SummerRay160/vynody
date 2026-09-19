@@ -3679,10 +3679,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get remotePairCancelledByClient => '对方已取消配对请求';
 
   @override
-  String get proFeatureAiLyricsTitle => 'AI 歌词与翻译';
+  String get proFeatureAiLyricsTitle => 'AI 逐字歌词与翻译';
 
   @override
-  String get proFeatureAiLyricsDesc => '大模型歌词智能生成、时间轴对齐与歌词翻译';
+  String get proFeatureAiLyricsDesc => '大模型智能生成逐字/卡拉OK歌词、时间轴打轴与多语言翻译';
 
   @override
   String get proFeatureTagCompletionTitle => '歌曲元数据自动补全';
@@ -3716,10 +3716,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get proFeatureWaveformBarDesc => '实时提取音频振幅波形，高帧率动态交互进度条';
 
   @override
-  String get proFeatureLanSharingTitle => '局域网歌曲文件分享';
+  String get proFeatureLanSharingTitle => '跨设备歌单歌词同步与局域网互传';
 
   @override
-  String get proFeatureLanSharingDesc => '基于局域网的跨设备歌曲文件快速分享与传输';
+  String get proFeatureLanSharingDesc => '多端极速同步歌单、歌词与曲库文件，局域网点对点免流量传输';
 
   @override
   String get proFeatureRemoteControlTitle => '多端远程控制';
@@ -8290,10 +8290,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get remotePairCancelledByClient => '對方已取消配對請求';
 
   @override
-  String get proFeatureAiLyricsTitle => 'AI 歌詞與翻譯';
+  String get proFeatureAiLyricsTitle => 'AI 逐字歌詞與翻譯';
 
   @override
-  String get proFeatureAiLyricsDesc => '大模型歌詞智慧生成、時間軸對齊與歌詞翻譯';
+  String get proFeatureAiLyricsDesc => '大模型智慧生成逐字/卡拉OK歌詞、時間軸打軸與多語言翻譯';
 
   @override
   String get proFeatureTagCompletionTitle => '歌曲元數據自動補全';
@@ -8327,10 +8327,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get proFeatureWaveformBarDesc => '即時擷取音訊振幅波形，高幀率動態互動進度條';
 
   @override
-  String get proFeatureLanSharingTitle => '區域網路歌曲檔案分享';
+  String get proFeatureLanSharingTitle => '跨裝置歌單歌詞同步與區域網路互傳';
 
   @override
-  String get proFeatureLanSharingDesc => '基於區域網路的跨裝置歌曲檔案快速分享與傳輸';
+  String get proFeatureLanSharingDesc => '多端極速同步歌單、歌詞與曲庫檔案，區域網路點對點免流量傳輸';
 
   @override
   String get proFeatureRemoteControlTitle => '多端遠端控制';

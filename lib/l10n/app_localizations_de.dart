@@ -3919,11 +3919,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Kopplungsanfrage wurde vom Zielgerät abgebrochen.';
 
   @override
-  String get proFeatureAiLyricsTitle => 'KI-Songtexte & Übersetzung';
+  String get proFeatureAiLyricsTitle =>
+      'KI-Wort-für-Wort-Songtexte & Übersetzung';
 
   @override
   String get proFeatureAiLyricsDesc =>
-      'KI-Songtextgenerierung, Zeitachsen-Synchronisation und Übersetzung';
+      'KI-basierte Wort-für-Wort-Karaoke-Songtextgenerierung, Zeitachsen-Synchronisation und Übersetzung';
 
   @override
   String get proFeatureTagCompletionTitle => 'Metadaten-Autovervollständigung';
@@ -3964,11 +3965,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Echtzeit-Wellenformextraktion mit flüssiger interaktiver Suche';
 
   @override
-  String get proFeatureLanSharingTitle => 'LAN-Musikfreigabe';
+  String get proFeatureLanSharingTitle =>
+      'Geräteübergreifende Playlist- & Songtext-Synchronisation';
 
   @override
   String get proFeatureLanSharingDesc =>
-      'Schnelle Dateifreigabe und Übertragung im lokalen Netzwerk';
+      'Blitzschnelle geräteübergreifende Synchronisation von Playlists, Songtexten und Musikdateien im LAN';
 
   @override
   String get proFeatureRemoteControlTitle =>

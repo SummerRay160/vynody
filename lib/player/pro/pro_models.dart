@@ -16,13 +16,13 @@ enum ProFeature {
   /// Full-spectrum custom theme colors & color picker
   customThemeColor,
 
-  /// AI lyrics generation, timeline alignment, and translation
+  /// AI word-by-word karaoke lyrics generation, timeline alignment, and translation
   aiLyrics,
 
   /// AI lyrics real-time translation
   aiTranslation,
 
-  /// LAN music file sharing
+  /// Cross-device playlist/lyrics sync & LAN music file sharing
   lanSharing,
 
   /// Multi-device remote control

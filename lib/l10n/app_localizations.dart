@@ -6948,13 +6948,13 @@ abstract class AppLocalizations {
   /// Pro feature title for AI lyrics and translation
   ///
   /// In zh, this message translates to:
-  /// **'AI 歌词与翻译'**
+  /// **'AI 逐字歌词与翻译'**
   String get proFeatureAiLyricsTitle;
 
   /// Pro feature description for AI lyrics and translation
   ///
   /// In zh, this message translates to:
-  /// **'大模型歌词智能生成、时间轴对齐与歌词翻译'**
+  /// **'大模型智能生成逐字/卡拉OK歌词、时间轴打轴与多语言翻译'**
   String get proFeatureAiLyricsDesc;
 
   /// Pro feature title for metadata auto-completion
@@ -7020,13 +7020,13 @@ abstract class AppLocalizations {
   /// Pro feature title for LAN music file sharing
   ///
   /// In zh, this message translates to:
-  /// **'局域网歌曲文件分享'**
+  /// **'跨设备歌单歌词同步与局域网互传'**
   String get proFeatureLanSharingTitle;
 
   /// Pro feature description for LAN music file sharing
   ///
   /// In zh, this message translates to:
-  /// **'基于局域网的跨设备歌曲文件快速分享与传输'**
+  /// **'多端极速同步歌单、歌词与曲库文件，局域网点对点免流量传输'**
   String get proFeatureLanSharingDesc;
 
   /// Pro feature title for multi-device remote control

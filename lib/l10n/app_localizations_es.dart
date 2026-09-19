@@ -3924,11 +3924,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'La solicitud de vinculación fue cancelada por el dispositivo de destino.';
 
   @override
-  String get proFeatureAiLyricsTitle => 'Letras IA & Traducción';
+  String get proFeatureAiLyricsTitle =>
+      'Letras IA palabra por palabra & Traducción';
 
   @override
   String get proFeatureAiLyricsDesc =>
-      'Generación de letras por IA, alineación de tiempo y traducción';
+      'Generación de letras de karaoke palabra por palabra con IA, alineación y traducción';
 
   @override
   String get proFeatureTagCompletionTitle => 'Autocompletado de metadatos';
@@ -3969,11 +3970,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'Extracción de forma de onda en tiempo real con navegación interactiva fluida';
 
   @override
-  String get proFeatureLanSharingTitle => 'Compartir música por LAN';
+  String get proFeatureLanSharingTitle =>
+      'Sincronización de listas y letras entre dispositivos';
 
   @override
   String get proFeatureLanSharingDesc =>
-      'Transferencia y uso compartido ultrarrápido de música en la red local';
+      'Sincronización ultrarrápida de listas de reproducción, letras y archivos en red local';
 
   @override
   String get proFeatureRemoteControlTitle => 'Control remoto multidispositivo';

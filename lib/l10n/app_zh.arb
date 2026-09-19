@@ -2150,11 +2150,11 @@
   "@proFeatureAiLyricsTitle": {
     "description": "Pro feature title for AI lyrics and translation"
   },
-  "proFeatureAiLyricsTitle": "AI 歌词与翻译",
+  "proFeatureAiLyricsTitle": "AI 逐字歌词与翻译",
   "@proFeatureAiLyricsDesc": {
     "description": "Pro feature description for AI lyrics and translation"
   },
-  "proFeatureAiLyricsDesc": "大模型歌词智能生成、时间轴对齐与歌词翻译",
+  "proFeatureAiLyricsDesc": "大模型智能生成逐字/卡拉OK歌词、时间轴打轴与多语言翻译",
   "@proFeatureTagCompletionTitle": {
     "description": "Pro feature title for metadata auto-completion"
   },
@@ -2198,11 +2198,11 @@
   "@proFeatureLanSharingTitle": {
     "description": "Pro feature title for LAN music file sharing"
   },
-  "proFeatureLanSharingTitle": "局域网歌曲文件分享",
+  "proFeatureLanSharingTitle": "跨设备歌单歌词同步与局域网互传",
   "@proFeatureLanSharingDesc": {
     "description": "Pro feature description for LAN music file sharing"
   },
-  "proFeatureLanSharingDesc": "基于局域网的跨设备歌曲文件快速分享与传输",
+  "proFeatureLanSharingDesc": "多端极速同步歌单、歌词与曲库文件，局域网点对点免流量传输",
   "@proFeatureRemoteControlTitle": {
     "description": "Pro feature title for multi-device remote control"
   },

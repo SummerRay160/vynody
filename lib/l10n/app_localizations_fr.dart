@@ -3929,11 +3929,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'La demande de jumelage a été annulée par l\'appareil cible.';
 
   @override
-  String get proFeatureAiLyricsTitle => 'Paroles IA & Traduction';
+  String get proFeatureAiLyricsTitle => 'Paroles mot à mot IA & Traduction';
 
   @override
   String get proFeatureAiLyricsDesc =>
-      'Génération de paroles par IA, alignement temporel et traduction';
+      'Génération de paroles karaoké mot à mot par IA, synchronisation temporelle et traduction';
 
   @override
   String get proFeatureTagCompletionTitle => 'Autocomplétion des métadonnées';
@@ -3973,11 +3973,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'Extraction de forme d\'onde en temps réel avec navigation interactive fluide';
 
   @override
-  String get proFeatureLanSharingTitle => 'Partage de musique via LAN';
+  String get proFeatureLanSharingTitle =>
+      'Synchronisation de playlists & paroles multi-appareils';
 
   @override
   String get proFeatureLanSharingDesc =>
-      'Partage et transfert rapide de musique entre appareils sur le réseau local';
+      'Synchronisation ultra-rapide des playlists, paroles et morceaux sur le réseau local';
 
   @override
   String get proFeatureRemoteControlTitle =>

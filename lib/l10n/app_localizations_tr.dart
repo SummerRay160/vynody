@@ -3885,11 +3885,12 @@ class AppLocalizationsTr extends AppLocalizations {
       'Eşleştirme isteği hedef cihaz tarafından iptal edildi.';
 
   @override
-  String get proFeatureAiLyricsTitle => 'Yapay Zeka Şarkı Sözleri ve Çeviri';
+  String get proFeatureAiLyricsTitle =>
+      'Yapay Zeka Kelime Kelime Şarkı Sözleri ve Çeviri';
 
   @override
   String get proFeatureAiLyricsDesc =>
-      'Yapay zeka ile şarkı sözü oluşturma, zaman çizelgesi hizalama ve çeviri';
+      'Yapay zeka ile kelime kelime karaoke şarkı sözü oluşturma, zaman çizelgesi hizalama ve çeviri';
 
   @override
   String get proFeatureTagCompletionTitle =>
@@ -3930,11 +3931,12 @@ class AppLocalizationsTr extends AppLocalizations {
       'Gerçek zamanlı dalga formu çıkarma ve akıcı etkileşimli arama';
 
   @override
-  String get proFeatureLanSharingTitle => 'LAN Müzik Dosyası Paylaşımı';
+  String get proFeatureLanSharingTitle =>
+      'Cihazlar Arası Çalma Listesi ve Söz Senkronizasyonu';
 
   @override
   String get proFeatureLanSharingDesc =>
-      'Yerel ağ üzerinden cihazlar arası ultra hızlı şarkı paylaşımı ve aktarımı';
+      'Yerel ağ üzerinden cihazlar arası çalma listesi, şarkı sözü ve müzik senkronizasyonu';
 
   @override
   String get proFeatureRemoteControlTitle => 'Çoklu Cihaz Uzaktan Kontrol';

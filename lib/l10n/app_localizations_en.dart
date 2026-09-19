@@ -3877,11 +3877,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'The pairing request was cancelled by the remote device.';
 
   @override
-  String get proFeatureAiLyricsTitle => 'AI Lyrics & Translation';
+  String get proFeatureAiLyricsTitle => 'AI Word-by-Word Lyrics & Translation';
 
   @override
   String get proFeatureAiLyricsDesc =>
-      'AI lyric generation, timeline alignment, and translation';
+      'AI word-by-word karaoke lyrics generation, timeline alignment, and translation';
 
   @override
   String get proFeatureTagCompletionTitle => 'Song Metadata Auto-Completion';
@@ -3921,11 +3921,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Real-time audio waveform extraction with high-frame-rate interactive seeking';
 
   @override
-  String get proFeatureLanSharingTitle => 'LAN Music File Sharing';
+  String get proFeatureLanSharingTitle => 'Cross-Device Playlist & Lyrics Sync';
 
   @override
   String get proFeatureLanSharingDesc =>
-      'Fast local network song file sharing and transfer across devices';
+      'Fast local network sync for playlists, lyrics, and music files across devices';
 
   @override
   String get proFeatureRemoteControlTitle => 'Multi-Device Remote Control';

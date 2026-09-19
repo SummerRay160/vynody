@@ -3738,10 +3738,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get remotePairCancelledByClient => '相手のデバイスによってペアリング要求がキャンセルされました';
 
   @override
-  String get proFeatureAiLyricsTitle => 'AI歌詞と翻訳';
+  String get proFeatureAiLyricsTitle => 'AI逐語歌詞と翻訳';
 
   @override
-  String get proFeatureAiLyricsDesc => 'AIによる歌詞生成、タイムライン同期、および多言語翻訳';
+  String get proFeatureAiLyricsDesc => 'AIによる逐語・カラオケ歌詞生成、タイムライン打軸および多言語翻訳';
 
   @override
   String get proFeatureTagCompletionTitle => '楽曲メタデータ自動補完';
@@ -3778,10 +3778,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get proFeatureWaveformBarDesc => '音声波形をリアルタイム抽出し、滑らかな操作が可能なプログレスバー';
 
   @override
-  String get proFeatureLanSharingTitle => 'LAN音楽ファイル共有';
+  String get proFeatureLanSharingTitle => '端末間プレイリスト・歌詞同期とLAN共有';
 
   @override
-  String get proFeatureLanSharingDesc => 'ローカルネットワーク内でのデバイス間高速楽曲ファイル共有と転送';
+  String get proFeatureLanSharingDesc =>
+      '同一ローカルネットワークでのプレイリスト、歌詞、楽曲ファイルの高速同期と転送';
 
   @override
   String get proFeatureRemoteControlTitle => 'マルチデバイスリモート操作';

@@ -3743,10 +3743,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get remotePairCancelledByClient => '상대 기기에서 페어링 요청을 취소했습니다';
 
   @override
-  String get proFeatureAiLyricsTitle => 'AI 가사 및 번역';
+  String get proFeatureAiLyricsTitle => 'AI 글자별 가사 및 번역';
 
   @override
-  String get proFeatureAiLyricsDesc => 'AI 가사 생성, 타임라인 정렬 및 가사 번역';
+  String get proFeatureAiLyricsDesc => 'AI 글자별/노래방 가사 생성, 타임라인 정렬 및 다국어 번역';
 
   @override
   String get proFeatureTagCompletionTitle => '음악 메타데이터 자동 완성';
@@ -3783,10 +3783,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proFeatureWaveformBarDesc => '실시간 오디오 진폭 파형 추출 및 부드러운 인터랙티브 탐색';
 
   @override
-  String get proFeatureLanSharingTitle => 'LAN 음악 파일 공유';
+  String get proFeatureLanSharingTitle => '기기 간 플레이리스트·가사 동기화 및 LAN 전송';
 
   @override
-  String get proFeatureLanSharingDesc => '로컬 네트워크 내 초고속 기기간 음악 파일 공유 및 전송';
+  String get proFeatureLanSharingDesc =>
+      '동일 네트워크에서 플레이리스트, 가사 및 음악 파일 초고속 동기화와 전송';
 
   @override
   String get proFeatureRemoteControlTitle => '멀티 디바이스 원격 제어';
