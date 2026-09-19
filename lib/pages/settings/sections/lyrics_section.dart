@@ -12,7 +12,7 @@ import 'package:vynody/player/settings/settings_service.dart';
 import 'package:vynody/utils/file_selector_helper.dart';
 import 'package:vynody/utils/language_code_utils.dart';
 import 'package:vynody/widgets/lyrics_provider_icon.dart';
-import 'package:vynody/dialogs/custom_font_family_dialog.dart';
+import 'package:vynody/dialogs/lyrics_font_picker_dialog.dart';
 import '../dialogs/custom_provider_config_dialog.dart';
 import '../dialogs/lyrics_model_picker_dialog.dart';
 import '../widgets/settings_dropdown_tile.dart';
@@ -134,68 +134,65 @@ class LyricsSection extends ConsumerWidget {
     BuildContext context,
     SettingsService settings,
   ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    const customSentinel = '__custom__';
     final currentFont = settings.lyricsLatinFontFamily;
+    final fontLabel = currentFont.isEmpty ? l10n.followSystemLanguage : currentFont;
 
-    const presetFonts = [
-      '',
-      'Segoe UI',
-      'Inter',
-      'Arial',
-      'Helvetica',
-      'SF Pro',
-      'Roboto',
-      'Georgia',
-      'Cascadia Code',
-      'Consolas',
-    ];
-
-    final isCustom = currentFont.isNotEmpty && !presetFonts.contains(currentFont);
-
-    final options = <SettingsDropdownOption<String>>[
-      SettingsDropdownOption<String>(
-        value: '',
-        label: l10n.followSystemLanguage,
-      ),
-      if (isCustom)
-        SettingsDropdownOption<String>(
-          value: currentFont,
-          label: currentFont,
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      title: Text(
+        l10n.lyricsLatinFontLabel,
+        style: theme.textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.w500,
         ),
-      ...presetFonts.where((f) => f.isNotEmpty).map(
-            (font) => SettingsDropdownOption<String>(
-              value: font,
-              label: font,
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.lyricsLatinFontDescription,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
-      SettingsDropdownOption<String>(
-        value: customSentinel,
-        label: l10n.customFontOption,
-        leading: const Icon(Icons.edit_outlined, size: 18),
+          const SizedBox(height: 4),
+          Text(
+            'The quick brown fox jumps over the lazy dog. 0123456789',
+            style: TextStyle(
+              fontFamily: currentFont.isNotEmpty ? currentFont : null,
+              fontSize: 13,
+              color: colorScheme.primary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
-    ];
-
-    return SettingsDropdownTile<String>(
-      title: l10n.lyricsLatinFontLabel,
-      subtitle: l10n.lyricsLatinFontDescription,
-      value: currentFont,
-      options: options,
-      onChanged: (newValue) async {
-        if (newValue == null) return;
-        if (newValue == customSentinel) {
-          final entered = await showCustomFontFamilyDialog(
+      trailing: FilledButton.tonalIcon(
+        icon: const Icon(Icons.font_download_outlined, size: 16),
+        label: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 150),
+          child: Text(
+            fontLabel,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: currentFont.isNotEmpty ? currentFont : null,
+            ),
+          ),
+        ),
+        onPressed: () async {
+          final selected = await showLyricsFontPickerDialog(
             context,
-            initialFontFamily: currentFont,
+            initialFont: currentFont,
             title: l10n.lyricsLatinFontLabel,
+            isCjkMode: false,
           );
-          if (entered != null) {
-            settings.lyricsLatinFontFamily = entered;
+          if (selected != null) {
+            settings.lyricsLatinFontFamily = selected;
           }
-          return;
-        }
-        settings.lyricsLatinFontFamily = newValue;
-      },
+        },
+      ),
     );
   }
 
@@ -203,71 +200,65 @@ class LyricsSection extends ConsumerWidget {
     BuildContext context,
     SettingsService settings,
   ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    const customSentinel = '__custom__';
     final currentFont = settings.lyricsCjkFontFamily;
+    final fontLabel = currentFont.isEmpty ? l10n.followSystemLanguage : currentFont;
 
-    const presetFonts = <(String, String)>[
-      ('', ''),
-      ('Microsoft YaHei', '微软雅黑 (Microsoft YaHei)'),
-      ('Microsoft YaHei UI', '微软雅黑 UI (YaHei UI)'),
-      ('PingFang SC', '苹方 (PingFang SC)'),
-      ('KaiTi', '楷体 (KaiTi)'),
-      ('SimSun', '宋体 (SimSun)'),
-      ('FangSong', '仿宋 (FangSong)'),
-      ('SimHei', '黑体 (SimHei)'),
-      ('LXGW WenKai', '霞鹜文楷 (LXGW WenKai)'),
-      ('Source Han Sans SC', '思源黑体 (Source Han Sans)'),
-      ('Source Han Serif SC', '思源宋体 (Source Han Serif)'),
-      ('HarmonyOS Sans SC', '鸿蒙黑体 (HarmonyOS Sans)'),
-    ];
-
-    final isCustom = currentFont.isNotEmpty &&
-        !presetFonts.any((element) => element.$1 == currentFont);
-
-    final options = <SettingsDropdownOption<String>>[
-      SettingsDropdownOption<String>(
-        value: '',
-        label: l10n.followSystemLanguage,
-      ),
-      if (isCustom)
-        SettingsDropdownOption<String>(
-          value: currentFont,
-          label: currentFont,
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      title: Text(
+        l10n.lyricsCjkFontLabel,
+        style: theme.textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.w500,
         ),
-      ...presetFonts.where((pair) => pair.$1.isNotEmpty).map(
-            (pair) => SettingsDropdownOption<String>(
-              value: pair.$1,
-              label: pair.$2,
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.lyricsCjkFontDescription,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
-      SettingsDropdownOption<String>(
-        value: customSentinel,
-        label: l10n.customFontOption,
-        leading: const Icon(Icons.edit_outlined, size: 18),
+          const SizedBox(height: 4),
+          Text(
+            '落霞与孤鹜齐飞，秋水共长天一色。',
+            style: TextStyle(
+              fontFamily: currentFont.isNotEmpty ? currentFont : null,
+              fontSize: 13,
+              color: colorScheme.primary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
-    ];
-
-    return SettingsDropdownTile<String>(
-      title: l10n.lyricsCjkFontLabel,
-      subtitle: l10n.lyricsCjkFontDescription,
-      value: currentFont,
-      options: options,
-      onChanged: (newValue) async {
-        if (newValue == null) return;
-        if (newValue == customSentinel) {
-          final entered = await showCustomFontFamilyDialog(
+      trailing: FilledButton.tonalIcon(
+        icon: const Icon(Icons.font_download_outlined, size: 16),
+        label: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 150),
+          child: Text(
+            fontLabel,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: currentFont.isNotEmpty ? currentFont : null,
+            ),
+          ),
+        ),
+        onPressed: () async {
+          final selected = await showLyricsFontPickerDialog(
             context,
-            initialFontFamily: currentFont,
+            initialFont: currentFont,
             title: l10n.lyricsCjkFontLabel,
+            isCjkMode: true,
           );
-          if (entered != null) {
-            settings.lyricsCjkFontFamily = entered;
+          if (selected != null) {
+            settings.lyricsCjkFontFamily = selected;
           }
-          return;
-        }
-        settings.lyricsCjkFontFamily = newValue;
-      },
+        },
+      ),
     );
   }
 

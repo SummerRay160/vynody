@@ -23,6 +23,7 @@ import '../dialogs/manual_lyrics_dialog.dart';
 import '../dialogs/online_lyrics_search_dialog.dart';
 import '../dialogs/timeline_adjustment_dialog.dart';
 import '../dialogs/lyrics_font_scale_dialog.dart';
+import '../dialogs/lyrics_font_picker_dialog.dart';
 import '../utils/app_snack_bar.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/lyrics/lyrics_controller.dart';
@@ -776,6 +777,13 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
         icon: Icons.format_size_rounded,
         context: context,
       ),
+      buildContextMenuItem<String>(
+        value: 'select_lyrics_font',
+        enabled: true,
+        label: l10n.selectLyricsFont,
+        icon: Icons.font_download_outlined,
+        context: context,
+      ),
     ];
 
     final selected = await AppContextMenu.show<String>(
@@ -1020,6 +1028,117 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
       if (context.mounted) {
         final style = settings.lyricsStyle;
         await showLyricsFontScaleDialog(context, ref, lyricsStyle: style);
+      }
+    } else if (selected == 'select_lyrics_font') {
+      if (context.mounted) {
+        await _showSelectLyricsFontDialog();
+      }
+    }
+  }
+
+  Future<void> _showSelectLyricsFontDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    final settings = ref.read(settingsServiceProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final target = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        final latinFont = settings.lyricsLatinFontFamily;
+        final cjkFont = settings.lyricsCjkFontFamily;
+        final latinLabel = latinFont.isEmpty ? l10n.followSystemLanguage : latinFont;
+        final cjkLabel = cjkFont.isEmpty ? l10n.followSystemLanguage : cjkFont;
+
+        return SimpleDialog(
+          title: Text(l10n.selectLyricsFont),
+          children: [
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(dialogContext).pop('cjk'),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    const Icon(Icons.translate_rounded, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l10n.lyricsCjkFontLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 2),
+                          Text(
+                            cjkLabel,
+                            style: TextStyle(
+                              fontFamily: cjkFont.isNotEmpty ? cjkFont : null,
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded),
+                  ],
+                ),
+              ),
+            ),
+            const Divider(height: 8),
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(dialogContext).pop('latin'),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    const Icon(Icons.language_rounded, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l10n.lyricsLatinFontLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 2),
+                          Text(
+                            latinLabel,
+                            style: TextStyle(
+                              fontFamily: latinFont.isNotEmpty ? latinFont : null,
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || target == null) return;
+
+    if (target == 'cjk') {
+      final selected = await showLyricsFontPickerDialog(
+        context,
+        initialFont: settings.lyricsCjkFontFamily,
+        title: l10n.lyricsCjkFontLabel,
+        isCjkMode: true,
+      );
+      if (selected != null) {
+        settings.lyricsCjkFontFamily = selected;
+      }
+    } else if (target == 'latin') {
+      final selected = await showLyricsFontPickerDialog(
+        context,
+        initialFont: settings.lyricsLatinFontFamily,
+        title: l10n.lyricsLatinFontLabel,
+        isCjkMode: false,
+      );
+      if (selected != null) {
+        settings.lyricsLatinFontFamily = selected;
       }
     }
   }

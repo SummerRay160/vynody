@@ -2889,6 +2889,60 @@ abstract class AppLocalizations {
   /// **'例如: 霞鹜文楷 / Inter / Fira Code'**
   String get customFontDialogHint;
 
+  /// No description provided for @selectLyricsFont.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择歌词字体'**
+  String get selectLyricsFont;
+
+  /// No description provided for @systemFonts.
+  ///
+  /// In zh, this message translates to:
+  /// **'系统字体'**
+  String get systemFonts;
+
+  /// No description provided for @recommendedFonts.
+  ///
+  /// In zh, this message translates to:
+  /// **'推荐预设'**
+  String get recommendedFonts;
+
+  /// No description provided for @cjkFonts.
+  ///
+  /// In zh, this message translates to:
+  /// **'中文字体'**
+  String get cjkFonts;
+
+  /// No description provided for @latinFonts.
+  ///
+  /// In zh, this message translates to:
+  /// **'西文字体'**
+  String get latinFonts;
+
+  /// No description provided for @allFonts.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部字体'**
+  String get allFonts;
+
+  /// No description provided for @searchFontHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索字体名称或别名...'**
+  String get searchFontHint;
+
+  /// No description provided for @lyricsFontPreview.
+  ///
+  /// In zh, this message translates to:
+  /// **'字体效果预览'**
+  String get lyricsFontPreview;
+
+  /// No description provided for @defaultFontOption.
+  ///
+  /// In zh, this message translates to:
+  /// **'默认（跟随系统）'**
+  String get defaultFontOption;
+
   /// No description provided for @resumeLyricsSync.
   ///
   /// In zh, this message translates to:

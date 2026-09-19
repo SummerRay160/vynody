@@ -1455,6 +1455,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customFontDialogHint => '例如: 霞鹜文楷 / Inter / Fira Code';
 
   @override
+  String get selectLyricsFont => '选择歌词字体';
+
+  @override
+  String get systemFonts => '系统字体';
+
+  @override
+  String get recommendedFonts => '推荐预设';
+
+  @override
+  String get cjkFonts => '中文字体';
+
+  @override
+  String get latinFonts => '西文字体';
+
+  @override
+  String get allFonts => '全部字体';
+
+  @override
+  String get searchFontHint => '搜索字体名称或别名...';
+
+  @override
+  String get lyricsFontPreview => '字体效果预览';
+
+  @override
+  String get defaultFontOption => '默认（跟随系统）';
+
+  @override
   String get resumeLyricsSync => '恢复歌词同步';
 
   @override

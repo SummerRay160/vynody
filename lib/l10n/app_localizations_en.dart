@@ -1506,6 +1506,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customFontDialogHint => 'e.g. LXGW WenKai, Inter, Fira Code';
 
   @override
+  String get selectLyricsFont => 'Select Lyrics Font';
+
+  @override
+  String get systemFonts => 'System Fonts';
+
+  @override
+  String get recommendedFonts => 'Recommended';
+
+  @override
+  String get cjkFonts => 'CJK Fonts';
+
+  @override
+  String get latinFonts => 'Latin Fonts';
+
+  @override
+  String get allFonts => 'All Fonts';
+
+  @override
+  String get searchFontHint => 'Search font name...';
+
+  @override
+  String get lyricsFontPreview => 'Font Preview';
+
+  @override
+  String get defaultFontOption => 'Default (Follow System)';
+
+  @override
   String get resumeLyricsSync => 'Resume Sync';
 
   @override
