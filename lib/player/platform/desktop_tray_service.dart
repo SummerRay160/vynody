@@ -210,20 +210,22 @@ class DesktopTrayService with WindowListener {
           id: _idToggleMute,
           label: isMuted ? l10n.unmute : l10n.mute,
         ),
-        ft.MenuItem.separator(_idSeparator),
-        ft.MenuItem(
-          id: _idToggleDesktopLyrics,
-          label: settingsService.enableDesktopLyrics
-              ? '关闭桌面歌词'
-              : '开启桌面歌词',
-        ),
-        if (settingsService.enableDesktopLyrics)
+        if (!Platform.isLinux) ...[
+          ft.MenuItem.separator(_idSeparator),
           ft.MenuItem(
-            id: _idToggleDesktopLyricsLock,
-            label: settingsService.desktopLyricsLocked
-                ? '解锁桌面歌词 (可拖拽)'
-                : '锁定桌面歌词 (鼠标穿透)',
+            id: _idToggleDesktopLyrics,
+            label: settingsService.enableDesktopLyrics
+                ? '关闭桌面歌词'
+                : '开启桌面歌词',
           ),
+          if (settingsService.enableDesktopLyrics)
+            ft.MenuItem(
+              id: _idToggleDesktopLyricsLock,
+              label: settingsService.desktopLyricsLocked
+                  ? '解锁桌面歌词 (可拖拽)'
+                  : '锁定桌面歌词 (鼠标穿透)',
+            ),
+        ],
         ft.MenuItem.separator(_idSeparator),
         ft.MenuItem(
           id: _idToggleWindow,

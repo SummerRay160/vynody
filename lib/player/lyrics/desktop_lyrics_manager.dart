@@ -24,7 +24,7 @@ class DesktopLyricsManager {
   DateTime _lastSentTime = DateTime.fromMillisecondsSinceEpoch(0);
 
   DesktopLyricsManager(this.ref) {
-    if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) return;
+    if (!Platform.isWindows && !Platform.isMacOS) return;
     _init();
   }
 

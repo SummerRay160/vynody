@@ -206,12 +206,14 @@ class AudioService extends Notifier<AudioSnapshot> {
       return rawUri;
     });
 
+    final isDesktop =
+        Platform.isWindows || Platform.isLinux || Platform.isMacOS;
     _lifecycleListener = AppLifecycleListener(
       onStateChange: (state) {
         final nextBackgrounded =
             (state == AppLifecycleState.paused ||
             state == AppLifecycleState.hidden ||
-            state == AppLifecycleState.inactive);
+            (!isDesktop && state == AppLifecycleState.inactive));
         if (_isAppBackgrounded != nextBackgrounded) {
           _isAppBackgrounded = nextBackgrounded;
           _updateEffectiveVisualizerState();

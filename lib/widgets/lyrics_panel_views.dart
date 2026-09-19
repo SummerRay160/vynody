@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1259,16 +1260,21 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    final isDesktop = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.linux ||
+            defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.macOS);
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden ||
-        state == AppLifecycleState.inactive) {
+        (!isDesktop && state == AppLifecycleState.inactive)) {
       if (!_isBackgroundSuspended) {
         _isBackgroundSuspended = true;
         if (_ticker.isActive) {
           _ticker.stop();
         }
       }
-    } else if (state == AppLifecycleState.resumed) {
+    } else if (state == AppLifecycleState.resumed ||
+        (isDesktop && state == AppLifecycleState.inactive)) {
       if (_isBackgroundSuspended) {
         _isBackgroundSuspended = false;
         _updateTickerState();

@@ -291,8 +291,10 @@ dependency_overrides:
   #   path: ./Bonsoir/packages/bonsoir_windows
   audio_core:
     path: ./audio_core
-  # desktop_multi_window:
-  #   path: ./flutter-plugins/packages/desktop_multi_window
+  flutter_desktop_lyrics:
+    path: ./flutter_desktop_lyrics
+  desktop_multi_window:
+    path: ./flutter-plugins/packages/desktop_multi_window
   # flutter_taglib:
   #   path: ./audio_core/flutter_taglib
   # windows_taskbar:

@@ -272,22 +272,23 @@ class _DesktopWindowTitleBarState extends ConsumerState<DesktopWindowTitleBar>
                               !settings.isSmallWindowMode;
                         },
                       ),
-                      _CapsuleButtonData(
-                        icon: settings.enableDesktopLyrics
-                            ? Icons.subtitles
-                            : Icons.subtitles_outlined,
-                        iconSize: isSmallWindowMode ? 14 : 16,
-                        tooltip: settings.enableDesktopLyrics
-                            ? '关闭桌面歌词'
-                            : '桌面歌词',
-                        color: settings.enableDesktopLyrics
-                            ? Theme.of(context).colorScheme.primary
-                            : null,
-                        onPressed: () {
-                          settings.enableDesktopLyrics =
-                              !settings.enableDesktopLyrics;
-                        },
-                      ),
+                      if (!Platform.isLinux)
+                        _CapsuleButtonData(
+                          icon: settings.enableDesktopLyrics
+                              ? Icons.subtitles
+                              : Icons.subtitles_outlined,
+                          iconSize: isSmallWindowMode ? 14 : 16,
+                          tooltip: settings.enableDesktopLyrics
+                              ? '关闭桌面歌词'
+                              : '桌面歌词',
+                          color: settings.enableDesktopLyrics
+                              ? Theme.of(context).colorScheme.primary
+                              : null,
+                          onPressed: () {
+                            settings.enableDesktopLyrics =
+                                !settings.enableDesktopLyrics;
+                          },
+                        ),
                       if (isSmallWindowMode)
                         _CapsuleButtonData(
                           icon: settings.isSmallWindowAlwaysOnTop

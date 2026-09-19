@@ -950,7 +950,7 @@ class LyricsSection extends ConsumerWidget {
           title: l10n.lyricsSectionTitle,
           description: l10n.lyricsSectionDescription,
         ),
-        if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS))
+        if (!kIsWeb && (Platform.isWindows || Platform.isMacOS))
           _buildDesktopLyricsGroup(context, settings),
         SettingsGroupCard(
           title: l10n.lyricsSectionTitle,

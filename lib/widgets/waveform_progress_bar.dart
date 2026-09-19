@@ -165,14 +165,19 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    final isDesktop = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.linux ||
+            defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.macOS);
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden ||
-        state == AppLifecycleState.inactive) {
+        (!isDesktop && state == AppLifecycleState.inactive)) {
       if (!_suspendedForBackground) {
         _suspendedForBackground = true;
         _updateTickerState();
       }
-    } else if (state == AppLifecycleState.resumed) {
+    } else if (state == AppLifecycleState.resumed ||
+        (isDesktop && state == AppLifecycleState.inactive)) {
       if (_suspendedForBackground) {
         _suspendedForBackground = false;
         _updateTickerState();

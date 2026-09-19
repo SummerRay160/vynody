@@ -17,6 +17,8 @@ analyzer:
     - "mobile_storage_listener/**"
     - "proxy_getter/**"
     - "window_manager/**"
+    - "flutter_desktop_lyrics/**"
+    - "flutter-plugins/**"
     - android/**
     - ios/**
     - web/**

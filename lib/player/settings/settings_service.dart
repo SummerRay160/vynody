@@ -1879,6 +1879,10 @@ class SettingsService extends ChangeNotifier {
         _prefs.getString(customProviderNameStorageKey)?.trim() ?? '';
     LocalizedText.overrideLanguageCode =
         _prefs.getString(_keyLocale) ?? 'system';
+    if (defaultTargetPlatform == TargetPlatform.linux &&
+        _enableDesktopLyricsProperty.value) {
+      _enableDesktopLyricsProperty.value = false;
+    }
     _syncProxyToManager();
   }
 
@@ -3160,8 +3164,15 @@ class SettingsService extends ChangeNotifier {
     _regularWindowMaximizedProperty.value = value;
   }
 
-  bool get enableDesktopLyrics => _enableDesktopLyricsProperty.value;
+  bool get enableDesktopLyrics =>
+      defaultTargetPlatform == TargetPlatform.linux
+          ? false
+          : _enableDesktopLyricsProperty.value;
   set enableDesktopLyrics(bool value) {
+    if (defaultTargetPlatform == TargetPlatform.linux) {
+      _enableDesktopLyricsProperty.value = false;
+      return;
+    }
     _enableDesktopLyricsProperty.value = value;
   }
 
