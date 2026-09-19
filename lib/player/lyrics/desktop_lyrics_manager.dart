@@ -116,8 +116,13 @@ class DesktopLyricsManager {
   }
 
   DesktopLyricsStyle _buildStyle(SettingsService settings) {
+    final lyricsFont = settings.lyricsFontFamily.trim();
     final latinFont = settings.lyricsLatinFontFamily.trim();
     final cjkFont = settings.lyricsCjkFontFamily.trim();
+    final fontToUse = lyricsFont.isNotEmpty
+        ? lyricsFont
+        : (latinFont.isNotEmpty ? latinFont : cjkFont);
+
     const defaultFallback = [
       'Microsoft YaHei UI',
       'Microsoft YaHei',
@@ -129,15 +134,17 @@ class DesktopLyricsManager {
       'sans-serif',
     ];
     final fallback = [
-      if (cjkFont.isNotEmpty) cjkFont,
-      ...defaultFallback.where((f) => f != cjkFont),
+      if (fontToUse.isNotEmpty)
+        ...defaultFallback.where((f) => f != fontToUse)
+      else
+        ...defaultFallback,
     ];
 
     return DesktopLyricsStyle(
       fontSize: settings.desktopLyricsFontSize,
       translationFontSize: (settings.desktopLyricsFontSize * 0.68).clamp(14.0, 38.0),
       showBackground: settings.desktopLyricsShowBackground,
-      fontFamily: latinFont.isNotEmpty ? latinFont : 'Segoe UI',
+      fontFamily: fontToUse.isNotEmpty ? fontToUse : 'Segoe UI',
       fontFamilyFallback: fallback,
     );
   }

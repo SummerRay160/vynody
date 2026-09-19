@@ -155,6 +155,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   bool? _lastMeasuredHasTimedLyrics;
   LyricsStyle? _lastMeasuredLyricsStyle;
   String? _lastMeasuredLang;
+  String? _lastMeasuredLyricsFont;
   String? _lastMeasuredLatinFont;
   String? _lastMeasuredCjkFont;
   ({List<double> heights, List<double> itemCenters, List<double> anchorCenters})? _cachedLineMetrics;
@@ -170,6 +171,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   Color? _lastBuiltSecondaryTextColor;
   LyricsControllerState? _lastBuiltLyricsState;
   MusicFile? _lastBuiltCurrentSong;
+  String? _lastBuiltLyricsFont;
   String? _lastBuiltLatinFont;
   String? _lastBuiltCjkFont;
 
@@ -241,6 +243,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     final targetLang = ref.read(lyricsControllerProvider).lyricsTranslationLanguageCode;
     final effectiveLang = lyrics?.getEffectiveTranslationLanguage(targetLang) ?? targetLang;
     final settings = ref.read(settingsServiceProvider);
+    final lyricsFont = settings.lyricsFontFamily;
     final latinFont = settings.lyricsLatinFontFamily;
     final cjkFont = settings.lyricsCjkFontFamily;
 
@@ -251,6 +254,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
         _lastMeasuredHasTimedLyrics == hasTimedLyrics &&
         _lastMeasuredLyricsStyle == lyricsStyle &&
         _lastMeasuredLang == effectiveLang &&
+        _lastMeasuredLyricsFont == lyricsFont &&
         _lastMeasuredLatinFont == latinFont &&
         _lastMeasuredCjkFont == cjkFont &&
         _cachedLineMetrics != null) {
@@ -273,10 +277,10 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     final verticalItemPadding = basePadding * lyricsFontScale;
     final translatedSpacing = 3 * lyricsFontScale;
 
-    final effectiveFontFamily = latinFont.trim().isNotEmpty
-        ? latinFont.trim()
-        : null;
-    final trimmedCjk = cjkFont.trim();
+    final fontToUse = lyricsFont.trim().isNotEmpty
+        ? lyricsFont.trim()
+        : (latinFont.trim().isNotEmpty ? latinFont.trim() : cjkFont.trim());
+    final effectiveFontFamily = fontToUse.isNotEmpty ? fontToUse : null;
     const defaultFallback = [
       'Microsoft YaHei UI',
       'Microsoft YaHei',
@@ -288,8 +292,10 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
       'sans-serif',
     ];
     final effectiveFontFamilyFallback = [
-      if (trimmedCjk.isNotEmpty) trimmedCjk,
-      ...defaultFallback.where((f) => f != trimmedCjk),
+      if (effectiveFontFamily != null)
+        ...defaultFallback.where((f) => f != effectiveFontFamily)
+      else
+        ...defaultFallback,
     ];
 
     final lineStyle = hasTimedLyrics
@@ -397,6 +403,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     _lastMeasuredHasTimedLyrics = hasTimedLyrics;
     _lastMeasuredLyricsStyle = lyricsStyle;
     _lastMeasuredLang = effectiveLang;
+    _lastMeasuredLyricsFont = lyricsFont;
     _lastMeasuredLatinFont = latinFont;
     _lastMeasuredCjkFont = cjkFont;
     _cachedLineMetrics = result;
@@ -1039,107 +1046,14 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   Future<void> _showSelectLyricsFontDialog() async {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.read(settingsServiceProvider);
-    final colorScheme = Theme.of(context).colorScheme;
 
-    final target = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) {
-        final latinFont = settings.lyricsLatinFontFamily;
-        final cjkFont = settings.lyricsCjkFontFamily;
-        final latinLabel = latinFont.isEmpty ? l10n.followSystemLanguage : latinFont;
-        final cjkLabel = cjkFont.isEmpty ? l10n.followSystemLanguage : cjkFont;
-
-        return SimpleDialog(
-          title: Text(l10n.selectLyricsFont),
-          children: [
-            SimpleDialogOption(
-              onPressed: () => Navigator.of(dialogContext).pop('cjk'),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  children: [
-                    const Icon(Icons.translate_rounded, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(l10n.lyricsCjkFontLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 2),
-                          Text(
-                            cjkLabel,
-                            style: TextStyle(
-                              fontFamily: cjkFont.isNotEmpty ? cjkFont : null,
-                              color: colorScheme.onSurfaceVariant,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right_rounded),
-                  ],
-                ),
-              ),
-            ),
-            const Divider(height: 8),
-            SimpleDialogOption(
-              onPressed: () => Navigator.of(dialogContext).pop('latin'),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  children: [
-                    const Icon(Icons.language_rounded, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(l10n.lyricsLatinFontLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 2),
-                          Text(
-                            latinLabel,
-                            style: TextStyle(
-                              fontFamily: latinFont.isNotEmpty ? latinFont : null,
-                              color: colorScheme.onSurfaceVariant,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right_rounded),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+    final selected = await showLyricsFontPickerDialog(
+      context,
+      initialFont: settings.lyricsFontFamily,
+      title: l10n.selectLyricsFont,
     );
-
-    if (!mounted || target == null) return;
-
-    if (target == 'cjk') {
-      final selected = await showLyricsFontPickerDialog(
-        context,
-        initialFont: settings.lyricsCjkFontFamily,
-        title: l10n.lyricsCjkFontLabel,
-        isCjkMode: true,
-      );
-      if (selected != null) {
-        settings.lyricsCjkFontFamily = selected;
-      }
-    } else if (target == 'latin') {
-      final selected = await showLyricsFontPickerDialog(
-        context,
-        initialFont: settings.lyricsLatinFontFamily,
-        title: l10n.lyricsLatinFontLabel,
-        isCjkMode: false,
-      );
-      if (selected != null) {
-        settings.lyricsLatinFontFamily = selected;
-      }
+    if (selected != null && mounted) {
+      settings.lyricsFontFamily = selected;
     }
   }
 
@@ -1890,6 +1804,9 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
               ? settings.lyricsFontScaleApple
               : settings.lyricsFontScaleTraditional),
     );
+    final lyricsFont = ref.watch(
+      settingsServiceProvider.select((settings) => settings.lyricsFontFamily),
+    );
     final lyricsLatinFont = ref.watch(
       settingsServiceProvider.select((settings) => settings.lyricsLatinFontFamily),
     );
@@ -2212,6 +2129,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
             isTranslating != _lastBuiltIsTranslating ||
             widget.isTransitioning != _lastBuiltIsTransitioning ||
             isLowMidEnd != _lastBuiltIsLowMidEnd ||
+            lyricsFont != _lastBuiltLyricsFont ||
             lyricsLatinFont != _lastBuiltLatinFont ||
             lyricsCjkFont != _lastBuiltCjkFont;
 
@@ -2236,6 +2154,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
           _lastBuiltIsTranslating = isTranslating;
           _lastBuiltIsTransitioning = widget.isTransitioning;
           _lastBuiltIsLowMidEnd = isLowMidEnd;
+          _lastBuiltLyricsFont = lyricsFont;
           _lastBuiltLatinFont = lyricsLatinFont;
           _lastBuiltCjkFont = lyricsCjkFont;
 
@@ -2248,6 +2167,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
             activeIndex: focusedIndex,
             isAutoScrollPaused: _isAutoScrollPaused,
             lyricsFontScale: calculatedFontScale,
+            lyricsFontFamily: lyricsFont,
             latinFontFamily: lyricsLatinFont,
             cjkFontFamily: lyricsCjkFont,
             textColor: textColor,

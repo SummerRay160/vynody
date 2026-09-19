@@ -130,44 +130,35 @@ class LyricsSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildLyricsLatinFontSection(
+  Widget _buildLyricsFontSection(
     BuildContext context,
     SettingsService settings,
   ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    final currentFont = settings.lyricsLatinFontFamily;
+    final currentFont = settings.lyricsFontFamily;
     final fontLabel = currentFont.isEmpty ? l10n.followSystemLanguage : currentFont;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       title: Text(
-        l10n.lyricsLatinFontLabel,
+        l10n.selectLyricsFont,
         style: theme.textTheme.bodyLarge?.copyWith(
           fontWeight: FontWeight.w500,
         ),
       ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.lyricsLatinFontDescription,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Text(
+          '落霞与孤鹜齐飞 · The quick brown fox 0123456789',
+          style: TextStyle(
+            fontFamily: currentFont.isNotEmpty ? currentFont : null,
+            fontSize: 13,
+            color: colorScheme.primary,
+            fontWeight: FontWeight.w500,
           ),
-          const SizedBox(height: 4),
-          Text(
-            'The quick brown fox jumps over the lazy dog. 0123456789',
-            style: TextStyle(
-              fontFamily: currentFont.isNotEmpty ? currentFont : null,
-              fontSize: 13,
-              color: colorScheme.primary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+        ),
       ),
       trailing: FilledButton.tonalIcon(
         icon: const Icon(Icons.font_download_outlined, size: 16),
@@ -185,77 +176,10 @@ class LyricsSection extends ConsumerWidget {
           final selected = await showLyricsFontPickerDialog(
             context,
             initialFont: currentFont,
-            title: l10n.lyricsLatinFontLabel,
-            isCjkMode: false,
+            title: l10n.selectLyricsFont,
           );
           if (selected != null) {
-            settings.lyricsLatinFontFamily = selected;
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _buildLyricsCjkFontSection(
-    BuildContext context,
-    SettingsService settings,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    final currentFont = settings.lyricsCjkFontFamily;
-    final fontLabel = currentFont.isEmpty ? l10n.followSystemLanguage : currentFont;
-
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      title: Text(
-        l10n.lyricsCjkFontLabel,
-        style: theme.textTheme.bodyLarge?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.lyricsCjkFontDescription,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '落霞与孤鹜齐飞，秋水共长天一色。',
-            style: TextStyle(
-              fontFamily: currentFont.isNotEmpty ? currentFont : null,
-              fontSize: 13,
-              color: colorScheme.primary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-      trailing: FilledButton.tonalIcon(
-        icon: const Icon(Icons.font_download_outlined, size: 16),
-        label: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 150),
-          child: Text(
-            fontLabel,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontFamily: currentFont.isNotEmpty ? currentFont : null,
-            ),
-          ),
-        ),
-        onPressed: () async {
-          final selected = await showLyricsFontPickerDialog(
-            context,
-            initialFont: currentFont,
-            title: l10n.lyricsCjkFontLabel,
-            isCjkMode: true,
-          );
-          if (selected != null) {
-            settings.lyricsCjkFontFamily = selected;
+            settings.lyricsFontFamily = selected;
           }
         },
       ),
@@ -989,8 +913,7 @@ class LyricsSection extends ConsumerWidget {
             _buildLyricsTranslationLanguageSection(context, settings),
             _buildLyricsSaveMethodSection(context, settings),
             _buildLyricsStyleSection(context, settings),
-            _buildLyricsLatinFontSection(context, settings),
-            _buildLyricsCjkFontSection(context, settings),
+            _buildLyricsFontSection(context, settings),
           ],
         ),
         SettingsGroupCard(

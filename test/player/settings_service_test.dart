@@ -486,24 +486,39 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       final settings = SettingsService(prefs);
 
+      expect(settings.lyricsFontFamily, '');
       expect(settings.lyricsLatinFontFamily, '');
       expect(settings.lyricsCjkFontFamily, '');
 
+      settings.lyricsFontFamily = 'LXGW WenKai';
       settings.lyricsLatinFontFamily = 'Inter';
       settings.lyricsCjkFontFamily = 'LXGW WenKai';
 
+      expect(settings.lyricsFontFamily, 'LXGW WenKai');
       expect(settings.lyricsLatinFontFamily, 'Inter');
       expect(settings.lyricsCjkFontFamily, 'LXGW WenKai');
 
       // Check persistence
       final restored = SettingsService(prefs);
+      expect(restored.lyricsFontFamily, 'LXGW WenKai');
       expect(restored.lyricsLatinFontFamily, 'Inter');
       expect(restored.lyricsCjkFontFamily, 'LXGW WenKai');
 
       // Reset
       settings.resetLyricsFonts();
+      expect(settings.lyricsFontFamily, '');
       expect(settings.lyricsLatinFontFamily, '');
       expect(settings.lyricsCjkFontFamily, '');
+    });
+
+    test('migrates from legacy lyricsCjkFontFamily if lyricsFontFamily is unset', () async {
+      SharedPreferences.setMockInitialValues({
+        'lyrics_cjk_font_family': 'LXGW WenKai',
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final settings = SettingsService(prefs);
+
+      expect(settings.lyricsFontFamily, 'LXGW WenKai');
     });
   });
 }

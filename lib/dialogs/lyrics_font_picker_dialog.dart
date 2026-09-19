@@ -6,20 +6,20 @@ import '../player/lyrics/system_fonts_service.dart';
 import '../utils/app_snack_bar.dart';
 import 'custom_font_family_dialog.dart';
 
-/// Shows a comprehensive font picker dialog with live preview and system font listing.
+/// Shows a comprehensive font picker dialog with live preview and grouped font listing.
 Future<String?> showLyricsFontPickerDialog(
   BuildContext context, {
   required String initialFont,
-  required String title,
-  bool isCjkMode = false,
+  String? title,
+  bool? isCjkMode,
   ValueChanged<String>? onFontPreview,
 }) async {
+  final l10n = AppLocalizations.of(context)!;
   return showDialog<String?>(
     context: context,
     builder: (dialogContext) => _LyricsFontPickerDialog(
       initialFont: initialFont,
-      title: title,
-      isCjkMode: isCjkMode,
+      title: title ?? l10n.selectLyricsFont,
       onFontPreview: onFontPreview,
     ),
   );
@@ -29,13 +29,11 @@ class _LyricsFontPickerDialog extends StatefulWidget {
   const _LyricsFontPickerDialog({
     required this.initialFont,
     required this.title,
-    required this.isCjkMode,
     this.onFontPreview,
   });
 
   final String initialFont;
   final String title;
-  final bool isCjkMode;
   final ValueChanged<String>? onFontPreview;
 
   @override
@@ -45,7 +43,7 @@ class _LyricsFontPickerDialog extends StatefulWidget {
 class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
   late String _selectedFont;
   late TextEditingController _searchController;
-  FontCategory _category = FontCategory.recommended;
+  FontCategory _category = FontCategory.all;
   List<FontItem> _allFonts = [];
   bool _isLoading = true;
 
@@ -57,7 +55,7 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
     super.initState();
     _selectedFont = widget.initialFont.trim();
     _searchController = TextEditingController();
-    _category = _isAndroid ? FontCategory.all : FontCategory.recommended;
+    _category = FontCategory.all;
 
     // Load initial sync presets first, then await full scan
     _allFonts = SystemFontsService.instance.getAvailableFontsSync();
@@ -140,16 +138,14 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
         case FontCategory.custom:
           if (!item.isCustom) return false;
           break;
-        case FontCategory.recommended:
-          if (!item.isRecommended) return false;
-          if (widget.isCjkMode && !item.isCjk) return false;
-          if (!widget.isCjkMode && item.isCjk) return false;
-          break;
         case FontCategory.cjk:
-          if (!item.isCjk) return false;
+          if (item.isCustom || !item.isCjk) return false;
           break;
         case FontCategory.latin:
-          if (item.isCjk) return false;
+          if (item.isCustom || item.isCjk) return false;
+          break;
+        case FontCategory.recommended:
+          if (!item.isRecommended) return false;
           break;
         case FontCategory.all:
           break;
@@ -171,7 +167,6 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    final filteredFonts = _getFilteredFonts();
     final screenSize = MediaQuery.sizeOf(context);
     final dialogWidth = (screenSize.width * 0.7).clamp(380.0, 560.0);
     final dialogHeight = (screenSize.height * 0.8).clamp(480.0, 680.0);
@@ -217,7 +212,7 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
               ),
             ),
 
-            // Live Preview Card
+            // Live Preview Card (Bilingual preview)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _buildPreviewCard(theme, colorScheme, l10n),
@@ -255,125 +250,48 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
                     ),
                     onChanged: (_) => setState(() {}),
                   ),
-                  if (!_isAndroid) ...[
-                    const SizedBox(height: 10),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _buildCategoryChip(
-                            label: l10n.recommendedFonts,
-                            category: FontCategory.recommended,
-                            colorScheme: colorScheme,
-                          ),
-                          if (_hasCustomFonts) ...[
-                            const SizedBox(width: 8),
-                            _buildCategoryChip(
-                              label: '${l10n.importedFonts} (${_allFonts.where((f) => f.isCustom).length})',
-                              category: FontCategory.custom,
-                              colorScheme: colorScheme,
-                            ),
-                          ],
+                  const SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildCategoryChip(
+                          label: '${l10n.allFonts} (${_allFonts.length})',
+                          category: FontCategory.all,
+                          colorScheme: colorScheme,
+                        ),
+                        if (_hasCustomFonts) ...[
                           const SizedBox(width: 8),
                           _buildCategoryChip(
-                            label: l10n.cjkFonts,
-                            category: FontCategory.cjk,
-                            colorScheme: colorScheme,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildCategoryChip(
-                            label: l10n.latinFonts,
-                            category: FontCategory.latin,
-                            colorScheme: colorScheme,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildCategoryChip(
-                            label: '${l10n.allFonts} (${_allFonts.length})',
-                            category: FontCategory.all,
+                            label: '${l10n.importedFonts} (${_allFonts.where((f) => f.isCustom).length})',
+                            category: FontCategory.custom,
                             colorScheme: colorScheme,
                           ),
                         ],
-                      ),
+                        const SizedBox(width: 8),
+                        _buildCategoryChip(
+                          label: l10n.cjkFonts,
+                          category: FontCategory.cjk,
+                          colorScheme: colorScheme,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildCategoryChip(
+                          label: l10n.latinFonts,
+                          category: FontCategory.latin,
+                          colorScheme: colorScheme,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ],
               ),
             ),
 
             const Divider(height: 16),
 
-            // Font List
+            // Font List (Grouped with Section Headers and Dividers)
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                itemCount: filteredFonts.isEmpty && _isAndroid
-                    ? 2 // index 0: default, index 1: empty hint
-                    : filteredFonts.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    // Default / Follow System
-                    final isSelected = _selectedFont.isEmpty;
-                    return _buildFontTile(
-                      title: l10n.defaultFontOption,
-                      subtitle: widget.isCjkMode
-                          ? '落霞与孤鹜齐飞，秋水共长天一色'
-                          : 'The quick brown fox jumps over the lazy dog',
-                      fontFamily: '',
-                      isSelected: isSelected,
-                      isCustom: false,
-                      colorScheme: colorScheme,
-                      theme: theme,
-                      onTap: () => _selectFont(''),
-                    );
-                  }
-
-                  if (filteredFonts.isEmpty && _isAndroid) {
-                    return Container(
-                      margin: const EdgeInsets.only(top: 24, left: 16, right: 16),
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.font_download_outlined, size: 40, color: colorScheme.outline),
-                          const SizedBox(height: 10),
-                          Text(
-                            l10n.noImportedFontsHint,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  final item = filteredFonts[index - 1];
-                  final isSelected = _selectedFont == item.family;
-                  final sampleText = widget.isCjkMode
-                      ? '落霞与孤鹜齐飞，秋水共长天一色。0123456789'
-                      : 'The quick brown fox jumps over the lazy dog. 0123456789';
-
-                  return _buildFontTile(
-                    title: item.displayName,
-                    subtitle: sampleText,
-                    fontFamily: item.family,
-                    isSelected: isSelected,
-                    isCustom: item.isCustom,
-                    colorScheme: colorScheme,
-                    theme: theme,
-                    onTap: () => _selectFont(item.family),
-                    onDelete: item.isCustom ? () => _handleDeleteFont(item) : null,
-                  );
-                },
-              ),
+              child: _buildFontList(theme, colorScheme, l10n),
             ),
 
             const Divider(height: 1),
@@ -424,6 +342,191 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
     );
   }
 
+  Widget _buildFontList(ThemeData theme, ColorScheme colorScheme, AppLocalizations l10n) {
+    final query = _searchController.text.trim();
+    final items = <Widget>[];
+
+    if (query.isNotEmpty) {
+      final searchResults = _getFilteredFonts();
+      if (searchResults.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              l10n.noImportedFontsHint,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        );
+      }
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        itemCount: searchResults.length,
+        itemBuilder: (context, index) {
+          final item = searchResults[index];
+          return _buildFontItemTile(item, theme, colorScheme);
+        },
+      );
+    }
+
+    // Default / Follow System is always at top
+    final isDefaultSelected = _selectedFont.isEmpty;
+    final defaultTile = _buildFontTile(
+      title: l10n.defaultFontOption,
+      subtitle: '落霞与孤鹜齐飞 · The quick brown fox',
+      fontFamily: '',
+      isSelected: isDefaultSelected,
+      isCustom: false,
+      colorScheme: colorScheme,
+      theme: theme,
+      onTap: () => _selectFont(''),
+    );
+
+    if (_category == FontCategory.all) {
+      items.add(defaultTile);
+
+      final customFonts = _allFonts.where((f) => f.isCustom).toList();
+      if (customFonts.isNotEmpty) {
+        items.add(_buildSectionHeader(
+          title: l10n.importedFonts,
+          icon: Icons.folder_special_outlined,
+          count: customFonts.length,
+          colorScheme: colorScheme,
+        ));
+        for (final font in customFonts) {
+          items.add(_buildFontItemTile(font, theme, colorScheme));
+        }
+      }
+
+      final cjkFonts = _allFonts.where((f) => !f.isCustom && f.isCjk).toList();
+      if (cjkFonts.isNotEmpty) {
+        items.add(_buildSectionHeader(
+          title: l10n.cjkFonts,
+          icon: Icons.translate_rounded,
+          count: cjkFonts.length,
+          colorScheme: colorScheme,
+        ));
+        for (final font in cjkFonts) {
+          items.add(_buildFontItemTile(font, theme, colorScheme));
+        }
+      }
+
+      final latinFonts = _allFonts.where((f) => !f.isCustom && !f.isCjk).toList();
+      if (latinFonts.isNotEmpty) {
+        items.add(_buildSectionHeader(
+          title: l10n.latinFonts,
+          icon: Icons.language_rounded,
+          count: latinFonts.length,
+          colorScheme: colorScheme,
+        ));
+        for (final font in latinFonts) {
+          items.add(_buildFontItemTile(font, theme, colorScheme));
+        }
+      }
+    } else if (_category == FontCategory.custom) {
+      final customFonts = _allFonts.where((f) => f.isCustom).toList();
+      if (customFonts.isEmpty) {
+        items.add(
+          Container(
+            margin: const EdgeInsets.only(top: 24, left: 16, right: 16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.font_download_outlined, size: 40, color: colorScheme.outline),
+                const SizedBox(height: 10),
+                Text(
+                  l10n.noImportedFontsHint,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      } else {
+        for (final font in customFonts) {
+          items.add(_buildFontItemTile(font, theme, colorScheme));
+        }
+      }
+    } else {
+      items.add(defaultTile);
+      final filtered = _getFilteredFonts();
+      for (final font in filtered) {
+        items.add(_buildFontItemTile(font, theme, colorScheme));
+      }
+    }
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      children: items,
+    );
+  }
+
+  Widget _buildSectionHeader({
+    required String title,
+    required IconData icon,
+    int? count,
+    required ColorScheme colorScheme,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 6),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: colorScheme.primary),
+          const SizedBox(width: 8),
+          Text(
+            count != null ? '$title ($count)' : title,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.primary,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Divider(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+              thickness: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFontItemTile(FontItem item, ThemeData theme, ColorScheme colorScheme) {
+    final sampleText = item.isCustom
+        ? '落霞与孤鹜齐飞 · The quick brown fox'
+        : item.isCjk
+            ? '落霞与孤鹜齐飞，秋水共长天一色。0123456789'
+            : 'The quick brown fox jumps over the lazy dog. 0123456789';
+
+    return _buildFontTile(
+      title: item.displayName,
+      subtitle: sampleText,
+      fontFamily: item.family,
+      isSelected: _selectedFont == item.family,
+      isCustom: item.isCustom,
+      colorScheme: colorScheme,
+      theme: theme,
+      onTap: () => _selectFont(item.family),
+      onDelete: item.isCustom ? () => _handleDeleteFont(item) : null,
+    );
+  }
+
   Widget _buildPreviewCard(
     ThemeData theme,
     ColorScheme colorScheme,
@@ -460,27 +563,24 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
           ),
           const SizedBox(height: 8),
           Text(
-            widget.isCjkMode
-                ? '落霞与孤鹜齐飞，秋水共长天一色。'
-                : 'The quick brown fox jumps over the lazy dog.',
+            '落霞与孤鹜齐飞，秋水共长天一色。',
             style: TextStyle(
               fontFamily: effectiveFont,
-              fontSize: 17,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               height: 1.3,
             ),
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
-            widget.isCjkMode
-                ? 'The quick brown fox jumps over the lazy dog. 0123456789'
-                : '落霞与孤鹜齐飞，秋水共长天一色。0123456789',
+            'The quick brown fox jumps over the lazy dog. 0123456789',
             style: TextStyle(
               fontFamily: effectiveFont,
               fontSize: 13,
               color: colorScheme.onSurfaceVariant,
+              height: 1.3,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

@@ -154,6 +154,7 @@ class LyricsPanelTimedLyricsView extends StatefulWidget {
     this.isTranslating = false,
     this.isTransitioning = false,
     this.isLowMidEnd = false,
+    this.lyricsFontFamily = '',
     this.latinFontFamily = '',
     this.cjkFontFamily = '',
   });
@@ -190,6 +191,7 @@ class LyricsPanelTimedLyricsView extends StatefulWidget {
   final bool isTranslating;
   final bool isTransitioning;
   final bool isLowMidEnd;
+  final String lyricsFontFamily;
   final String latinFontFamily;
   final String cjkFontFamily;
 
@@ -399,11 +401,13 @@ class _LyricsPanelTimedLyricsViewState
                                   basePadding * widget.lyricsFontScale;
                               final translatedSpacing =
                                   3 * widget.lyricsFontScale;
+                              final fontToUse = widget.lyricsFontFamily.trim().isNotEmpty
+                                  ? widget.lyricsFontFamily.trim()
+                                  : (widget.latinFontFamily.trim().isNotEmpty
+                                      ? widget.latinFontFamily.trim()
+                                      : widget.cjkFontFamily.trim());
                               final effectiveFontFamily =
-                                  widget.latinFontFamily.trim().isNotEmpty
-                                  ? widget.latinFontFamily.trim()
-                                  : null;
-                              final trimmedCjk = widget.cjkFontFamily.trim();
+                                  fontToUse.isNotEmpty ? fontToUse : null;
                               const defaultFallback = [
                                 'Microsoft YaHei UI',
                                 'Microsoft YaHei',
@@ -415,10 +419,12 @@ class _LyricsPanelTimedLyricsViewState
                                 'sans-serif',
                               ];
                               final effectiveFontFamilyFallback = [
-                                if (trimmedCjk.isNotEmpty) trimmedCjk,
-                                ...defaultFallback.where(
-                                  (f) => f != trimmedCjk,
-                                ),
+                                if (effectiveFontFamily != null)
+                                  ...defaultFallback.where(
+                                    (f) => f != effectiveFontFamily,
+                                  )
+                                else
+                                  ...defaultFallback,
                               ];
 
                               final lineStyle = widget.hasTimedLyrics
