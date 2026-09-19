@@ -1437,6 +1437,7 @@
       }
     }
   },
+  "apiKeyInvalidCheckKey": "API Key 无效，请检查 Key 的有效性",
   "googleServerFlaky": "Google服务器开小差了，重试一下或许会成功哦",
   "translateLyricsAction": "翻译歌词",
   "generateLyricsAction": "生成歌词",

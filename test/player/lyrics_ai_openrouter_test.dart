@@ -47,4 +47,47 @@ void main() {
       expect(LyricsAiOpenRouterClient.isOpenRouter403Forbidden('Some other error 500'), isFalse);
     });
   });
+
+  group('LyricsAiOpenRouterClient 401 handling', () {
+    test('isOpenRouter401Unauthorized detects 401 status code', () {
+      final dioError = DioException(
+        requestOptions: RequestOptions(path: 'https://openrouter.ai/api/v1/chat/completions'),
+        response: Response(
+          requestOptions: RequestOptions(path: 'https://openrouter.ai/api/v1/chat/completions'),
+          statusCode: 401,
+          data: {
+            'error': {
+              'message': 'User key not found',
+              'code': 401,
+            }
+          },
+        ),
+        type: DioExceptionType.badResponse,
+      );
+
+      expect(LyricsAiOpenRouterClient.isOpenRouter401Unauthorized(dioError), isTrue);
+    });
+
+    test('isOpenRouter401Unauthorized detects error body with 401', () {
+      final dioError = DioException(
+        requestOptions: RequestOptions(path: 'https://openrouter.ai/api/v1/chat/completions'),
+        response: Response(
+          requestOptions: RequestOptions(path: 'https://openrouter.ai/api/v1/chat/completions'),
+          data: {
+            'error': {
+              'message': 'Unauthorized',
+              'code': 401,
+            }
+          },
+        ),
+      );
+
+      expect(LyricsAiOpenRouterClient.isOpenRouter401Unauthorized(dioError), isTrue);
+    });
+
+    test('isOpenRouter401Unauthorized detects 401 in error string', () {
+      expect(LyricsAiOpenRouterClient.isOpenRouter401Unauthorized('HTTP status 401 Unauthorized'), isTrue);
+      expect(LyricsAiOpenRouterClient.isOpenRouter401Unauthorized('Some other error 500'), isFalse);
+    });
+  });
 }

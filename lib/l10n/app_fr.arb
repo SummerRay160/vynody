@@ -874,6 +874,7 @@
   "lyricsGenerationFailedWithError": "Échec de la génération des paroles : {error}",
   "missingApiKeyForAction": "Clé API pour {providerName} introuvable. Impossible de {action}.",
   "locationNotSupportedForModel": "L'emplacement n'est pas pris en charge pour {modelName}",
+  "apiKeyInvalidCheckKey": "Clé API non valide. Veuillez vérifier la validité de la clé.",
   "googleServerFlaky": "Google a des difficultés. Réessayez, cela pourrait fonctionner.",
   "translateLyricsAction": "traduire les paroles",
   "generateLyricsAction": "générer les paroles",

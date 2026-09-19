@@ -952,6 +952,7 @@
   "lyricsGenerationFailedWithError": "Söz oluşturma başarısız: {error}",
   "missingApiKeyForAction": "{providerName} API anahtarı bulunamadı, {action} kullanılamaz.",
   "locationNotSupportedForModel": "Konumunuz {modelName} için desteklenmiyor",
+  "apiKeyInvalidCheckKey": "Geçersiz API anahtarı. Lütfen anahtarın geçerliliğini kontrol edin.",
   "googleServerFlaky": "Google sunucuları şu anda yanıt vermekte zorlanıyor. Lütfen tekrar deneyin.",
   "translateLyricsAction": "şarkı sözlerini çevir",
   "generateLyricsAction": "şarkı sözü oluştur",

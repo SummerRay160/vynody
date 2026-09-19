@@ -2259,6 +2259,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get apiKeyInvalidCheckKey => 'API Key 无效，请检查 Key 的有效性';
+
+  @override
   String get googleServerFlaky => 'Google服务器开小差了，重试一下或许会成功哦';
 
   @override
@@ -6865,6 +6868,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String locationNotSupportedForModel(String modelName) {
     return '所在位置不支援 $modelName';
   }
+
+  @override
+  String get apiKeyInvalidCheckKey => 'API Key 無效，請檢查 Key 的有效性';
 
   @override
   String get googleServerFlaky => 'Google 伺服器暫時有點狀況，重試一下或許就會成功';

@@ -2392,6 +2392,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get apiKeyInvalidCheckKey =>
+      'Ungültiger API-Schlüssel. Bitte überprüfen Sie die Gültigkeit des Schlüssels.';
+
+  @override
   String get googleServerFlaky =>
       'Google hat gerade Probleme. Ein erneuter Versuch könnte erfolgreich sein.';
 

@@ -4383,6 +4383,12 @@ abstract class AppLocalizations {
   /// **'所在位置不支持 {modelName}'**
   String locationNotSupportedForModel(String modelName);
 
+  /// No description provided for @apiKeyInvalidCheckKey.
+  ///
+  /// In zh, this message translates to:
+  /// **'API Key 无效，请检查 Key 的有效性'**
+  String get apiKeyInvalidCheckKey;
+
   /// No description provided for @googleServerFlaky.
   ///
   /// In zh, this message translates to:

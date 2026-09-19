@@ -882,6 +882,7 @@
   "lyricsGenerationFailedWithError": "Lyrics generation failed: {error}",
   "missingApiKeyForAction": "API key for {providerName} was not found, so {action} is unavailable.",
   "locationNotSupportedForModel": "Location is not supported for {modelName}",
+  "apiKeyInvalidCheckKey": "Invalid API key. Please check the validity of the key.",
   "googleServerFlaky": "Google is having a rough moment. Please try again and it may succeed.",
   "translateLyricsAction": "translate lyrics",
   "generateLyricsAction": "generate lyrics",

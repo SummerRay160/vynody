@@ -2294,6 +2294,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get apiKeyInvalidCheckKey => 'API 키가 유효하지 않습니다. 키의 유효성을 확인해 주세요.';
+
+  @override
   String get googleServerFlaky => 'Google에 일시적인 문제가 있습니다. 다시 시도하면 성공할 수 있습니다.';
 
   @override

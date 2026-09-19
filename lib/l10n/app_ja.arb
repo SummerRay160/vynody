@@ -879,6 +879,7 @@
   },
   "missingApiKeyForAction": "{providerName}のAPIキーが見つからないため、{action}は利用できません。",
   "locationNotSupportedForModel": "現在の地域では {modelName} はサポートされていません",
+  "apiKeyInvalidCheckKey": "APIキーが無効です。キーの有効性を確認してください。",
   "@missingApiKeyForAction": {
     "placeholders": {
       "action": {},

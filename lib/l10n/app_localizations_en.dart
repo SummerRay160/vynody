@@ -2363,6 +2363,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get apiKeyInvalidCheckKey =>
+      'Invalid API key. Please check the validity of the key.';
+
+  @override
   String get googleServerFlaky =>
       'Google is having a rough moment. Please try again and it may succeed.';
 

@@ -2291,6 +2291,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get apiKeyInvalidCheckKey => 'APIキーが無効です。キーの有効性を確認してください。';
+
+  @override
   String get googleServerFlaky => 'Googleの調子が良くないようです。再試行すると成功する場合があります。';
 
   @override

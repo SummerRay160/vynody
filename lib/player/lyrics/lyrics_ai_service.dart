@@ -1067,6 +1067,9 @@ class LyricsAiService {
       if (CancelToken.isCancel(error)) {
         return 'cancelled';
       }
+      if (LyricsAiOpenRouterClient.isOpenRouter401Unauthorized(error)) {
+        return _l10n().apiKeyInvalidCheckKey;
+      }
       if (LyricsAiOpenRouterClient.isOpenRouter403Forbidden(error)) {
         final modelName = SettingsService.lyricsModelDisplayName(modelId);
         final displayName = modelName.isNotEmpty ? modelName : modelId;
@@ -1077,6 +1080,9 @@ class LyricsAiService {
         fallback: _l10n().unknownTranslationError,
       );
     } catch (error) {
+      if (LyricsAiOpenRouterClient.isOpenRouter401Unauthorized(error)) {
+        return _l10n().apiKeyInvalidCheckKey;
+      }
       if (LyricsAiOpenRouterClient.isOpenRouter403Forbidden(error)) {
         final modelName = SettingsService.lyricsModelDisplayName(modelId);
         final displayName = modelName.isNotEmpty ? modelName : modelId;
@@ -1586,6 +1592,9 @@ class LyricsAiService {
 
       final response = error.response;
       final statusCode = response?.statusCode;
+      if (statusCode == 401) {
+        return _l10n().apiKeyInvalidCheckKey;
+      }
       final responseData = response?.data;
 
       if (responseData is Map) {

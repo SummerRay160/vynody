@@ -874,6 +874,7 @@
   "lyricsGenerationFailedWithError": "Songtext-Generierung fehlgeschlagen: {error}",
   "missingApiKeyForAction": "API-Schlüssel für {providerName} nicht gefunden, {action} nicht verfügbar.",
   "locationNotSupportedForModel": "Standort wird für {modelName} nicht unterstützt",
+  "apiKeyInvalidCheckKey": "Ungültiger API-Schlüssel. Bitte überprüfen Sie die Gültigkeit des Schlüssels.",
   "googleServerFlaky": "Google hat gerade Probleme. Ein erneuter Versuch könnte erfolgreich sein.",
   "translateLyricsAction": "Songtext übersetzen",
   "generateLyricsAction": "Songtext generieren",

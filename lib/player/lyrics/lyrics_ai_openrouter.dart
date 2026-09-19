@@ -595,6 +595,34 @@ class LyricsAiOpenRouterClient {
     }
   }
 
+  static bool isOpenRouter401Unauthorized(Object error) {
+    if (error is DioException) {
+      if (error.response?.statusCode == 401) {
+        return true;
+      }
+      final responseData = error.response?.data;
+      if (responseData is Map) {
+        final errorMap = responseData['error'];
+        if (errorMap is Map) {
+          final code = errorMap['code'];
+          if (code == 401 || code == '401') {
+            return true;
+          }
+        }
+        final code = responseData['code'];
+        if (code == 401 || code == '401') {
+          return true;
+        }
+      }
+      final message = error.message;
+      if (message != null && message.contains('401')) {
+        return true;
+      }
+    }
+    final text = error.toString();
+    return text.contains('401');
+  }
+
   static bool isOpenRouter403Forbidden(Object error) {
     if (error is DioException) {
       if (error.response?.statusCode == 403) {
@@ -628,6 +656,10 @@ class LyricsAiOpenRouterClient {
     String? modelId,
     String? fallback,
   }) {
+    if (isOpenRouter401Unauthorized(error)) {
+      return _l10n().apiKeyInvalidCheckKey;
+    }
+
     if (isOpenRouter403Forbidden(error)) {
       final modelName = modelId != null && modelId.trim().isNotEmpty
           ? SettingsService.lyricsModelDisplayName(modelId.trim())

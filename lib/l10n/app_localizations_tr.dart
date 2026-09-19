@@ -2367,6 +2367,10 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get apiKeyInvalidCheckKey =>
+      'Geçersiz API anahtarı. Lütfen anahtarın geçerliliğini kontrol edin.';
+
+  @override
   String get googleServerFlaky =>
       'Google sunucuları şu anda yanıt vermekte zorlanıyor. Lütfen tekrar deneyin.';
 
