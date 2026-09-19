@@ -380,6 +380,25 @@ class UpgradeToProDialog extends ConsumerWidget {
                             ],
                           ),
                         ),
+                        if (!license.isPermanentlyUnlocked && !AppChannel.isGitHubRelease) ...[
+                          Text(
+                            '•',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark ? Colors.white24 : Colors.black26,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => ref.read(iapServiceProvider).redeemCode(),
+                            child: Text(
+                              l10n.redeemCode,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? Colors.white54 : Colors.black45,
+                              ),
+                            ),
+                          ),
+                        ],
                         if (kDebugMode) ...[
                           if (license.type == LicenseType.purchasedPro)
                             TextButton(

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vynody/player/pro/app_channel.dart';
@@ -245,6 +246,71 @@ class IapService extends ChangeNotifier {
           _updateState(_state.copyWith(isRestoring: false));
         }
       });
+    }
+  }
+
+  /// Open the native store redemption interface or store redemption page.
+  Future<void> redeemCode() async {
+    if (AppChannel.isGitHubRelease) {
+      showToast('当前版本无需兑换，所有 Pro 功能已完全开放');
+      return;
+    }
+
+    if (Platform.isIOS) {
+      try {
+        final InAppPurchaseStoreKitPlatformAddition iosPlatform =
+            _iap.getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
+        await iosPlatform.presentCodeRedemptionSheet();
+        return;
+      } catch (e) {
+        debugPrint('[IAP] presentCodeRedemptionSheet failed: $e');
+      }
+    }
+
+    if (Platform.isMacOS) {
+      // Direct deep link to Mac App Store redeem page
+      final Uri macStoreUri = Uri.parse('macappstore://userAction=redeemCode');
+      try {
+        if (await canLaunchUrl(macStoreUri)) {
+          await launchUrl(macStoreUri);
+          return;
+        }
+      } catch (e) {
+        debugPrint('[IAP] Launch macappstore redeem failed: $e');
+      }
+
+      final Uri webUri = Uri.parse('https://apps.apple.com/redeem');
+      if (await canLaunchUrl(webUri)) {
+        await launchUrl(webUri);
+      }
+      return;
+    }
+
+    if (Platform.isWindows) {
+      // Windows: Invoke native Microsoft Store redeem window
+      final Uri storeUri = Uri.parse('ms-windows-store://redeem');
+      try {
+        if (await canLaunchUrl(storeUri)) {
+          await launchUrl(storeUri);
+          return;
+        }
+      } catch (e) {
+        debugPrint('[IAP] Launch ms-windows-store redeem failed: $e');
+      }
+
+      final Uri fallbackUri = Uri.parse('https://redeem.microsoft.com');
+      if (await canLaunchUrl(fallbackUri)) {
+        await launchUrl(fallbackUri);
+      }
+      return;
+    }
+
+    if (Platform.isAndroid) {
+      final Uri playStoreUri = Uri.parse('https://play.google.com/redeem');
+      if (await canLaunchUrl(playStoreUri)) {
+        await launchUrl(playStoreUri, mode: LaunchMode.externalApplication);
+      }
+      return;
     }
   }
 

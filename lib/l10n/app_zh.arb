@@ -2342,6 +2342,10 @@
     "description": "Restore purchases button label"
   },
   "restorePurchases": "恢复已购记录",
+  "@redeemCode": {
+    "description": "Redeem promo/gift code button label"
+  },
+  "redeemCode": "兑换优惠码",
   "@restoringPurchases": {
     "description": "Restore purchases button loading state"
   },

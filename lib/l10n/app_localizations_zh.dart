@@ -3818,6 +3818,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restorePurchases => '恢复已购记录';
 
   @override
+  String get redeemCode => '兑换优惠码';
+
+  @override
   String get restoringPurchases => '正在恢复已购记录...';
 
   @override
@@ -8421,6 +8424,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get restorePurchases => '恢復已購記錄';
+
+  @override
+  String get redeemCode => '兌換優惠碼';
 
   @override
   String get restoringPurchases => '正在恢復已購記錄...';

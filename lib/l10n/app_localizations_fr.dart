@@ -4091,6 +4091,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get restorePurchases => 'Restaurer les achats';
 
   @override
+  String get redeemCode => 'Utiliser un code';
+
+  @override
   String get restoringPurchases => 'Restauration des achats en cours...';
 
   @override

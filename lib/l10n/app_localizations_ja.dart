@@ -3883,6 +3883,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get restorePurchases => '購入履歴を復元';
 
   @override
+  String get redeemCode => 'コードを引き換える';
+
+  @override
   String get restoringPurchases => '購入履歴を復元中...';
 
   @override

@@ -4046,6 +4046,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get restorePurchases => 'Satın Alımları Geri Yükle';
 
   @override
+  String get redeemCode => 'Kodu Kullan';
+
+  @override
   String get restoringPurchases => 'Satın alımlar geri yükleniyor...';
 
   @override

@@ -4081,6 +4081,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get restorePurchases => 'Käufe wiederherstellen';
 
   @override
+  String get redeemCode => 'Code einlösen';
+
+  @override
   String get restoringPurchases => 'Käufe werden wiederhergestellt...';
 
   @override

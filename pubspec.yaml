@@ -104,6 +104,7 @@ dependencies:
   shimmer: ^3.0.0
   drift: ^2.34.1
   in_app_purchase: ^3.2.0
+  in_app_purchase_storekit: ^0.4.11
 
 
   audio_core:

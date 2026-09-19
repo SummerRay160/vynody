@@ -4086,6 +4086,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get restorePurchases => 'Restaurar compras';
 
   @override
+  String get redeemCode => 'Canjear código';
+
+  @override
   String get restoringPurchases => 'Restaurando compras...';
 
   @override

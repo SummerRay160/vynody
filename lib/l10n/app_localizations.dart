@@ -7203,6 +7203,12 @@ abstract class AppLocalizations {
   /// **'恢复已购记录'**
   String get restorePurchases;
 
+  /// Redeem promo/gift code button label
+  ///
+  /// In zh, this message translates to:
+  /// **'兑换优惠码'**
+  String get redeemCode;
+
   /// Restore purchases button loading state
   ///
   /// In zh, this message translates to:

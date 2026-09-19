@@ -3887,6 +3887,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get restorePurchases => '구매 내역 복원';
 
   @override
+  String get redeemCode => '코드 교환';
+
+  @override
   String get restoringPurchases => '구매 내역 복원 중...';
 
   @override
