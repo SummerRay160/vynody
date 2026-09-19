@@ -1507,25 +1507,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get lyricsStyleApple => 'Focus ligne par ligne';
 
   @override
-  String get lyricsLatinFontLabel => '歌词英文字体';
+  String get lyricsLatinFontLabel => 'Police des paroles (latin)';
 
   @override
-  String get lyricsLatinFontDescription => '设置歌词中西文字符及数字的展示字体。';
+  String get lyricsLatinFontDescription =>
+      'Définir la police utilisée pour les caractères latins, les chiffres et les symboles dans les paroles.';
 
   @override
-  String get lyricsCjkFontLabel => '歌词中文字体';
+  String get lyricsCjkFontLabel => 'Police des paroles (chinois/CJK)';
 
   @override
-  String get lyricsCjkFontDescription => '设置歌词中中文字符的展示字体。';
+  String get lyricsCjkFontDescription =>
+      'Définir la police utilisée pour les caractères chinois/CJK dans les paroles.';
 
   @override
-  String get customFontOption => '自定义字体...';
+  String get customFontOption => 'Police personnalisée...';
 
   @override
-  String get customFontDialogTitle => '输入字体名称';
+  String get customFontDialogTitle => 'Entrer le nom de la police';
 
   @override
-  String get customFontDialogHint => '例如: 霞鹜文楷 / Inter / Fira Code';
+  String get customFontDialogHint => 'ex. LXGW WenKai, Inter, Fira Code';
 
   @override
   String get resumeLyricsSync => 'Reprendre la synchronisation';
@@ -4847,59 +4849,65 @@ class AppLocalizationsFr extends AppLocalizations {
   String get doNotShowAgain => 'Ne plus afficher';
 
   @override
-  String get proxySettingsTitle => '网络代理';
+  String get proxySettingsTitle => 'Proxy réseau';
 
   @override
-  String get proxySettingsDescription => '配置网络请求、封面加载及音频流媒体使用的代理服务器';
+  String get proxySettingsDescription =>
+      'Configurer le serveur proxy pour les requêtes réseau, les pochettes et le streaming audio';
 
   @override
-  String get proxyMode => '代理模式';
+  String get proxyMode => 'Mode proxy';
 
   @override
-  String get proxyModeSystem => '跟随系统';
+  String get proxyModeSystem => 'Suivre le système';
 
   @override
-  String get proxyModeSystemDesc => '自动读取操作系统配置的网络代理';
+  String get proxyModeSystemDesc =>
+      'Détecter automatiquement les paramètres de proxy du système d\'exploitation';
 
   @override
-  String get proxyModeDirect => '直连 (不使用代理)';
+  String get proxyModeDirect => 'Direct (aucun proxy)';
 
   @override
-  String get proxyModeDirectDesc => '直接连接网络，绕过系统代理与外部代理';
+  String get proxyModeDirectDesc =>
+      'Se connecter directement au réseau sans passer par un proxy';
 
   @override
-  String get proxyModeCustom => '自定义代理';
+  String get proxyModeCustom => 'Proxy personnalisé';
 
   @override
-  String get proxyModeCustomDesc => '手动指定 HTTP 代理服务器地址与端口';
+  String get proxyModeCustomDesc =>
+      'Spécifier manuellement l\'adresse et le port du serveur proxy HTTP';
 
   @override
-  String get proxyHost => '代理服务器地址';
+  String get proxyHost => 'Adresse du serveur proxy';
 
   @override
-  String get proxyHostHint => '例如 127.0.0.1 或 proxy.example.com';
+  String get proxyHostHint => 'ex. 127.0.0.1 ou proxy.example.com';
 
   @override
-  String get proxyPort => '代理端口';
+  String get proxyPort => 'Port du proxy';
 
   @override
-  String get proxyPortHint => '例如 7890';
+  String get proxyPortHint => 'ex. 7890';
 
   @override
-  String get proxyBypass => '绕过代理地址 (白名单)';
+  String get proxyBypass => 'Ignorer le proxy pour (liste blanche)';
 
   @override
-  String get proxyBypassHint => '以逗号或分号分隔，例如: localhost, 127.0.0.1, <local>';
+  String get proxyBypassHint =>
+      'Séparé par une virgule ou un point-virgule, ex. localhost, 127.0.0.1, <local>';
 
   @override
-  String get proxyTestConnection => '测试连接';
+  String get proxyTestConnection => 'Tester la connexion';
 
   @override
-  String get proxyTestSuccess => '代理连接测试成功';
+  String get proxyTestSuccess => 'Test de connexion au proxy réussi';
 
   @override
-  String get proxyTestFailed => '代理连接测试失败';
+  String get proxyTestFailed => 'Échec du test de connexion au proxy';
 
   @override
-  String get proxyHostPortInvalid => '请输入有效的代理地址和端口';
+  String get proxyHostPortInvalid =>
+      'Veuillez entrer une adresse et un port de proxy valides';
 }

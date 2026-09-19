@@ -1505,25 +1505,27 @@ class AppLocalizationsEs extends AppLocalizations {
   String get lyricsStyleApple => 'Enfoque línea por línea';
 
   @override
-  String get lyricsLatinFontLabel => '歌词英文字体';
+  String get lyricsLatinFontLabel => 'Fuente de letras (latina)';
 
   @override
-  String get lyricsLatinFontDescription => '设置歌词中西文字符及数字的展示字体。';
+  String get lyricsLatinFontDescription =>
+      'Establecer la fuente para caracteres latinos, números y símbolos en las letras.';
 
   @override
-  String get lyricsCjkFontLabel => '歌词中文字体';
+  String get lyricsCjkFontLabel => 'Fuente de letras (china/CJK)';
 
   @override
-  String get lyricsCjkFontDescription => '设置歌词中中文字符的展示字体。';
+  String get lyricsCjkFontDescription =>
+      'Establecer la fuente para caracteres chinos/CJK en las letras.';
 
   @override
-  String get customFontOption => '自定义字体...';
+  String get customFontOption => 'Fuente personalizada...';
 
   @override
-  String get customFontDialogTitle => '输入字体名称';
+  String get customFontDialogTitle => 'Ingresar nombre de la fuente';
 
   @override
-  String get customFontDialogHint => '例如: 霞鹜文楷 / Inter / Fira Code';
+  String get customFontDialogHint => 'p. ej. LXGW WenKai, Inter, Fira Code';
 
   @override
   String get resumeLyricsSync => 'Reanudar sincronización';
@@ -4850,59 +4852,65 @@ class AppLocalizationsEs extends AppLocalizations {
   String get doNotShowAgain => 'No volver a mostrar';
 
   @override
-  String get proxySettingsTitle => '网络代理';
+  String get proxySettingsTitle => 'Proxy de red';
 
   @override
-  String get proxySettingsDescription => '配置网络请求、封面加载及音频流媒体使用的代理服务器';
+  String get proxySettingsDescription =>
+      'Configurar el servidor proxy para solicitudes de red, portadas y streaming de audio';
 
   @override
-  String get proxyMode => '代理模式';
+  String get proxyMode => 'Modo de proxy';
 
   @override
-  String get proxyModeSystem => '跟随系统';
+  String get proxyModeSystem => 'Seguir sistema';
 
   @override
-  String get proxyModeSystemDesc => '自动读取操作系统配置的网络代理';
+  String get proxyModeSystemDesc =>
+      'Detectar automáticamente la configuración de proxy del sistema operativo';
 
   @override
-  String get proxyModeDirect => '直连 (不使用代理)';
+  String get proxyModeDirect => 'Directo (sin proxy)';
 
   @override
-  String get proxyModeDirectDesc => '直接连接网络，绕过系统代理与外部代理';
+  String get proxyModeDirectDesc =>
+      'Conectar directamente a la red sin usar ningún proxy';
 
   @override
-  String get proxyModeCustom => '自定义代理';
+  String get proxyModeCustom => 'Proxy personalizado';
 
   @override
-  String get proxyModeCustomDesc => '手动指定 HTTP 代理服务器地址与端口';
+  String get proxyModeCustomDesc =>
+      'Especificar manualmente la dirección y el puerto del servidor proxy HTTP';
 
   @override
-  String get proxyHost => '代理服务器地址';
+  String get proxyHost => 'Dirección del servidor proxy';
 
   @override
-  String get proxyHostHint => '例如 127.0.0.1 或 proxy.example.com';
+  String get proxyHostHint => 'p. ej. 127.0.0.1 o proxy.example.com';
 
   @override
-  String get proxyPort => '代理端口';
+  String get proxyPort => 'Puerto del proxy';
 
   @override
-  String get proxyPortHint => '例如 7890';
+  String get proxyPortHint => 'p. ej. 7890';
 
   @override
-  String get proxyBypass => '绕过代理地址 (白名单)';
+  String get proxyBypass => 'Omitir proxy para (lista blanca)';
 
   @override
-  String get proxyBypassHint => '以逗号或分号分隔，例如: localhost, 127.0.0.1, <local>';
+  String get proxyBypassHint =>
+      'Separado por comas o punto y coma, p. ej. localhost, 127.0.0.1, <local>';
 
   @override
-  String get proxyTestConnection => '测试连接';
+  String get proxyTestConnection => 'Probar conexión';
 
   @override
-  String get proxyTestSuccess => '代理连接测试成功';
+  String get proxyTestSuccess => 'Prueba de conexión con proxy exitosa';
 
   @override
-  String get proxyTestFailed => '代理连接测试失败';
+  String get proxyTestFailed => 'Error en la prueba de conexión con proxy';
 
   @override
-  String get proxyHostPortInvalid => '请输入有效的代理地址和端口';
+  String get proxyHostPortInvalid =>
+      'Ingresa una dirección de proxy y un puerto válidos';
 }

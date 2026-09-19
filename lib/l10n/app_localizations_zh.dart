@@ -6039,6 +6039,27 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get lyricsStyleApple => '逐行聚焦';
 
   @override
+  String get lyricsLatinFontLabel => '歌詞英文字體';
+
+  @override
+  String get lyricsLatinFontDescription => '設定歌詞中西文字元及數字的顯示字體。';
+
+  @override
+  String get lyricsCjkFontLabel => '歌詞中文字體';
+
+  @override
+  String get lyricsCjkFontDescription => '設定歌詞中中文字元的顯示字體。';
+
+  @override
+  String get customFontOption => '自訂字體...';
+
+  @override
+  String get customFontDialogTitle => '輸入字體名稱';
+
+  @override
+  String get customFontDialogHint => '例如: 霞鶩文楷 / Inter / Fira Code';
+
+  @override
   String get resumeLyricsSync => '恢復歌詞同步';
 
   @override
@@ -9134,4 +9155,61 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get doNotShowAgain => '以後不再彈出';
+
+  @override
+  String get proxySettingsTitle => '網路代理';
+
+  @override
+  String get proxySettingsDescription => '設定網路請求、封面載入及音訊串流媒體使用的代理伺服器';
+
+  @override
+  String get proxyMode => '代理模式';
+
+  @override
+  String get proxyModeSystem => '跟隨系統';
+
+  @override
+  String get proxyModeSystemDesc => '自動讀取作業系統設定的網路代理';
+
+  @override
+  String get proxyModeDirect => '直連 (不使用代理)';
+
+  @override
+  String get proxyModeDirectDesc => '直接連線網路，繞過系統代理與外部代理';
+
+  @override
+  String get proxyModeCustom => '自訂代理';
+
+  @override
+  String get proxyModeCustomDesc => '手動指定 HTTP 代理伺服器位址與連接埠';
+
+  @override
+  String get proxyHost => '代理伺服器位址';
+
+  @override
+  String get proxyHostHint => '例如 127.0.0.1 或 proxy.example.com';
+
+  @override
+  String get proxyPort => '代理連接埠';
+
+  @override
+  String get proxyPortHint => '例如 7890';
+
+  @override
+  String get proxyBypass => '繞過代理位址 (白名單)';
+
+  @override
+  String get proxyBypassHint => '以逗號或分號分隔，例如: localhost, 127.0.0.1, <local>';
+
+  @override
+  String get proxyTestConnection => '測試連線';
+
+  @override
+  String get proxyTestSuccess => '代理連線測試成功';
+
+  @override
+  String get proxyTestFailed => '代理連線測試失敗';
+
+  @override
+  String get proxyHostPortInvalid => '請輸入有效的代理位址和連接埠';
 }

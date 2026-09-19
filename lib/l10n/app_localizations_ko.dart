@@ -1451,25 +1451,26 @@ class AppLocalizationsKo extends AppLocalizations {
   String get lyricsStyleApple => '줄 단위 포커스';
 
   @override
-  String get lyricsLatinFontLabel => '歌词英文字体';
+  String get lyricsLatinFontLabel => '가사 영문/라틴 글꼴';
 
   @override
-  String get lyricsLatinFontDescription => '设置歌词中西文字符及数字的展示字体。';
+  String get lyricsLatinFontDescription =>
+      '가사의 라틴 문자, 숫자 및 기호 표시에 사용할 글꼴을 설정합니다.';
 
   @override
-  String get lyricsCjkFontLabel => '歌词中文字体';
+  String get lyricsCjkFontLabel => '가사 한글/CJK 글꼴';
 
   @override
-  String get lyricsCjkFontDescription => '设置歌词中中文字符的展示字体。';
+  String get lyricsCjkFontDescription => '가사의 한글 및 CJK 문자 표시에 사용할 글꼴을 설정합니다.';
 
   @override
-  String get customFontOption => '自定义字体...';
+  String get customFontOption => '사용자 지정 글꼴...';
 
   @override
-  String get customFontDialogTitle => '输入字体名称';
+  String get customFontDialogTitle => '글꼴 이름 입력';
 
   @override
-  String get customFontDialogHint => '例如: 霞鹜文楷 / Inter / Fira Code';
+  String get customFontDialogHint => '예: Pretendard / Inter / Fira Code';
 
   @override
   String get resumeLyricsSync => '가사 동기화 재개';
@@ -4627,59 +4628,61 @@ class AppLocalizationsKo extends AppLocalizations {
   String get doNotShowAgain => '다시 묻지 않음';
 
   @override
-  String get proxySettingsTitle => '网络代理';
+  String get proxySettingsTitle => '네트워크 프록시';
 
   @override
-  String get proxySettingsDescription => '配置网络请求、封面加载及音频流媒体使用的代理服务器';
+  String get proxySettingsDescription =>
+      '네트워크 요청, 커버 아트 로드 및 오디오 스트리밍에 사용할 프록시 서버 설정';
 
   @override
-  String get proxyMode => '代理模式';
+  String get proxyMode => '프록시 모드';
 
   @override
-  String get proxyModeSystem => '跟随系统';
+  String get proxyModeSystem => '시스템 설정 따르기';
 
   @override
-  String get proxyModeSystemDesc => '自动读取操作系统配置的网络代理';
+  String get proxyModeSystemDesc => '운영체제에 설정된 네트워크 프록시를 자동으로 감지합니다';
 
   @override
-  String get proxyModeDirect => '直连 (不使用代理)';
+  String get proxyModeDirect => '직접 연결 (프록시 미사용)';
 
   @override
-  String get proxyModeDirectDesc => '直接连接网络，绕过系统代理与外部代理';
+  String get proxyModeDirectDesc => '프록시를 통하지 않고 네트워크에 직접 연결합니다';
 
   @override
-  String get proxyModeCustom => '自定义代理';
+  String get proxyModeCustom => '사용자 지정 프록시';
 
   @override
-  String get proxyModeCustomDesc => '手动指定 HTTP 代理服务器地址与端口';
+  String get proxyModeCustomDesc => 'HTTP 프록시 서버 주소와 포트를 직접 지정합니다';
 
   @override
-  String get proxyHost => '代理服务器地址';
+  String get proxyHost => '프록시 서버 주소';
 
   @override
-  String get proxyHostHint => '例如 127.0.0.1 或 proxy.example.com';
+  String get proxyHostHint => '예: 127.0.0.1 또는 proxy.example.com';
 
   @override
-  String get proxyPort => '代理端口';
+  String get proxyPort => '프록시 포트';
 
   @override
-  String get proxyPortHint => '例如 7890';
+  String get proxyPortHint => '예: 7890';
 
   @override
-  String get proxyBypass => '绕过代理地址 (白名单)';
+  String get proxyBypass => '프록시 우회 대상 (화이트리스트)';
 
   @override
-  String get proxyBypassHint => '以逗号或分号分隔，例如: localhost, 127.0.0.1, <local>';
+  String get proxyBypassHint =>
+      '쉼표 또는 세미콜론으로 구분 (예: localhost, 127.0.0.1, <local>)';
 
   @override
-  String get proxyTestConnection => '测试连接';
+  String get proxyTestConnection => '연결 테스트';
 
   @override
-  String get proxyTestSuccess => '代理连接测试成功';
+  String get proxyTestSuccess => '프록시 연결 테스트 성공';
 
   @override
-  String get proxyTestFailed => '代理连接测试失败';
+  String get proxyTestFailed => '프록시 연결 테스트 실패';
 
   @override
-  String get proxyHostPortInvalid => '请输入有效的代理地址和端口';
+  String get proxyHostPortInvalid => '유효한 프록시 주소와 포트를 입력하세요';
 }

@@ -1488,25 +1488,27 @@ class AppLocalizationsTr extends AppLocalizations {
   String get lyricsStyleApple => 'Satır Satır Odaklı';
 
   @override
-  String get lyricsLatinFontLabel => '歌词英文字体';
+  String get lyricsLatinFontLabel => 'Şarkı Sözü Latin Yazı Tipi';
 
   @override
-  String get lyricsLatinFontDescription => '设置歌词中西文字符及数字的展示字体。';
+  String get lyricsLatinFontDescription =>
+      'Şarkı sözlerindeki Latin karakterler, sayılar ve semboller için kullanılan yazı tipini ayarlayın.';
 
   @override
-  String get lyricsCjkFontLabel => '歌词中文字体';
+  String get lyricsCjkFontLabel => 'Şarkı Sözü Çince/CJK Yazı Tipi';
 
   @override
-  String get lyricsCjkFontDescription => '设置歌词中中文字符的展示字体。';
+  String get lyricsCjkFontDescription =>
+      'Şarkı sözlerindeki Çince/CJK karakterler için kullanılan yazı tipini ayarlayın.';
 
   @override
-  String get customFontOption => '自定义字体...';
+  String get customFontOption => 'Özel yazı tipi...';
 
   @override
-  String get customFontDialogTitle => '输入字体名称';
+  String get customFontDialogTitle => 'Yazı Tipi Adını Girin';
 
   @override
-  String get customFontDialogHint => '例如: 霞鹜文楷 / Inter / Fira Code';
+  String get customFontDialogHint => 'örn. LXGW WenKai, Inter, Fira Code';
 
   @override
   String get resumeLyricsSync => 'Eşitlemeyi Sürdür';
@@ -4798,59 +4800,65 @@ class AppLocalizationsTr extends AppLocalizations {
   String get doNotShowAgain => 'Bir daha gösterme';
 
   @override
-  String get proxySettingsTitle => '网络代理';
+  String get proxySettingsTitle => 'Ağ Vekil Sunucusu (Proxy)';
 
   @override
-  String get proxySettingsDescription => '配置网络请求、封面加载及音频流媒体使用的代理服务器';
+  String get proxySettingsDescription =>
+      'Ağ istekleri, kapak resimleri ve ses akışı için kullanılacak proxy sunucusunu yapılandırın';
 
   @override
-  String get proxyMode => '代理模式';
+  String get proxyMode => 'Proxy Modu';
 
   @override
-  String get proxyModeSystem => '跟随系统';
+  String get proxyModeSystem => 'Sistemi Takip Et';
 
   @override
-  String get proxyModeSystemDesc => '自动读取操作系统配置的网络代理';
+  String get proxyModeSystemDesc =>
+      'İşletim sistemi ağ proxy ayarlarını otomatik olarak algıla';
 
   @override
-  String get proxyModeDirect => '直连 (不使用代理)';
+  String get proxyModeDirect => 'Doğrudan Bağlantı (Proxy Yok)';
 
   @override
-  String get proxyModeDirectDesc => '直接连接网络，绕过系统代理与外部代理';
+  String get proxyModeDirectDesc =>
+      'Herhangi bir proxy kullanmadan doğrudan ağa bağlan';
 
   @override
-  String get proxyModeCustom => '自定义代理';
+  String get proxyModeCustom => 'Özel Proxy';
 
   @override
-  String get proxyModeCustomDesc => '手动指定 HTTP 代理服务器地址与端口';
+  String get proxyModeCustomDesc =>
+      'HTTP proxy sunucu adresini ve bağlantı noktasını manuel olarak belirtin';
 
   @override
-  String get proxyHost => '代理服务器地址';
+  String get proxyHost => 'Proxy Sunucu Adresi';
 
   @override
-  String get proxyHostHint => '例如 127.0.0.1 或 proxy.example.com';
+  String get proxyHostHint => 'örn. 127.0.0.1 veya proxy.example.com';
 
   @override
-  String get proxyPort => '代理端口';
+  String get proxyPort => 'Proxy Bağlantı Noktası (Port)';
 
   @override
-  String get proxyPortHint => '例如 7890';
+  String get proxyPortHint => 'örn. 7890';
 
   @override
-  String get proxyBypass => '绕过代理地址 (白名单)';
+  String get proxyBypass => 'Proxy\'yi Atla (Beyaz Liste)';
 
   @override
-  String get proxyBypassHint => '以逗号或分号分隔，例如: localhost, 127.0.0.1, <local>';
+  String get proxyBypassHint =>
+      'Virgül veya noktalı virgülle ayırın, örn. localhost, 127.0.0.1, <local>';
 
   @override
-  String get proxyTestConnection => '测试连接';
+  String get proxyTestConnection => 'Bağlantıyı Test Et';
 
   @override
-  String get proxyTestSuccess => '代理连接测试成功';
+  String get proxyTestSuccess => 'Proxy bağlantı testi başarılı';
 
   @override
-  String get proxyTestFailed => '代理连接测试失败';
+  String get proxyTestFailed => 'Proxy bağlantı testi başarısız';
 
   @override
-  String get proxyHostPortInvalid => '请输入有效的代理地址和端口';
+  String get proxyHostPortInvalid =>
+      'Lütfen geçerli bir proxy adresi ve bağlantı noktası girin';
 }

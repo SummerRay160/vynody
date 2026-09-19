@@ -1504,25 +1504,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String get lyricsStyleApple => 'Fokus Zeile für Zeile';
 
   @override
-  String get lyricsLatinFontLabel => '歌词英文字体';
+  String get lyricsLatinFontLabel => 'Songtext-Schriftart (Lateinisch)';
 
   @override
-  String get lyricsLatinFontDescription => '设置歌词中西文字符及数字的展示字体。';
+  String get lyricsLatinFontDescription =>
+      'Schriftart für lateinische Zeichen, Zahlen und Symbole in Songtexten festlegen.';
 
   @override
-  String get lyricsCjkFontLabel => '歌词中文字体';
+  String get lyricsCjkFontLabel => 'Songtext-Schriftart (Chinesisch/CJK)';
 
   @override
-  String get lyricsCjkFontDescription => '设置歌词中中文字符的展示字体。';
+  String get lyricsCjkFontDescription =>
+      'Schriftart für chinesische/CJK-Zeichen in Songtexten festlegen.';
 
   @override
-  String get customFontOption => '自定义字体...';
+  String get customFontOption => 'Benutzerdefinierte Schriftart...';
 
   @override
-  String get customFontDialogTitle => '输入字体名称';
+  String get customFontDialogTitle => 'Schriftartnamen eingeben';
 
   @override
-  String get customFontDialogHint => '例如: 霞鹜文楷 / Inter / Fira Code';
+  String get customFontDialogHint => 'z. B. LXGW WenKai, Inter, Fira Code';
 
   @override
   String get resumeLyricsSync => 'Synchronisierung fortsetzen';
@@ -4836,59 +4838,65 @@ class AppLocalizationsDe extends AppLocalizations {
   String get doNotShowAgain => 'Nicht mehr anzeigen';
 
   @override
-  String get proxySettingsTitle => '网络代理';
+  String get proxySettingsTitle => 'Netzwerk-Proxy';
 
   @override
-  String get proxySettingsDescription => '配置网络请求、封面加载及音频流媒体使用的代理服务器';
+  String get proxySettingsDescription =>
+      'Proxy-Server für Netzwerkanfragen, Coverbilder und Audio-Streaming konfigurieren';
 
   @override
-  String get proxyMode => '代理模式';
+  String get proxyMode => 'Proxy-Modus';
 
   @override
-  String get proxyModeSystem => '跟随系统';
+  String get proxyModeSystem => 'System folgen';
 
   @override
-  String get proxyModeSystemDesc => '自动读取操作系统配置的网络代理';
+  String get proxyModeSystemDesc =>
+      'Netzwerk-Proxy-Einstellungen des Betriebssystems automatisch erkennen';
 
   @override
-  String get proxyModeDirect => '直连 (不使用代理)';
+  String get proxyModeDirect => 'Direkt (Kein Proxy)';
 
   @override
-  String get proxyModeDirectDesc => '直接连接网络，绕过系统代理与外部代理';
+  String get proxyModeDirectDesc =>
+      'Direkt mit dem Netzwerk verbinden, ohne einen Proxy zu verwenden';
 
   @override
-  String get proxyModeCustom => '自定义代理';
+  String get proxyModeCustom => 'Benutzerdefinierter Proxy';
 
   @override
-  String get proxyModeCustomDesc => '手动指定 HTTP 代理服务器地址与端口';
+  String get proxyModeCustomDesc =>
+      'Adresse und Port des HTTP-Proxy-Servers manuell angeben';
 
   @override
-  String get proxyHost => '代理服务器地址';
+  String get proxyHost => 'Proxy-Server-Adresse';
 
   @override
-  String get proxyHostHint => '例如 127.0.0.1 或 proxy.example.com';
+  String get proxyHostHint => 'z. B. 127.0.0.1 oder proxy.example.com';
 
   @override
-  String get proxyPort => '代理端口';
+  String get proxyPort => 'Proxy-Port';
 
   @override
-  String get proxyPortHint => '例如 7890';
+  String get proxyPortHint => 'z. B. 7890';
 
   @override
-  String get proxyBypass => '绕过代理地址 (白名单)';
+  String get proxyBypass => 'Proxy umgehen für (Whitelist)';
 
   @override
-  String get proxyBypassHint => '以逗号或分号分隔，例如: localhost, 127.0.0.1, <local>';
+  String get proxyBypassHint =>
+      'Durch Komma oder Semikolon getrennt, z. B. localhost, 127.0.0.1, <local>';
 
   @override
-  String get proxyTestConnection => '测试连接';
+  String get proxyTestConnection => 'Verbindung testen';
 
   @override
-  String get proxyTestSuccess => '代理连接测试成功';
+  String get proxyTestSuccess => 'Proxy-Verbindungstest erfolgreich';
 
   @override
-  String get proxyTestFailed => '代理连接测试失败';
+  String get proxyTestFailed => 'Proxy-Verbindungstest fehlgeschlagen';
 
   @override
-  String get proxyHostPortInvalid => '请输入有效的代理地址和端口';
+  String get proxyHostPortInvalid =>
+      'Bitte geben Sie eine gültige Proxy-Adresse und einen gültigen Port ein';
 }
