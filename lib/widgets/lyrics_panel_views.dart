@@ -88,7 +88,9 @@ class LyricsPanelEmptyState extends StatelessWidget {
                     style: FilledButton.styleFrom(
                       backgroundColor: accentColor.withValues(alpha: 0.95),
                       foregroundColor: buttonForegroundColor,
-                      disabledBackgroundColor: accentColor.withValues(alpha: 0.95),
+                      disabledBackgroundColor: accentColor.withValues(
+                        alpha: 0.95,
+                      ),
                       disabledForegroundColor: buttonForegroundColor,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                     ),
@@ -191,27 +193,47 @@ class LyricsPanelTimedLyricsView extends StatefulWidget {
   final String cjkFontFamily;
 
   @override
-  State<LyricsPanelTimedLyricsView> createState() => _LyricsPanelTimedLyricsViewState();
+  State<LyricsPanelTimedLyricsView> createState() =>
+      _LyricsPanelTimedLyricsViewState();
 }
 
-class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView> {
+class _LyricsPanelTimedLyricsViewState
+    extends State<LyricsPanelTimedLyricsView> {
   int? _hoveredIndex;
 
   @override
   Widget build(BuildContext context) {
     final targetLang = widget.lyricsState.lyricsTranslationLanguageCode;
-    final effectiveLang = widget.lyrics?.getEffectiveTranslationLanguage(targetLang) ?? targetLang;
-    final isPortrait = (MediaQuery.of(context).orientation == Orientation.portrait) || widget.isSmallWin;
+    final effectiveLang =
+        widget.lyrics?.getEffectiveTranslationLanguage(targetLang) ??
+        targetLang;
+    final isPortrait =
+        (MediaQuery.of(context).orientation == Orientation.portrait) ||
+        widget.isSmallWin;
     final isLeftAligned = widget.lyricsStyle == LyricsStyle.apple;
-    final isApplePortrait = isPortrait && widget.lyricsStyle == LyricsStyle.apple;
+    final isApplePortrait =
+        isPortrait && widget.lyricsStyle == LyricsStyle.apple;
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onVerticalDragStart: widget.isAutoScrollPaused || widget.lyricsStyle == LyricsStyle.apple ? null : widget.onVerticalDragStart,
-      onVerticalDragUpdate: widget.isAutoScrollPaused || widget.lyricsStyle == LyricsStyle.apple ? null : widget.onVerticalDragUpdate,
-      onVerticalDragEnd: widget.isAutoScrollPaused || widget.lyricsStyle == LyricsStyle.apple ? null : widget.onVerticalDragEnd,
-      onVerticalDragCancel: widget.isAutoScrollPaused || widget.lyricsStyle == LyricsStyle.apple ? null : widget.onVerticalDragCancel,
-      onSecondaryTapDown: (details) => widget.onContextMenu(details.globalPosition),
+      onVerticalDragStart:
+          widget.isAutoScrollPaused || widget.lyricsStyle == LyricsStyle.apple
+          ? null
+          : widget.onVerticalDragStart,
+      onVerticalDragUpdate:
+          widget.isAutoScrollPaused || widget.lyricsStyle == LyricsStyle.apple
+          ? null
+          : widget.onVerticalDragUpdate,
+      onVerticalDragEnd:
+          widget.isAutoScrollPaused || widget.lyricsStyle == LyricsStyle.apple
+          ? null
+          : widget.onVerticalDragEnd,
+      onVerticalDragCancel:
+          widget.isAutoScrollPaused || widget.lyricsStyle == LyricsStyle.apple
+          ? null
+          : widget.onVerticalDragCancel,
+      onSecondaryTapDown: (details) =>
+          widget.onContextMenu(details.globalPosition),
       onLongPressStart: (details) {
         widget.onContextMenu(details.globalPosition);
       },
@@ -219,7 +241,8 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
         children: [
           Expanded(
             child: _LyricsFadeShaderMask(
-              bottomSpacerHeight: widget.bottomSpacerHeight + widget.bottomTabBarHeight,
+              bottomSpacerHeight:
+                  widget.bottomSpacerHeight + widget.bottomTabBarHeight,
               isSmallWin: widget.isSmallWin,
               lyricsFontScale: widget.lyricsFontScale,
               lyricsStyle: widget.lyricsStyle,
@@ -228,18 +251,21 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final viewportHeight = constraints.maxHeight;
-                    final double topPadding = widget.lyricsStyle == LyricsStyle.apple
+                    final double topPadding =
+                        widget.lyricsStyle == LyricsStyle.apple
                         ? PlaybackPageUiTuning.appleLyricsTopPadding(
                             widget.lyricsFontScale,
                             isSmallWin: widget.isSmallWin,
                           )
                         : 0.0;
                     final double extraBottomPadding;
-                    if (widget.lyricsStyle == LyricsStyle.apple && widget.lineHeights.isNotEmpty) {
-                      final offset = PlaybackPageUiTuning.appleLyricsScrollOffset(
-                        widget.lyricsFontScale,
-                        isSmallWin: widget.isSmallWin,
-                      );
+                    if (widget.lyricsStyle == LyricsStyle.apple &&
+                        widget.lineHeights.isNotEmpty) {
+                      final offset =
+                          PlaybackPageUiTuning.appleLyricsScrollOffset(
+                            widget.lyricsFontScale,
+                            isSmallWin: widget.isSmallWin,
+                          );
                       final lastLineHeight = widget.lineHeights.last;
                       extraBottomPadding = math.max(
                         0.0,
@@ -251,31 +277,44 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
                             widget.bottomTabBarHeight,
                       );
                     } else {
-                      extraBottomPadding = widget.lyricsStyle == LyricsStyle.apple
-                          ? math.max(500.0, viewportHeight - (isPortrait ? 25.0 : 100.0))
+                      extraBottomPadding =
+                          widget.lyricsStyle == LyricsStyle.apple
+                          ? math.max(
+                              500.0,
+                              viewportHeight - (isPortrait ? 25.0 : 100.0),
+                            )
                           : 500.0;
                     }
 
                     // 预计算所有歌词行的 Y 轴位置，用于视口可见性判定，避免为屏幕外的行生成昂贵的离屏高斯模糊层
                     final int lineCount = widget.displayLines.length;
                     final List<double> lineHeights = widget.lineHeights;
-                    final List<double> lineTops = List<double>.filled(lineCount, 0.0);
+                    final List<double> lineTops = List<double>.filled(
+                      lineCount,
+                      0.0,
+                    );
                     double currentY = topPadding;
                     for (var i = 0; i < lineCount; i++) {
                       lineTops[i] = currentY;
-                      currentY += (i < lineHeights.length) ? lineHeights[i] : 40.0;
+                      currentY += (i < lineHeights.length)
+                          ? lineHeights[i]
+                          : 40.0;
                     }
                     final bool hasClients = widget.scrollController.hasClients;
-                    final double scrollOffset = hasClients ? widget.scrollController.offset : 0.0;
+                    final double scrollOffset = hasClients
+                        ? widget.scrollController.offset
+                        : 0.0;
                     final double viewTop = scrollOffset - 50.0;
-                    final double viewBottom = scrollOffset + viewportHeight + 50.0;
+                    final double viewBottom =
+                        scrollOffset + viewportHeight + 50.0;
                     return ScrollConfiguration(
                       behavior: widget.scrollBehavior,
                       child: SingleChildScrollView(
                         controller: widget.scrollController,
                         clipBehavior: Clip.none,
                         physics: widget.hasTimedLyrics
-                            ? (widget.isAutoScrollPaused || widget.lyricsStyle == LyricsStyle.apple
+                            ? (widget.isAutoScrollPaused ||
+                                      widget.lyricsStyle == LyricsStyle.apple
                                   ? const BouncingScrollPhysics()
                                   : const NeverScrollableScrollPhysics())
                             : const AlwaysScrollableScrollPhysics(
@@ -288,397 +327,583 @@ class _LyricsPanelTimedLyricsViewState extends State<LyricsPanelTimedLyricsView>
                                   isSmallWin: widget.isSmallWin,
                                 )
                               : 0.0,
-                          bottom: widget.bottomSpacerHeight + widget.bottomTabBarHeight + extraBottomPadding,
+                          bottom:
+                              widget.bottomSpacerHeight +
+                              widget.bottomTabBarHeight +
+                              extraBottomPadding,
                         ),
                         child: ExcludeSemantics(
                           child: Column(
-                            children: List.generate(widget.displayLines.length, (index) {
-                        final bool isFar = widget.isTransitioning &&
-                            (widget.hasTimedLyrics
-                                ? (index - widget.activeIndex).abs() > 8
-                                : index > 15);
+                            children: List.generate(widget.displayLines.length, (
+                              index,
+                            ) {
+                              final bool isFar =
+                                  widget.isTransitioning &&
+                                  (widget.hasTimedLyrics
+                                      ? (index - widget.activeIndex).abs() > 8
+                                      : index > 15);
 
-                        if (isFar) {
-                          double itemHeight = 40.0;
-                          if (index < widget.lineHeights.length) {
-                            itemHeight = widget.lineHeights[index];
-                          }
-                          return SizedBox(
-                            key: ValueKey('lyric_placeholder_$index'),
-                            height: itemHeight,
-                          );
-                        }
+                              if (isFar) {
+                                double itemHeight = 40.0;
+                                if (index < widget.lineHeights.length) {
+                                  itemHeight = widget.lineHeights[index];
+                                }
+                                return SizedBox(
+                                  key: ValueKey('lyric_placeholder_$index'),
+                                  height: itemHeight,
+                                );
+                              }
 
-                        final line = widget.displayLines[index];
-                        final translated =
-                            widget.lyrics
-                                ?.translatedLineAt(
-                                  index,
-                                  effectiveLang,
-                                )
-                                .trim() ??
-                            '';
-                        final distance = (index - widget.activeIndex).abs();
-                        final isActive = widget.hasTimedLyrics && index == widget.activeIndex;
-                        final isHovered = _hoveredIndex == index;
-                        final isNear =
-                            widget.hasTimedLyrics && distance <= 1 && !isActive;
-                        final targetScale = isActive && widget.lyricsStyle != LyricsStyle.apple ? 1.12 : 1.0;
-                        final timedLyricFontSize = 16 * widget.lyricsFontScale;
-                        final plainLyricFontSize = 18 * widget.lyricsFontScale;
-                        final translationFontSize = (widget.lyricsStyle == LyricsStyle.apple
-                                ? (isPortrait
-                                    ? PlaybackPageUiTuning.appleLyricsTranslationFontSizePortrait
-                                    : PlaybackPageUiTuning.appleLyricsTranslationFontSizeLandscape)
-                                : 13.0) *
-                            widget.lyricsFontScale;
-                        final basePadding = widget.lyricsStyle == LyricsStyle.apple
-                            ? PlaybackPageUiTuning.appleLyricsVerticalPadding
-                            : PlaybackPageUiTuning.traditionalLyricsVerticalPadding;
-                        final verticalItemPadding = basePadding * widget.lyricsFontScale;
-                        final translatedSpacing = 3 * widget.lyricsFontScale;
-                        final effectiveFontFamily = widget.latinFontFamily.trim().isNotEmpty
-                            ? widget.latinFontFamily.trim()
-                            : null;
-                        final trimmedCjk = widget.cjkFontFamily.trim();
-                        const defaultFallback = [
-                          'Microsoft YaHei UI',
-                          'Microsoft YaHei',
-                          'PingFang SC',
-                          'Heiti SC',
-                          'Noto Sans CJK SC',
-                          'Noto Sans SC',
-                          'Source Han Sans SC',
-                          'sans-serif',
-                        ];
-                        final effectiveFontFamilyFallback = [
-                          if (trimmedCjk.isNotEmpty) trimmedCjk,
-                          ...defaultFallback.where((f) => f != trimmedCjk),
-                        ];
-
-                        final lineStyle = widget.hasTimedLyrics
-                            ? Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                        fontFamily: effectiveFontFamily,
-                                        fontFamilyFallback: effectiveFontFamilyFallback,
-                                        color: isActive
-                                            ? widget.textColor
-                                            : (isHovered
-                                                ? widget.textColor.withValues(alpha: 1.0)
-                                                : widget.textColor.withValues(
-                                                    alpha: (isNear && widget.lyricsStyle != LyricsStyle.apple) ? 0.72 : PlaybackPageUiTuning.appleLyricsInactiveOpacity,
-                                                  )),
-                                fontSize: timedLyricFontSize,
-                                fontWeight: (isActive || widget.lyricsStyle == LyricsStyle.apple)
-                                    ? FontWeight.w700
-                                    : FontWeight.w400,
-                                height: 1.4,
-                                leadingDistribution: TextLeadingDistribution.even,
-                              )
-                            : Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                fontFamily: effectiveFontFamily,
-                                fontFamilyFallback: effectiveFontFamilyFallback,
-                                color: widget.textColor,
-                                fontSize: plainLyricFontSize,
-                                fontWeight: widget.lyricsStyle == LyricsStyle.apple
-                                    ? FontWeight.w700
-                                    : FontWeight.w400,
-                                height: 1.6,
-                                leadingDistribution: TextLeadingDistribution.even,
-                              );
-
-                        final double effectiveLeftPadding = isApplePortrait
-                            ? (widget.isSmallWin ? 16.0 : 0.0)
-                            : 24.0;
-                        final double effectiveRightPadding = 24.0;
-                        final double layoutMaxWidth = widget.maxWidth - (effectiveLeftPadding + effectiveRightPadding);
-
-                        final animatedScaleChild = AnimatedScale(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeOutCubic,
-                          scale: targetScale,
-                          alignment: isLeftAligned ? Alignment.centerLeft : Alignment.center,
-                          child: SizedBox(
-                            width: layoutMaxWidth,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: isLeftAligned ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: isLeftAligned ? MainAxisAlignment.start : MainAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: AnimatedDefaultTextStyle(
-                                        duration: const Duration(milliseconds: 300),
-                                        curve: Curves.easeOutCubic,
-                                        style: lineStyle,
-                                        textAlign: isLeftAligned ? TextAlign.left : TextAlign.center,
-                                        child: (line.words != null && line.words!.isNotEmpty && widget.lyricsStyle == LyricsStyle.apple)
-                                            ? WordWordLyricsWidget(
-                                                words: line.words!,
-                                                lineStyle: lineStyle,
-                                                activeColor: widget.textColor,
-                                                inactiveColor: widget.textColor.withValues(
-                                                  alpha: isHovered
-                                                      ? 1.0
-                                                      : PlaybackPageUiTuning.appleLyricsInactiveOpacity,
-                                                ),
-                                                isActive: isActive,
-                                                isLeftAligned: isLeftAligned,
-                                              )
-                                            : Text(line.text),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (widget.hasTimedLyrics &&
-                                    translated.isNotEmpty) ...[
+                              final line = widget.displayLines[index];
+                              final translated =
+                                  widget.lyrics
+                                      ?.translatedLineAt(index, effectiveLang)
+                                      .trim() ??
+                                  '';
+                              final distance = (index - widget.activeIndex)
+                                  .abs();
+                              final isActive =
+                                  widget.hasTimedLyrics &&
+                                  index == widget.activeIndex;
+                              final isHovered = _hoveredIndex == index;
+                              final isNear =
+                                  widget.hasTimedLyrics &&
+                                  distance <= 1 &&
+                                  !isActive;
+                              final targetScale =
+                                  isActive &&
+                                      widget.lyricsStyle != LyricsStyle.apple
+                                  ? 1.12
+                                  : 1.0;
+                              final timedLyricFontSize =
+                                  16 * widget.lyricsFontScale;
+                              final plainLyricFontSize =
+                                  18 * widget.lyricsFontScale;
+                              final translationFontSize =
+                                  (widget.lyricsStyle == LyricsStyle.apple
+                                      ? (isPortrait
+                                            ? PlaybackPageUiTuning
+                                                  .appleLyricsTranslationFontSizePortrait
+                                            : PlaybackPageUiTuning
+                                                  .appleLyricsTranslationFontSizeLandscape)
+                                      : 13.0) *
+                                  widget.lyricsFontScale;
+                              final basePadding =
                                   widget.lyricsStyle == LyricsStyle.apple
-                                      ? AppleLyricTranslationFadeIn(
-                                          key: ValueKey('apple_trans_${index}_$effectiveLang'),
-                                          animate: widget.isTranslating,
-                                          index: index,
-                                          activeIndex: widget.activeIndex,
-                                          isLeftAligned: isLeftAligned,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment: isLeftAligned
-                                                ? CrossAxisAlignment.start
-                                                : CrossAxisAlignment.center,
-                                            children: [
-                                              SizedBox(height: translatedSpacing),
-                                              Row(
-                                                mainAxisAlignment: isLeftAligned
-                                                    ? MainAxisAlignment.start
-                                                    : MainAxisAlignment.center,
-                                                children: [
-                                                  Expanded(
-                                                    child: Padding(
-                                                      padding: isLeftAligned
-                                                          ? const EdgeInsets.only(right: 12)
-                                                          : const EdgeInsets.symmetric(horizontal: 12),
-                                                      child: AnimatedDefaultTextStyle(
-                                                        duration: const Duration(milliseconds: 300),
-                                                        curve: Curves.easeOutCubic,
-                                                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                                          fontFamily: effectiveFontFamily,
-                                                          fontFamilyFallback: effectiveFontFamilyFallback,
-                                                          color: isHovered
-                                                              ? widget.secondaryTextColor.withValues(alpha: 1.0)
-                                                              : (isActive
-                                                                  ? (widget.lyricsStyle == LyricsStyle.apple &&
-                                                                          line.words != null &&
-                                                                          line.words!.isNotEmpty
-                                                                      ? widget.secondaryTextColor.withValues(
-                                                                          alpha: PlaybackPageUiTuning.appleLyricsActiveTranslationOpacity,
-                                                                        )
-                                                                      : widget.secondaryTextColor.withValues(alpha: 1.0))
-                                                                  : widget.secondaryTextColor),
-                                                          fontSize: translationFontSize,
-                                                          fontWeight: (isActive || widget.lyricsStyle == LyricsStyle.apple)
-                                                              ? FontWeight.w700
-                                                              : FontWeight.w400,
-                                                          height: 1.3,
-                                                          leadingDistribution:
-                                                              TextLeadingDistribution.even,
-                                                        ),
-                                                        textAlign: isLeftAligned ? TextAlign.left : TextAlign.center,
-                                                        child: Text(translated),
-                                                      ),
+                                  ? PlaybackPageUiTuning
+                                        .appleLyricsVerticalPadding
+                                  : PlaybackPageUiTuning
+                                        .traditionalLyricsVerticalPadding;
+                              final verticalItemPadding =
+                                  basePadding * widget.lyricsFontScale;
+                              final translatedSpacing =
+                                  3 * widget.lyricsFontScale;
+                              final effectiveFontFamily =
+                                  widget.latinFontFamily.trim().isNotEmpty
+                                  ? widget.latinFontFamily.trim()
+                                  : null;
+                              final trimmedCjk = widget.cjkFontFamily.trim();
+                              const defaultFallback = [
+                                'Microsoft YaHei UI',
+                                'Microsoft YaHei',
+                                'PingFang SC',
+                                'Heiti SC',
+                                'Noto Sans CJK SC',
+                                'Noto Sans SC',
+                                'Source Han Sans SC',
+                                'sans-serif',
+                              ];
+                              final effectiveFontFamilyFallback = [
+                                if (trimmedCjk.isNotEmpty) trimmedCjk,
+                                ...defaultFallback.where(
+                                  (f) => f != trimmedCjk,
+                                ),
+                              ];
+
+                              final lineStyle = widget.hasTimedLyrics
+                                  ? Theme.of(
+                                      context,
+                                    ).textTheme.bodyLarge!.copyWith(
+                                      fontFamily: effectiveFontFamily,
+                                      fontFamilyFallback:
+                                          effectiveFontFamilyFallback,
+                                      color: isActive
+                                          ? widget.textColor
+                                          : (isHovered
+                                                ? widget.textColor.withValues(
+                                                    alpha: 1.0,
+                                                  )
+                                                : widget.textColor.withValues(
+                                                    alpha:
+                                                        (isNear &&
+                                                            widget.lyricsStyle !=
+                                                                LyricsStyle
+                                                                    .apple)
+                                                        ? 0.72
+                                                        : PlaybackPageUiTuning
+                                                              .appleLyricsInactiveOpacity,
+                                                  )),
+                                      fontSize: timedLyricFontSize,
+                                      fontWeight:
+                                          (isActive ||
+                                              widget.lyricsStyle ==
+                                                  LyricsStyle.apple)
+                                          ? FontWeight.w700
+                                          : FontWeight.w400,
+                                      height: 1.4,
+                                      leadingDistribution:
+                                          TextLeadingDistribution.even,
+                                    )
+                                  : Theme.of(
+                                      context,
+                                    ).textTheme.bodyLarge!.copyWith(
+                                      fontFamily: effectiveFontFamily,
+                                      fontFamilyFallback:
+                                          effectiveFontFamilyFallback,
+                                      color: widget.textColor,
+                                      fontSize: plainLyricFontSize,
+                                      fontWeight:
+                                          widget.lyricsStyle ==
+                                              LyricsStyle.apple
+                                          ? FontWeight.w700
+                                          : FontWeight.w400,
+                                      height: 1.6,
+                                      leadingDistribution:
+                                          TextLeadingDistribution.even,
+                                    );
+
+                              final double effectiveLeftPadding =
+                                  isApplePortrait
+                                  ? (widget.isSmallWin ? 16.0 : 0.0)
+                                  : 24.0;
+                              final double effectiveRightPadding = 24.0;
+                              final double layoutMaxWidth =
+                                  widget.maxWidth -
+                                  (effectiveLeftPadding +
+                                      effectiveRightPadding);
+
+                              final animatedScaleChild = AnimatedScale(
+                                duration: const Duration(milliseconds: 220),
+                                curve: Curves.easeOutCubic,
+                                scale: targetScale,
+                                alignment: isLeftAligned
+                                    ? Alignment.centerLeft
+                                    : Alignment.center,
+                                child: SizedBox(
+                                  width: layoutMaxWidth,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: isLeftAligned
+                                        ? CrossAxisAlignment.start
+                                        : CrossAxisAlignment.center,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: isLeftAligned
+                                            ? MainAxisAlignment.start
+                                            : MainAxisAlignment.center,
+                                        children: [
+                                          Expanded(
+                                            child: AnimatedDefaultTextStyle(
+                                              duration: const Duration(
+                                                milliseconds: 300,
+                                              ),
+                                              curve: Curves.easeOutCubic,
+                                              style: lineStyle,
+                                              textAlign: isLeftAligned
+                                                  ? TextAlign.left
+                                                  : TextAlign.center,
+                                              child:
+                                                  (line.words != null &&
+                                                      line.words!.isNotEmpty &&
+                                                      widget.lyricsStyle ==
+                                                          LyricsStyle.apple)
+                                                  ? WordWordLyricsWidget(
+                                                      words: line.words!,
+                                                      lineStyle: lineStyle,
+                                                      activeColor:
+                                                          widget.textColor,
+                                                      inactiveColor: widget
+                                                          .textColor
+                                                          .withValues(
+                                                            alpha: isHovered
+                                                                ? 1.0
+                                                                : PlaybackPageUiTuning
+                                                                      .appleLyricsInactiveOpacity,
+                                                          ),
+                                                      isActive: isActive,
+                                                      isLeftAligned:
+                                                          isLeftAligned,
+                                                    )
+                                                  : Text(line.text),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      if (widget.hasTimedLyrics &&
+                                          translated.isNotEmpty) ...[
+                                        widget.lyricsStyle == LyricsStyle.apple
+                                            ? AppleLyricTranslationFadeIn(
+                                                key: ValueKey(
+                                                  'apple_trans_${index}_$effectiveLang',
+                                                ),
+                                                animate: widget.isTranslating,
+                                                index: index,
+                                                activeIndex: widget.activeIndex,
+                                                isLeftAligned: isLeftAligned,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  crossAxisAlignment:
+                                                      isLeftAligned
+                                                      ? CrossAxisAlignment.start
+                                                      : CrossAxisAlignment
+                                                            .center,
+                                                  children: [
+                                                    SizedBox(
+                                                      height: translatedSpacing,
                                                     ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          isLeftAligned
+                                                          ? MainAxisAlignment
+                                                                .start
+                                                          : MainAxisAlignment
+                                                                .center,
+                                                      children: [
+                                                        Expanded(
+                                                          child: Padding(
+                                                            padding:
+                                                                isLeftAligned
+                                                                ? const EdgeInsets.only(
+                                                                    right: 12,
+                                                                  )
+                                                                : const EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        12,
+                                                                  ),
+                                                            child: AnimatedDefaultTextStyle(
+                                                              duration:
+                                                                  const Duration(
+                                                                    milliseconds:
+                                                                        300,
+                                                                  ),
+                                                              curve: Curves
+                                                                  .easeOutCubic,
+                                                              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                                                fontFamily:
+                                                                    effectiveFontFamily,
+                                                                fontFamilyFallback:
+                                                                    effectiveFontFamilyFallback,
+                                                                color: isHovered
+                                                                    ? widget
+                                                                          .secondaryTextColor
+                                                                          .withValues(
+                                                                            alpha:
+                                                                                1.0,
+                                                                          )
+                                                                    : (isActive
+                                                                          ? (widget.lyricsStyle ==
+                                                                                        LyricsStyle.apple &&
+                                                                                    line.words !=
+                                                                                        null &&
+                                                                                    line.words!.isNotEmpty
+                                                                                ? widget.secondaryTextColor.withValues(
+                                                                                    alpha: PlaybackPageUiTuning.appleLyricsActiveTranslationOpacity,
+                                                                                  )
+                                                                                : widget.secondaryTextColor.withValues(
+                                                                                    alpha: 1.0,
+                                                                                  ))
+                                                                          : widget.secondaryTextColor),
+                                                                fontSize:
+                                                                    translationFontSize,
+                                                                fontWeight:
+                                                                    (isActive ||
+                                                                        widget.lyricsStyle ==
+                                                                            LyricsStyle.apple)
+                                                                    ? FontWeight
+                                                                          .w700
+                                                                    : FontWeight
+                                                                          .w400,
+                                                                height: 1.3,
+                                                                leadingDistribution:
+                                                                    TextLeadingDistribution
+                                                                        .even,
+                                                              ),
+                                                              textAlign:
+                                                                  isLeftAligned
+                                                                  ? TextAlign
+                                                                        .left
+                                                                  : TextAlign
+                                                                        .center,
+                                                              child: Text(
+                                                                translated,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            : Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment:
+                                                    isLeftAligned
+                                                    ? CrossAxisAlignment.start
+                                                    : CrossAxisAlignment.center,
+                                                children: [
+                                                  SizedBox(
+                                                    height: translatedSpacing,
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        isLeftAligned
+                                                        ? MainAxisAlignment
+                                                              .start
+                                                        : MainAxisAlignment
+                                                              .center,
+                                                    children: [
+                                                      Expanded(
+                                                        child: Padding(
+                                                          padding: isLeftAligned
+                                                              ? const EdgeInsets.only(
+                                                                  right: 12,
+                                                                )
+                                                              : const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                ),
+                                                          child: AnimatedDefaultTextStyle(
+                                                            duration:
+                                                                const Duration(
+                                                                  milliseconds:
+                                                                      300,
+                                                                ),
+                                                            curve: Curves
+                                                                .easeOutCubic,
+                                                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                                              fontFamily:
+                                                                  effectiveFontFamily,
+                                                              fontFamilyFallback:
+                                                                  effectiveFontFamilyFallback,
+                                                              color: isHovered
+                                                                  ? widget
+                                                                        .secondaryTextColor
+                                                                        .withValues(
+                                                                          alpha:
+                                                                              1.0,
+                                                                        )
+                                                                  : (isActive
+                                                                        ? (widget.lyricsStyle ==
+                                                                                      LyricsStyle.apple &&
+                                                                                  line.words !=
+                                                                                      null &&
+                                                                                  line.words!.isNotEmpty
+                                                                              ? widget.secondaryTextColor.withValues(
+                                                                                  alpha: PlaybackPageUiTuning.appleLyricsActiveTranslationOpacity,
+                                                                                )
+                                                                              : widget.secondaryTextColor.withValues(
+                                                                                  alpha: 1.0,
+                                                                                ))
+                                                                        : widget
+                                                                              .secondaryTextColor),
+                                                              fontSize:
+                                                                  translationFontSize,
+                                                              fontWeight:
+                                                                  (isActive ||
+                                                                      widget.lyricsStyle ==
+                                                                          LyricsStyle
+                                                                              .apple)
+                                                                  ? FontWeight
+                                                                        .w700
+                                                                  : FontWeight
+                                                                        .w400,
+                                                              height: 1.3,
+                                                              leadingDistribution:
+                                                                  TextLeadingDistribution
+                                                                      .even,
+                                                            ),
+                                                            textAlign:
+                                                                isLeftAligned
+                                                                ? TextAlign.left
+                                                                : TextAlign
+                                                                      .center,
+                                                            child: Text(
+                                                              translated,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),
-                                            ],
-                                          ),
-                                        )
-                                      : Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: isLeftAligned
-                                              ? CrossAxisAlignment.start
-                                              : CrossAxisAlignment.center,
-                                          children: [
-                                            SizedBox(height: translatedSpacing),
-                                            Row(
-                                              mainAxisAlignment: isLeftAligned
-                                                  ? MainAxisAlignment.start
-                                                  : MainAxisAlignment.center,
-                                              children: [
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding: isLeftAligned
-                                                        ? const EdgeInsets.only(right: 12)
-                                                        : const EdgeInsets.symmetric(horizontal: 12),
-                                                    child: AnimatedDefaultTextStyle(
-                                                      duration: const Duration(milliseconds: 300),
-                                                      curve: Curves.easeOutCubic,
-                                                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                                        fontFamily: effectiveFontFamily,
-                                                        fontFamilyFallback: effectiveFontFamilyFallback,
-                                                        color: isHovered
-                                                            ? widget.secondaryTextColor.withValues(alpha: 1.0)
-                                                            : (isActive
-                                                                ? (widget.lyricsStyle == LyricsStyle.apple &&
-                                                                        line.words != null &&
-                                                                        line.words!.isNotEmpty
-                                                                    ? widget.secondaryTextColor.withValues(
-                                                                        alpha: PlaybackPageUiTuning.appleLyricsActiveTranslationOpacity,
-                                                                      )
-                                                                    : widget.secondaryTextColor.withValues(alpha: 1.0))
-                                                                : widget.secondaryTextColor),
-                                                        fontSize: translationFontSize,
-                                                        fontWeight: (isActive || widget.lyricsStyle == LyricsStyle.apple)
-                                                            ? FontWeight.w700
-                                                            : FontWeight.w400,
-                                                        height: 1.3,
-                                                        leadingDistribution:
-                                                            TextLeadingDistribution.even,
-                                                      ),
-                                                      textAlign: isLeftAligned ? TextAlign.left : TextAlign.center,
-                                                      child: Text(translated),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        );
-
-                        final double lineTop = lineTops[index];
-                        final double lineHeight = (index < lineHeights.length) ? lineHeights[index] : 40.0;
-                        final double lineBottom = lineTop + lineHeight;
-                        final bool isVisibleInViewport = hasClients
-                            ? (lineBottom >= viewTop && lineTop <= viewBottom)
-                            : ((index - widget.activeIndex) >= -3 && (index - widget.activeIndex) <= 7);
-
-                        final bool shouldBlur = widget.hasTimedLyrics &&
-                            widget.lyricsStyle == LyricsStyle.apple &&
-                            widget.isFocusMode &&
-                            !isActive &&
-                            !isHovered &&
-                            isVisibleInViewport &&
-                            !widget.isTransitioning;
-                        final Widget blurredChild;
-                        if (widget.lyricsStyle == LyricsStyle.apple) {
-                          final double targetBlur;
-                          if (shouldBlur) {
-                            final int diff = index - widget.activeIndex;
-                            targetBlur = (PlaybackPageUiTuning.appleLyricsBaseBlurSigma +
-                                    diff * PlaybackPageUiTuning.appleLyricsBlurGradientFactor)
-                                .clamp(
-                                PlaybackPageUiTuning.appleLyricsMinBlurSigma,
-                                PlaybackPageUiTuning.appleLyricsMaxBlurSigma,
+                                      ],
+                                    ],
+                                  ),
+                                ),
                               );
-                          } else {
-                            targetBlur = 0.0;
-                          }
 
-                          blurredChild = TweenAnimationBuilder<double>(
-                            tween: Tween<double>(begin: targetBlur, end: targetBlur),
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOutCubic,
-                            builder: (context, blurSigma, child) {
-                              return ImageFiltered(
-                                imageFilter: ui.ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-                                child: child,
-                              );
-                            },
-                            child: animatedScaleChild,
-                          );
-                        } else {
-                          blurredChild = animatedScaleChild;
-                        }
+                              final double lineTop = lineTops[index];
+                              final double lineHeight =
+                                  (index < lineHeights.length)
+                                  ? lineHeights[index]
+                                  : 40.0;
+                              final double lineBottom = lineTop + lineHeight;
+                              final bool isVisibleInViewport = hasClients
+                                  ? (lineBottom >= viewTop &&
+                                        lineTop <= viewBottom)
+                                  : ((index - widget.activeIndex) >= -3 &&
+                                        (index - widget.activeIndex) <= 7);
 
-                        final lineContent = Padding(
-                          padding: EdgeInsets.only(
-                            top: verticalItemPadding,
-                            bottom: verticalItemPadding,
-                            left: effectiveLeftPadding,
-                            right: effectiveRightPadding,
-                          ),
-                          child: Align(
-                            alignment: isLeftAligned ? Alignment.centerLeft : Alignment.center,
-                            child: blurredChild,
-                          ),
-                        );
+                              final bool shouldBlur =
+                                  widget.hasTimedLyrics &&
+                                  widget.lyricsStyle == LyricsStyle.apple &&
+                                  widget.isFocusMode &&
+                                  !isActive &&
+                                  !isHovered &&
+                                  isVisibleInViewport &&
+                                  !widget.isTransitioning;
+                              final Widget blurredChild;
+                              if (widget.lyricsStyle == LyricsStyle.apple) {
+                                final double targetBlur;
+                                if (shouldBlur) {
+                                  final int diff = index - widget.activeIndex;
+                                  targetBlur =
+                                      (PlaybackPageUiTuning
+                                                  .appleLyricsBaseBlurSigma +
+                                              diff *
+                                                  PlaybackPageUiTuning
+                                                      .appleLyricsBlurGradientFactor)
+                                          .clamp(
+                                            PlaybackPageUiTuning
+                                                .appleLyricsMinBlurSigma,
+                                            PlaybackPageUiTuning
+                                                .appleLyricsMaxBlurSigma,
+                                          );
+                                } else {
+                                  targetBlur = 0.0;
+                                }
 
-                        final Widget itemWidget;
-                        if (widget.onLineTapped != null) {
-                          itemWidget = RepaintBoundary(
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => widget.onLineTapped!(index),
-                              child: lineContent,
-                            ),
-                          );
-                        } else {
-                          itemWidget = RepaintBoundary(
-                            child: lineContent,
-                          );
-                        }
-
-                        final wrappedItemWidget = MouseRegion(
-                          hitTestBehavior: HitTestBehavior.opaque,
-                          cursor: widget.hasTimedLyrics ? SystemMouseCursors.click : MouseCursor.defer,
-                          onEnter: (_) {
-                            setState(() {
-                              _hoveredIndex = index;
-                            });
-                          },
-                          onExit: (_) {
-                            setState(() {
-                              if (_hoveredIndex == index) {
-                                _hoveredIndex = null;
+                                blurredChild = TweenAnimationBuilder<double>(
+                                  tween: Tween<double>(
+                                    begin: targetBlur,
+                                    end: targetBlur,
+                                  ),
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeOutCubic,
+                                  builder: (context, blurSigma, child) {
+                                    return ImageFiltered(
+                                      imageFilter: ui.ImageFilter.blur(
+                                        sigmaX: blurSigma,
+                                        sigmaY: blurSigma,
+                                      ),
+                                      child: child,
+                                    );
+                                  },
+                                  child: animatedScaleChild,
+                                );
+                              } else {
+                                blurredChild = animatedScaleChild;
                               }
-                            });
-                          },
-                          child: itemWidget,
-                        );
 
-                        Widget contentWidget = wrappedItemWidget;
-                        if (widget.lyricsStyle == LyricsStyle.apple && widget.isGenerating) {
-                          contentWidget = AppleLyricLineFadeIn(
-                            index: index,
-                            animate: true,
-                            isStaggered: false,
-                            child: contentWidget,
-                          );
-                        }
+                              final lineContent = Padding(
+                                padding: EdgeInsets.only(
+                                  top: verticalItemPadding,
+                                  bottom: verticalItemPadding,
+                                  left: effectiveLeftPadding,
+                                  right: effectiveRightPadding,
+                                ),
+                                child: Align(
+                                  alignment: isLeftAligned
+                                      ? Alignment.centerLeft
+                                      : Alignment.center,
+                                  child: blurredChild,
+                                ),
+                              );
 
-                        final Widget resultWidget;
-                        final bool isInStaggerRange = widget.lyricsStyle == LyricsStyle.apple &&
-                            widget.isFocusMode &&
-                            index >= widget.firstVisibleIndex - 10 &&
-                            index <= widget.firstVisibleIndex + 30;
+                              final Widget itemWidget;
+                              if (widget.onLineTapped != null) {
+                                itemWidget = RepaintBoundary(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => widget.onLineTapped!(index),
+                                    child: lineContent,
+                                  ),
+                                );
+                              } else {
+                                itemWidget = RepaintBoundary(
+                                  child: lineContent,
+                                );
+                              }
 
-                        if (isInStaggerRange) {
-                          resultWidget = StaggeredAppleLyricsScrollWrapper(
-                            index: index,
-                            activeIndex: widget.activeIndex,
-                            scrollDelta: widget.scrollDelta,
-                            scrollTriggerTime: widget.scrollTriggerTime,
-                            isEnteringFocusMode: widget.isEnteringFocusMode,
-                            firstVisibleIndex: widget.firstVisibleIndex,
-                            isTransitioning: widget.isTransitioning,
-                            child: contentWidget,
-                          );
-                        } else {
-                          resultWidget = contentWidget;
-                        }
+                              final wrappedItemWidget = MouseRegion(
+                                hitTestBehavior: HitTestBehavior.opaque,
+                                cursor: widget.hasTimedLyrics
+                                    ? SystemMouseCursors.click
+                                    : MouseCursor.defer,
+                                onEnter: (_) {
+                                  setState(() {
+                                    _hoveredIndex = index;
+                                  });
+                                },
+                                onExit: (_) {
+                                  setState(() {
+                                    if (_hoveredIndex == index) {
+                                      _hoveredIndex = null;
+                                    }
+                                  });
+                                },
+                                child: itemWidget,
+                              );
 
-                        return KeyedSubtree(
-                          key: ValueKey('lyric_active_$index'),
-                          child: resultWidget,
-                        );
-                      }),
-                    ),
+                              Widget contentWidget = wrappedItemWidget;
+                              if (widget.lyricsStyle == LyricsStyle.apple &&
+                                  widget.isGenerating) {
+                                contentWidget = AppleLyricLineFadeIn(
+                                  index: index,
+                                  animate: true,
+                                  isStaggered: false,
+                                  child: contentWidget,
+                                );
+                              }
+
+                              final Widget resultWidget;
+                              final bool isInStaggerRange =
+                                  widget.lyricsStyle == LyricsStyle.apple &&
+                                  widget.isFocusMode &&
+                                  index >= widget.firstVisibleIndex - 10 &&
+                                  index <= widget.firstVisibleIndex + 30;
+
+                              if (isInStaggerRange) {
+                                resultWidget =
+                                    StaggeredAppleLyricsScrollWrapper(
+                                      index: index,
+                                      activeIndex: widget.activeIndex,
+                                      scrollDelta: widget.scrollDelta,
+                                      scrollTriggerTime:
+                                          widget.scrollTriggerTime,
+                                      isEnteringFocusMode:
+                                          widget.isEnteringFocusMode,
+                                      firstVisibleIndex:
+                                          widget.firstVisibleIndex,
+                                      isTransitioning: widget.isTransitioning,
+                                      child: contentWidget,
+                                    );
+                              } else {
+                                resultWidget = contentWidget;
+                              }
+
+                              return KeyedSubtree(
+                                key: ValueKey('lyric_active_$index'),
+                                child: resultWidget,
+                              );
+                            }),
                           ),
                         ),
-                      );
+                      ),
+                    );
                   },
                 ),
               ),
@@ -729,68 +954,67 @@ class _LyricsFadeShaderMask extends StatelessWidget {
       child: ExcludeSemantics(
         child: ShaderMask(
           blendMode: BlendMode.dstIn,
-        shaderCallback: (bounds) {
-          final height = bounds.height > 0 ? bounds.height : 1.0;
-          if (height <= 1.0) {
-            return const LinearGradient(
-              colors: [Colors.white, Colors.white],
+          shaderCallback: (bounds) {
+            final height = bounds.height > 0 ? bounds.height : 1.0;
+            if (height <= 1.0) {
+              return const LinearGradient(
+                colors: [Colors.white, Colors.white],
+              ).createShader(bounds);
+            }
+
+            final topFadeHeight = lyricsStyle == LyricsStyle.apple
+                ? PlaybackPageUiTuning.appleLyricsTopFadeHeight(lyricsFontScale)
+                : 30.0;
+            final topFadeEnd = (topFadeHeight / height).clamp(0.0, 1.0);
+
+            final isPortrait =
+                (MediaQuery.of(context).orientation == Orientation.portrait) ||
+                isSmallWin;
+
+            final double bottomFadeEndHeight;
+            final double bottomFadeStartHeight;
+
+            if (isPortrait) {
+              bottomFadeEndHeight = 20.0;
+              bottomFadeStartHeight = 60.0;
+            } else {
+              bottomFadeEndHeight = 0.0;
+              bottomFadeStartHeight = math.max(30.0, bottomSpacerHeight);
+            }
+
+            final bottomFadeStart =
+                ((bounds.height - bottomFadeStartHeight) / bounds.height).clamp(
+                  0.0,
+                  1.0,
+                );
+            final bottomFadeEnd =
+                ((bounds.height - bottomFadeEndHeight) / bounds.height).clamp(
+                  0.0,
+                  1.0,
+                );
+
+            final tEnd = topFadeEnd;
+            final bStart = bottomFadeStart.clamp(tEnd, 1.0);
+            final bEnd = bottomFadeEnd.clamp(bStart, 1.0);
+
+            // Ensure stops are in increasing order
+            final stops = [0.0, tEnd, bStart, bEnd, 1.0];
+
+            return LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: const [
+                Colors.transparent,
+                Colors.white,
+                Colors.white,
+                Colors.transparent,
+                Colors.transparent,
+              ],
+              stops: stops,
             ).createShader(bounds);
-          }
-
-          final topFadeHeight = lyricsStyle == LyricsStyle.apple
-              ? PlaybackPageUiTuning.appleLyricsTopFadeHeight(lyricsFontScale)
-              : 30.0;
-          final topFadeEnd = (topFadeHeight / height).clamp(0.0, 1.0);
-
-          final isPortrait =
-              (MediaQuery.of(context).orientation == Orientation.portrait) || isSmallWin;
-
-          final double bottomFadeEndHeight;
-          final double bottomFadeStartHeight;
-
-          if (isPortrait) {
-            bottomFadeEndHeight =  20.0;
-            bottomFadeStartHeight = 60.0;
-          } else {
-            bottomFadeEndHeight = 0.0;
-            bottomFadeStartHeight = math.max(30.0, bottomSpacerHeight);
-          }
-
-          final bottomFadeStart =
-              ((bounds.height - bottomFadeStartHeight) / bounds.height)
-                  .clamp(0.0, 1.0);
-          final bottomFadeEnd =
-              ((bounds.height - bottomFadeEndHeight) / bounds.height)
-                  .clamp(0.0, 1.0);
-
-          final tEnd = topFadeEnd;
-          final bStart = bottomFadeStart.clamp(tEnd, 1.0);
-          final bEnd = bottomFadeEnd.clamp(bStart, 1.0);
-
-          // Ensure stops are in increasing order
-          final stops = [
-            0.0,
-            tEnd,
-            bStart,
-            bEnd,
-            1.0,
-          ];
-
-          return LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: const [
-              Colors.transparent,
-              Colors.white,
-              Colors.white,
-              Colors.transparent,
-              Colors.transparent,
-            ],
-            stops: stops,
-          ).createShader(bounds);
-        },
-        child: child,
-      ),
+          },
+          child: child,
+        ),
       ),
     );
   }
@@ -845,7 +1069,8 @@ class _StaggeredAppleLyricsScrollWrapperState
     );
 
     final double maxDelta = widget.isEnteringFocusMode ? 1500.0 : 800.0;
-    final timePassed = DateTime.now().millisecondsSinceEpoch - widget.scrollTriggerTime;
+    final timePassed =
+        DateTime.now().millisecondsSinceEpoch - widget.scrollTriggerTime;
     if (widget.scrollTriggerTime > 0 &&
         !widget.isTransitioning &&
         timePassed < 700 &&
@@ -855,7 +1080,10 @@ class _StaggeredAppleLyricsScrollWrapperState
 
       final int delayMs;
       if (widget.isEnteringFocusMode) {
-        delayMs = math.min(350, math.max(0, widget.index - widget.firstVisibleIndex) * 15);
+        delayMs = math.min(
+          350,
+          math.max(0, widget.index - widget.firstVisibleIndex) * 15,
+        );
       } else {
         if (widget.index > widget.activeIndex) {
           delayMs = math.min(300, (widget.index - widget.activeIndex) * 24);
@@ -912,7 +1140,10 @@ class _StaggeredAppleLyricsScrollWrapperState
 
     final int delayMs;
     if (widget.isEnteringFocusMode) {
-      delayMs = math.min(350, math.max(0, widget.index - widget.firstVisibleIndex) * 15);
+      delayMs = math.min(
+        350,
+        math.max(0, widget.index - widget.firstVisibleIndex) * 15,
+      );
     } else {
       if (widget.index > widget.activeIndex) {
         delayMs = math.min(300, (widget.index - widget.activeIndex) * 24);
@@ -922,7 +1153,7 @@ class _StaggeredAppleLyricsScrollWrapperState
         delayMs = 0;
       }
     }
-    
+
     _startOffset = widget.scrollDelta + _currentOffset;
 
     if (delayMs == 0) {
@@ -991,7 +1222,8 @@ class WordWordLyricsWidget extends ConsumerStatefulWidget {
   final bool isActive;
 
   @override
-  ConsumerState<WordWordLyricsWidget> createState() => _WordWordLyricsWidgetState();
+  ConsumerState<WordWordLyricsWidget> createState() =>
+      _WordWordLyricsWidgetState();
 }
 
 class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
@@ -1027,7 +1259,9 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.inactive) {
       if (!_isBackgroundSuspended) {
         _isBackgroundSuspended = true;
         if (_ticker.isActive) {
@@ -1087,7 +1321,9 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
     if (!widget.isActive) {
       return ExcludeSemantics(
         child: Wrap(
-          alignment: widget.isLeftAligned ? WrapAlignment.start : WrapAlignment.center,
+          alignment: widget.isLeftAligned
+              ? WrapAlignment.start
+              : WrapAlignment.center,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: validWords.map((word) {
             return Text(
@@ -1123,7 +1359,8 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
     final currentMs = currentPosition.inMilliseconds - timelineOffsetMs;
 
     final now = DateTime.now();
-    if (now.difference(_lastLogTime).inMilliseconds >= 250 && validWords.isNotEmpty) {
+    if (now.difference(_lastLogTime).inMilliseconds >= 250 &&
+        validWords.isNotEmpty) {
       _lastLogTime = now;
       // final lastWord = validWords.last;
       // final lastStart = lastWord.timestamp.inMilliseconds;
@@ -1139,7 +1376,9 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
 
     return ExcludeSemantics(
       child: Wrap(
-        alignment: widget.isLeftAligned ? WrapAlignment.start : WrapAlignment.center,
+        alignment: widget.isLeftAligned
+            ? WrapAlignment.start
+            : WrapAlignment.center,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: validWords.map((word) {
           final startMs = word.timestamp.inMilliseconds;
@@ -1184,16 +1423,10 @@ class WordHighlightText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (progress <= 0.0) {
-      return Text(
-        text,
-        style: style.copyWith(color: inactiveColor),
-      );
+      return Text(text, style: style.copyWith(color: inactiveColor));
     }
     if (progress >= 1.0) {
-      return Text(
-        text,
-        style: style.copyWith(color: activeColor),
-      );
+      return Text(text, style: style.copyWith(color: activeColor));
     }
 
     // Smooth transition from left to right with a soft edge.
@@ -1213,10 +1446,7 @@ class WordHighlightText extends StatelessWidget {
           end: Alignment.centerRight,
         ).createShader(bounds);
       },
-      child: Text(
-        text,
-        style: style.copyWith(color: Colors.white),
-      ),
+      child: Text(text, style: style.copyWith(color: Colors.white)),
     );
   }
 }
@@ -1379,7 +1609,10 @@ class _AppleLyricTranslationFadeInState
         _controller.value = 1.0;
       } else {
         final baseIndex = widget.activeIndex >= 0 ? widget.activeIndex : 0;
-        final delayMs = math.min(250, math.max(0, widget.index - baseIndex) * 12);
+        final delayMs = math.min(
+          250,
+          math.max(0, widget.index - baseIndex) * 12,
+        );
         if (delayMs > 0) {
           _delayTimer = Timer(Duration(milliseconds: delayMs), () {
             if (mounted) {

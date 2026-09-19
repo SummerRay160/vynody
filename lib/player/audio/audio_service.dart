@@ -187,7 +187,9 @@ class AudioService extends Notifier<AudioSnapshot> {
           return await resolver.resolvePlayableSource(rawUri);
         } catch (e) {
           debugPrint('[AudioService] Custom URI resolver error: $e');
-          throw StateError('Failed to resolve remote audio source ($e): $rawUri');
+          throw StateError(
+            'Failed to resolve remote audio source ($e): $rawUri',
+          );
         }
       }
       return rawUri;
@@ -197,7 +199,8 @@ class AudioService extends Notifier<AudioSnapshot> {
       onStateChange: (state) {
         final nextBackgrounded =
             (state == AppLifecycleState.paused ||
-            state == AppLifecycleState.hidden);
+            state == AppLifecycleState.hidden ||
+            state == AppLifecycleState.inactive);
         if (_isAppBackgrounded != nextBackgrounded) {
           _isAppBackgrounded = nextBackgrounded;
           _updateEffectiveVisualizerState();
@@ -206,8 +209,12 @@ class AudioService extends Notifier<AudioSnapshot> {
           if (_isAppBackgrounded) {
             unawaited(_persistPlaybackSession());
           } else {
-            if (_queue.isNotEmpty && _currentIndex >= 0 && _currentIndex < _queue.length) {
-              _startQueueBackgroundProcessing(priorityPath: _queue[_currentIndex].path);
+            if (_queue.isNotEmpty &&
+                _currentIndex >= 0 &&
+                _currentIndex < _queue.length) {
+              _startQueueBackgroundProcessing(
+                priorityPath: _queue[_currentIndex].path,
+              );
             }
           }
         }
@@ -305,9 +312,11 @@ class AudioService extends Notifier<AudioSnapshot> {
         final savedBassBoost = settingsService.equalizerBassBoost;
 
         final gainsList = Float32List(EqualizerController.maxEqualizerBands);
-        for (int i = 0;
-            i < savedGains.length && i < EqualizerController.maxEqualizerBands;
-            i++) {
+        for (
+          int i = 0;
+          i < savedGains.length && i < EqualizerController.maxEqualizerBands;
+          i++
+        ) {
           gainsList[i] = savedGains[i];
         }
 
@@ -335,16 +344,20 @@ class AudioService extends Notifier<AudioSnapshot> {
           final devId = settingsService.windowsAudioDeviceId.trim().isEmpty
               ? null
               : settingsService.windowsAudioDeviceId.trim();
-          await _player.setAudioOutputMode(
-            mode: isExclusive
-                ? AudioOutputMode.wasapiExclusive
-                : AudioOutputMode.shared,
-            deviceId: devId,
-            releaseOnPause: settingsService.wasapiReleaseOnPause,
-            bitPerfect: settingsService.wasapiBitPerfect,
-          ).catchError((e) {
-            debugPrint('[AudioService] Initial setAudioOutputMode failed: $e');
-          });
+          await _player
+              .setAudioOutputMode(
+                mode: isExclusive
+                    ? AudioOutputMode.wasapiExclusive
+                    : AudioOutputMode.shared,
+                deviceId: devId,
+                releaseOnPause: settingsService.wasapiReleaseOnPause,
+                bitPerfect: settingsService.wasapiBitPerfect,
+              )
+              .catchError((e) {
+                debugPrint(
+                  '[AudioService] Initial setAudioOutputMode failed: $e',
+                );
+              });
         }
 
         _visualizerOptions.loadOptions().then((_) => notifyListeners());
@@ -700,9 +713,7 @@ class AudioService extends Notifier<AudioSnapshot> {
     _missingSongNoticeHandler = handler;
   }
 
-  void setRemotePlaybackErrorHandler(
-    void Function(String message)? handler,
-  ) {
+  void setRemotePlaybackErrorHandler(void Function(String message)? handler) {
     _remotePlaybackErrorHandler = handler;
   }
 
@@ -832,8 +843,16 @@ class AudioService extends Notifier<AudioSnapshot> {
       if (dbMeta != null) {
         final updatedSong = song.copyWith(
           title: (dbMeta.title.trim().isNotEmpty) ? dbMeta.title : song.title,
-          artist: (dbMeta.artist.trim().isNotEmpty && dbMeta.artist != 'Unknown Artist') ? dbMeta.artist : song.artist,
-          album: (dbMeta.album.trim().isNotEmpty && dbMeta.album != 'Unknown Album') ? dbMeta.album : song.album,
+          artist:
+              (dbMeta.artist.trim().isNotEmpty &&
+                  dbMeta.artist != 'Unknown Artist')
+              ? dbMeta.artist
+              : song.artist,
+          album:
+              (dbMeta.album.trim().isNotEmpty &&
+                  dbMeta.album != 'Unknown Album')
+              ? dbMeta.album
+              : song.album,
           trackNumber: dbMeta.trackNumber ?? song.trackNumber,
           durationMillis: dbMeta.duration ?? song.durationMillis,
           artworkPath: dbMeta.artworkPath ?? song.artworkPath,
@@ -1049,7 +1068,8 @@ class AudioService extends Notifier<AudioSnapshot> {
             (artworkBytes == null && !File(thumbnailPath).existsSync())) {
           final supportDir = await getApplicationSupportDirectory();
           final swTheme = Stopwatch()..start();
-          final songMeta = dbMetadata ??
+          final songMeta =
+              dbMetadata ??
               SongMetadata(
                 path: song.path,
                 title: song.title ?? song.name,
@@ -1167,13 +1187,16 @@ class AudioService extends Notifier<AudioSnapshot> {
             final existing = await _db.getSongMetadata(currentSong.path);
             if (existing != null) {
               if (existing.duration != durMs) {
-                await _db.insertOrUpdateSong(existing.copyWith(duration: durMs));
+                await _db.insertOrUpdateSong(
+                  existing.copyWith(duration: durMs),
+                );
               }
             } else {
               // WebDAV lacks server-side metadata API. Avoid inserting a placeholder row
               // with 'Unknown Artist' before the file is cached and parsed by TagLib.
               final isWebDav = currentSong.path.startsWith('webdav://');
-              final hasRealMetadata = currentSong.artist != null &&
+              final hasRealMetadata =
+                  currentSong.artist != null &&
                   currentSong.artist!.trim().isNotEmpty &&
                   currentSong.artist != 'Unknown Artist';
               if (!isWebDav || hasRealMetadata) {
@@ -1201,7 +1224,9 @@ class AudioService extends Notifier<AudioSnapshot> {
       final errKey = '${currentMusic?.path}_$err';
       if (_lastReportedPlayerError != errKey) {
         _lastReportedPlayerError = errKey;
-        debugPrint('[AudioService] Playback error state detected for track ${currentMusic?.title} (${currentMusic?.path}): $err');
+        debugPrint(
+          '[AudioService] Playback error state detected for track ${currentMusic?.title} (${currentMusic?.path}): $err',
+        );
         if (_playbackSessionReady &&
             currentMusic != null &&
             RemoteMediaResolver.isRemoteUri(currentMusic!.path)) {
@@ -1313,7 +1338,6 @@ class AudioService extends Notifier<AudioSnapshot> {
       unawaited(_skipMissingCurrentTrack());
       return;
     }
-
 
     _windowsIntegration?.updateTimeline(_position, _duration);
     _androidIntegration?.updateTimeline(_position, _duration);
@@ -1594,10 +1618,7 @@ class AudioService extends Notifier<AudioSnapshot> {
     final tracks = _queue.map(_audioTrackForSong).toList(growable: false);
     final activePlaylistId =
         _player.playlist.activePlaylistId ?? _player.playlist.queuePlaylistId;
-    await _player.playlist.updatePlaylistTracks(
-      activePlaylistId,
-      tracks,
-    );
+    await _player.playlist.updatePlaylistTracks(activePlaylistId, tracks);
     _startQueueBackgroundProcessing();
     notifyListeners();
     unawaited(_persistPlaybackSession());
@@ -1624,15 +1645,15 @@ class AudioService extends Notifier<AudioSnapshot> {
 
   Future<void> setEqualizerBandGain(int index, double value) async {
     await _player.setEqualizerBandGain(index, value);
-    settingsService.equalizerGains =
-        _player.equalizerConfig.bandGainsDb.toList();
+    settingsService.equalizerGains = _player.equalizerConfig.bandGainsDb
+        .toList();
     notifyListeners();
   }
 
   Future<void> setEqualizerBandGains(List<double> gains) async {
     await _player.setEqualizerBandGains(gains);
-    settingsService.equalizerGains =
-        _player.equalizerConfig.bandGainsDb.toList();
+    settingsService.equalizerGains = _player.equalizerConfig.bandGainsDb
+        .toList();
     notifyListeners();
   }
 
@@ -1672,7 +1693,8 @@ class AudioService extends Notifier<AudioSnapshot> {
   bool get isBuffering {
     final path = currentMusic?.path;
     if (path == null) return false;
-    final isRemote = RemoteMediaResolver.isRemoteUri(path) ||
+    final isRemote =
+        RemoteMediaResolver.isRemoteUri(path) ||
         path.startsWith('http://') ||
         path.startsWith('https://');
     if (!isRemote) return false;
@@ -1729,17 +1751,24 @@ class AudioService extends Notifier<AudioSnapshot> {
   Uint8List? getCachedArtwork(String? path) {
     if (path == null) return null;
     final decoded = safeDecodeUri(path);
-    final song = _queue.firstWhereOrNull((s) => s.path == path || safeDecodeUri(s.path) == decoded);
+    final song = _queue.firstWhereOrNull(
+      (s) => s.path == path || safeDecodeUri(s.path) == decoded,
+    );
     return song?.artworkBytes;
   }
 
-  void setCachedArtwork(String path, Uint8List artworkBytes, {String? thumbnailPath}) {
+  void setCachedArtwork(
+    String path,
+    Uint8List artworkBytes, {
+    String? thumbnailPath,
+  }) {
     bool modified = false;
     final decoded = safeDecodeUri(path);
     for (int i = 0; i < _queue.length; i++) {
       final qPath = _queue[i].path;
       if (qPath == path || safeDecodeUri(qPath) == decoded) {
-        if (_queue[i].artworkBytes == null || (_queue[i].thumbnailPath == null && thumbnailPath != null)) {
+        if (_queue[i].artworkBytes == null ||
+            (_queue[i].thumbnailPath == null && thumbnailPath != null)) {
           _queue[i] = _queue[i].copyWith(
             artworkBytes: _queue[i].artworkBytes ?? artworkBytes,
             thumbnailPath: _queue[i].thumbnailPath ?? thumbnailPath,
@@ -1853,21 +1882,21 @@ class AudioService extends Notifier<AudioSnapshot> {
           sampleStride: settingsService.sampleStride,
         )
         .listen((waveformChunk) {
-      if (path == currentMusic?.path && waveformChunk.isNotEmpty) {
-        if (_currentIndex >= 0 &&
-            _currentIndex < _queue.length &&
-            _queue[_currentIndex].path == path) {
-          final blob = _waveformService.waveformToBlob(waveformChunk);
-          MusicFile.invalidateWaveformCache(path);
-          _queue[_currentIndex] = _queue[_currentIndex].copyWith(
-            waveformBlob: blob,
-          );
-          if (notify) {
-            notifyListeners();
+          if (path == currentMusic?.path && waveformChunk.isNotEmpty) {
+            if (_currentIndex >= 0 &&
+                _currentIndex < _queue.length &&
+                _queue[_currentIndex].path == path) {
+              final blob = _waveformService.waveformToBlob(waveformChunk);
+              MusicFile.invalidateWaveformCache(path);
+              _queue[_currentIndex] = _queue[_currentIndex].copyWith(
+                waveformBlob: blob,
+              );
+              if (notify) {
+                notifyListeners();
+              }
+            }
           }
-        }
-      }
-    });
+        });
   }
 
   Future<void> clearWaveformCache() async {
@@ -2146,7 +2175,8 @@ class AudioService extends Notifier<AudioSnapshot> {
       if (highResBytes == null && isRemote) {
         try {
           final artworkThemeService = TrackArtworkThemeService(db: _db);
-          final songMeta = dbMetadata ??
+          final songMeta =
+              dbMetadata ??
               SongMetadata(
                 path: path,
                 title: song.title ?? song.name,
@@ -2203,7 +2233,9 @@ class AudioService extends Notifier<AudioSnapshot> {
             );
           }
         } catch (e) {
-          debugPrint('AudioService: queryArtwork fallback error for ${song.id}: $e');
+          debugPrint(
+            'AudioService: queryArtwork fallback error for ${song.id}: $e',
+          );
         }
       }
 
@@ -2326,7 +2358,9 @@ class AudioService extends Notifier<AudioSnapshot> {
 
     unawaited(() async {
       try {
-        debugPrint('[AudioService] Remote track cached on disk: $virtualUri (${file.path})');
+        debugPrint(
+          '[AudioService] Remote track cached on disk: $virtualUri (${file.path})',
+        );
         final result = await MetadataHelper.processRemoteCachedMetadata(
           virtualUri,
           file.path,
@@ -2350,7 +2384,9 @@ class AudioService extends Notifier<AudioSnapshot> {
               MusicFile.invalidateWaveformCache(virtualUri);
             }
           } catch (e) {
-            debugPrint('[AudioService] Failed to generate waveform for cached file $virtualUri: $e');
+            debugPrint(
+              '[AudioService] Failed to generate waveform for cached file $virtualUri: $e',
+            );
           }
         }
 
@@ -2358,18 +2394,25 @@ class AudioService extends Notifier<AudioSnapshot> {
         final decodedVirtualUri = safeDecodeUri(virtualUri);
         for (int i = 0; i < _queue.length; i++) {
           final queuePath = _queue[i].path;
-          if (queuePath == virtualUri || safeDecodeUri(queuePath) == decodedVirtualUri) {
+          if (queuePath == virtualUri ||
+              safeDecodeUri(queuePath) == decodedVirtualUri) {
             _queue[i] = _queue[i].copyWith(
               title: meta.title.isNotEmpty ? meta.title : _queue[i].title,
-              artist: (meta.artist.isNotEmpty && meta.artist != 'Unknown Artist') ? meta.artist : _queue[i].artist,
-              album: (meta.album.isNotEmpty && meta.album != 'Unknown Album') ? meta.album : _queue[i].album,
+              artist:
+                  (meta.artist.isNotEmpty && meta.artist != 'Unknown Artist')
+                  ? meta.artist
+                  : _queue[i].artist,
+              album: (meta.album.isNotEmpty && meta.album != 'Unknown Album')
+                  ? meta.album
+                  : _queue[i].album,
               trackNumber: meta.trackNumber ?? _queue[i].trackNumber,
               durationMillis: meta.duration ?? _queue[i].durationMillis,
               thumbnailPath: meta.thumbnailPath ?? _queue[i].thumbnailPath,
               artworkPath: meta.artworkPath ?? _queue[i].artworkPath,
               artworkWidth: meta.artworkWidth ?? _queue[i].artworkWidth,
               artworkHeight: meta.artworkHeight ?? _queue[i].artworkHeight,
-              themeColorsBlob: meta.themeColorsBlob ?? _queue[i].themeColorsBlob,
+              themeColorsBlob:
+                  meta.themeColorsBlob ?? _queue[i].themeColorsBlob,
               artworkBytes: artworkBytes ?? _queue[i].artworkBytes,
               waveformBlob: newWaveformBlob ?? _queue[i].waveformBlob,
             );
@@ -2378,7 +2421,9 @@ class AudioService extends Notifier<AudioSnapshot> {
         }
 
         final currentPath = currentMusic?.path;
-        if ((currentPath == virtualUri || (currentPath != null && safeDecodeUri(currentPath) == decodedVirtualUri)) &&
+        if ((currentPath == virtualUri ||
+                (currentPath != null &&
+                    safeDecodeUri(currentPath) == decodedVirtualUri)) &&
             _currentIndex >= 0 &&
             _currentIndex < _queue.length) {
           final updatedCurrent = _queue[_currentIndex];
@@ -2387,7 +2432,9 @@ class AudioService extends Notifier<AudioSnapshot> {
           _darwinIntegration?.updateMetadata(updatedCurrent);
           _linuxIntegration?.updateMetadata(updatedCurrent);
           if (meta.themeColorsBlob != null) {
-            final colorsMap = ThemeColorHelper.blobToColors(meta.themeColorsBlob!);
+            final colorsMap = ThemeColorHelper.blobToColors(
+              meta.themeColorsBlob!,
+            );
             _applyThemeColors(colorsMap);
           }
           if (newWaveformBlob != null) {
@@ -2399,7 +2446,9 @@ class AudioService extends Notifier<AudioSnapshot> {
           notifyListeners();
         }
       } catch (e) {
-        debugPrint('[AudioService] Failed to process cached remote metadata for $virtualUri: $e');
+        debugPrint(
+          '[AudioService] Failed to process cached remote metadata for $virtualUri: $e',
+        );
       }
     }());
   }
@@ -2429,12 +2478,7 @@ class AudioService extends Notifier<AudioSnapshot> {
     String? mediaUri,
   }) async {
     if (RemoteMediaResolver.isRemoteUri(path)) {
-      return MusicFile(
-        path: path,
-        name: name,
-        id: id,
-        mediaUri: mediaUri,
-      );
+      return MusicFile(path: path, name: name, id: id, mediaUri: mediaUri);
     }
     final resolved = await MetadataHelper.loadMetadataForPlayback(
       path,
@@ -2560,7 +2604,8 @@ class AudioService extends Notifier<AudioSnapshot> {
           return;
         }
 
-        final targetIndex = (insertIndex == null ||
+        final targetIndex =
+            (insertIndex == null ||
                 insertIndex < 0 ||
                 insertIndex > _queue.length)
             ? _queue.length
@@ -2737,9 +2782,13 @@ class AudioService extends Notifier<AudioSnapshot> {
       final info = RemoteMediaResolver.parseUri(path);
       if (info != null) {
         final cacheKey = '${info.serverId}:${info.trackIdOrPath}';
-        final isCached = await _player.streamCacheManager.isTrackCached(cacheKey);
+        final isCached = await _player.streamCacheManager.isTrackCached(
+          cacheKey,
+        );
         if (isCached) {
-          final cacheFile = await _player.streamCacheManager.getCacheFile(cacheKey);
+          final cacheFile = await _player.streamCacheManager.getCacheFile(
+            cacheKey,
+          );
           if (await cacheFile.exists()) {
             return _player.engine.getAudioDetails(
               path: cacheFile.path,
@@ -3305,8 +3354,6 @@ class AudioService extends Notifier<AudioSnapshot> {
       },
     );
   }
-
-
 
   void _startQueueBackgroundProcessing({String? priorityPath}) {
     _queueBackgroundProcessor.start(

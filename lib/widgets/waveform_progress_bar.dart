@@ -45,10 +45,12 @@ class WaveformProgressBar extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<WaveformProgressBar> createState() => _WaveformProgressBarState();
+  ConsumerState<WaveformProgressBar> createState() =>
+      _WaveformProgressBarState();
 }
 
-class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with TickerProviderStateMixin, WidgetsBindingObserver {
+class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   double? _hoverProgress;
   double _dragStartX = 0;
   double _dragStartProgress = 0;
@@ -89,7 +91,9 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
       });
     });
 
-    _smoothProgressNotifier = ValueNotifier<double>(widget.progress.clamp(0.0, 1.0));
+    _smoothProgressNotifier = ValueNotifier<double>(
+      widget.progress.clamp(0.0, 1.0),
+    );
     _ticker = createTicker(_onTick);
     _updateTickerState();
     WidgetsBinding.instance.addObserver(this);
@@ -112,7 +116,9 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
   void _onTick(Duration elapsed) {
     if (!mounted) return;
 
-    final Duration delta = _lastFrameTime != null ? elapsed - _lastFrameTime! : Duration.zero;
+    final Duration delta = _lastFrameTime != null
+        ? elapsed - _lastFrameTime!
+        : Duration.zero;
     _lastFrameTime = elapsed;
 
     if (_isDragging) {
@@ -123,11 +129,13 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
     }
 
     if (widget.isPlaying && widget.duration.inMicroseconds > 0) {
-      final double deltaProgress = delta.inMicroseconds / widget.duration.inMicroseconds;
+      final double deltaProgress =
+          delta.inMicroseconds / widget.duration.inMicroseconds;
       double newProgress = _smoothProgressNotifier.value + deltaProgress;
 
       // Gently nudge towards the target progress to correct any time drift
-      newProgress = lerpDouble(newProgress, widget.progress, 0.05) ?? newProgress;
+      newProgress =
+          lerpDouble(newProgress, widget.progress, 0.05) ?? newProgress;
 
       _smoothProgressNotifier.value = newProgress.clamp(0.0, 1.0);
     } else {
@@ -157,12 +165,14 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.inactive) {
       if (!_suspendedForBackground) {
         _suspendedForBackground = true;
         _updateTickerState();
       }
-    } else if (state == AppLifecycleState.resumed || state == AppLifecycleState.inactive) {
+    } else if (state == AppLifecycleState.resumed) {
       if (_suspendedForBackground) {
         _suspendedForBackground = false;
         _updateTickerState();
@@ -187,7 +197,8 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
     if (_sourceWaveform.length == _targetWaveform.length) {
       final List<double> newList = List.filled(_sourceWaveform.length, 0.0);
       for (int i = 0; i < _sourceWaveform.length; i++) {
-        newList[i] = lerpDouble(_sourceWaveform[i], _targetWaveform[i], t) ?? 0.0;
+        newList[i] =
+            lerpDouble(_sourceWaveform[i], _targetWaveform[i], t) ?? 0.0;
       }
       _animatedWaveform = newList;
     }
@@ -213,11 +224,14 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
     super.didUpdateWidget(oldWidget);
     if (!listEquals(widget.waveform, oldWidget.waveform)) {
       _targetWaveform = _getEffectiveWaveform(widget.waveform);
-      
+
       // 如果长度不一致，先将当前波形缩放到目标长度，以便进行逐点插值动画
-      _sourceWaveform = _resizeWaveform(_animatedWaveform, _targetWaveform.length);
+      _sourceWaveform = _resizeWaveform(
+        _animatedWaveform,
+        _targetWaveform.length,
+      );
       _animatedWaveform = List.from(_sourceWaveform);
-      
+
       _animationController.forward(from: 0);
     }
 
@@ -228,7 +242,8 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
         : 0.01;
 
     // Snap immediately on large leaps (seeks/song changes) or when not playing or when transitioning ended
-    if (!widget.isTransitioning && (diff > snapThreshold || !widget.isPlaying || _isDragging)) {
+    if (!widget.isTransitioning &&
+        (diff > snapThreshold || !widget.isPlaying || _isDragging)) {
       _smoothProgressNotifier.value = widget.progress.clamp(0.0, 1.0);
     } else if (oldWidget.isTransitioning && !widget.isTransitioning) {
       _smoothProgressNotifier.value = widget.progress.clamp(0.0, 1.0);
@@ -244,18 +259,26 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
         final double width = constraints.maxWidth;
         // 缩放因子：决定波形的“宽度”
         final double step = width / math.max(1, _animatedWaveform.length);
-        final double defaultBarGap = widget.isScrolling ? 3.0 : math.max(1.0, math.min(3.0, step * 0.3));
-        final double defaultBarWidth = widget.isScrolling ? 7.0 : math.max(1.5, step - defaultBarGap);
+        final double defaultBarGap = widget.isScrolling
+            ? 3.0
+            : math.max(1.0, math.min(3.0, step * 0.3));
+        final double defaultBarWidth = widget.isScrolling
+            ? 7.0
+            : math.max(1.5, step - defaultBarGap);
         final double barWidth = widget.barWidth ?? defaultBarWidth;
         final double barGap = widget.barGap ?? defaultBarGap;
         final double totalBarWidth = barWidth + barGap;
-        final double totalWaveformWidth = _animatedWaveform.length * totalBarWidth;
+        final double totalWaveformWidth =
+            _animatedWaveform.length * totalBarWidth;
 
         return MouseRegion(
           onHover: (event) {
             if (!widget.isScrolling) {
               setState(() {
-                _hoverProgress = (event.localPosition.dx / width).clamp(0.0, 1.0);
+                _hoverProgress = (event.localPosition.dx / width).clamp(
+                  0.0,
+                  1.0,
+                );
               });
             }
           },
@@ -270,8 +293,8 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
               _dragStartX = details.localPosition.dx;
               _dragStartProgress = widget.progress;
               if (!widget.isScrolling) {
-                final double newProgress =
-                    (details.localPosition.dx / width).clamp(0.0, 1.0);
+                final double newProgress = (details.localPosition.dx / width)
+                    .clamp(0.0, 1.0);
                 widget.onScrubbing(newProgress);
                 _smoothProgressNotifier.value = newProgress;
                 setState(() {
@@ -285,16 +308,23 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
             onHorizontalDragUpdate: (details) {
               final double deltaX = details.localPosition.dx - _dragStartX;
               double newProgress;
-              
+
               if (widget.isScrolling) {
                 // 滚动模式下，拖动是“移动波形”
                 // 移动的距离 deltaX 对应的进度变化是 deltaX / totalWaveformWidth
                 // 向右拖动（deltaX > 0）意味着波形向右移，即播放进度减少
-                newProgress = (_dragStartProgress - (deltaX / totalWaveformWidth)).clamp(0.0, 1.0);
+                newProgress =
+                    (_dragStartProgress - (deltaX / totalWaveformWidth)).clamp(
+                      0.0,
+                      1.0,
+                    );
               } else {
-                newProgress = (details.localPosition.dx / width).clamp(0.0, 1.0);
+                newProgress = (details.localPosition.dx / width).clamp(
+                  0.0,
+                  1.0,
+                );
               }
-              
+
               widget.onScrubbing(newProgress);
               _smoothProgressNotifier.value = newProgress;
               if (!widget.isScrolling) {
@@ -313,45 +343,70 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
             },
             onTapDown: (details) {
               if (!widget.isScrolling) {
-                final double newProgress = (details.localPosition.dx / width).clamp(0.0, 1.0);
+                final double newProgress = (details.localPosition.dx / width)
+                    .clamp(0.0, 1.0);
                 widget.onScrubbing(newProgress);
                 widget.onSeek(newProgress);
                 _smoothProgressNotifier.value = newProgress;
               }
             },
             onLongPressStart: (details) {
-              if (!ref.read(settingsServiceProvider).enableWaveformLongPressSeek) return;
+              if (!ref
+                  .read(settingsServiceProvider)
+                  .enableWaveformLongPressSeek)
+                return;
               if (details.localPosition.dx > width / 2) {
                 final audioService = ref.read(audioServiceProvider);
                 if (!_isDoubleSpeedLocked) {
-                  _originalSpeed = ref.read(audioServiceStateProvider).playbackSpeed;
+                  _originalSpeed = ref
+                      .read(audioServiceStateProvider)
+                      .playbackSpeed;
                   audioService.setPlaybackSpeed(
-                    ref.read(settingsServiceProvider).waveformLongPressSeekSpeed,
+                    ref
+                        .read(settingsServiceProvider)
+                        .waveformLongPressSeekSpeed,
                   );
                   setState(() {
                     _isDoubleSpeedActive = true;
                     _longPressStartOffset = details.localPosition;
                   });
-                  showToast(AppLocalizations.of(context)!.doubleSpeedPlayingSwipeUpToLock, dismissOtherToast: true);
+                  showToast(
+                    AppLocalizations.of(
+                      context,
+                    )!.doubleSpeedPlayingSwipeUpToLock,
+                    dismissOtherToast: true,
+                  );
                 } else {
                   setState(() {
                     _isDoubleSpeedActive = true;
                     _longPressStartOffset = details.localPosition;
                   });
-                  showToast(AppLocalizations.of(context)!.doubleSpeedLockedSwipeDownToUnlock, dismissOtherToast: true);
+                  showToast(
+                    AppLocalizations.of(
+                      context,
+                    )!.doubleSpeedLockedSwipeDownToUnlock,
+                    dismissOtherToast: true,
+                  );
                 }
               }
             },
             onLongPressMoveUpdate: (details) {
-              if (!_isDoubleSpeedActive || _longPressStartOffset == null) return;
-              final double deltaY = details.localPosition.dy - _longPressStartOffset!.dy;
+              if (!_isDoubleSpeedActive || _longPressStartOffset == null)
+                return;
+              final double deltaY =
+                  details.localPosition.dy - _longPressStartOffset!.dy;
               if (!_isDoubleSpeedLocked) {
                 if (deltaY < -30) {
                   setState(() {
                     _isDoubleSpeedLocked = true;
                     _longPressStartOffset = details.localPosition;
                   });
-                  showToast(AppLocalizations.of(context)!.doubleSpeedLockedSwipeDownToUnlock, dismissOtherToast: true);
+                  showToast(
+                    AppLocalizations.of(
+                      context,
+                    )!.doubleSpeedLockedSwipeDownToUnlock,
+                    dismissOtherToast: true,
+                  );
                 }
               } else {
                 if (deltaY > 30) {
@@ -362,7 +417,10 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
                     _isDoubleSpeedActive = false;
                     _longPressStartOffset = null;
                   });
-                  showToast(AppLocalizations.of(context)!.doubleSpeedUnlocked, dismissOtherToast: true);
+                  showToast(
+                    AppLocalizations.of(context)!.doubleSpeedUnlocked,
+                    dismissOtherToast: true,
+                  );
                 }
               }
             },
@@ -404,7 +462,7 @@ class _WaveformProgressBarState extends ConsumerState<WaveformProgressBar> with 
                             ),
                           ),
                         ),
-                        
+
                         if (widget.showTooltip && _hoverProgress != null)
                           Positioned(
                             left: _hoverProgress! * width,
@@ -447,8 +505,8 @@ class WaveformPainter extends CustomPainter {
     required this.isScrolling,
     required this.barWidth,
     required this.barGap,
-  })  : _progress = progress,
-        super(repaint: progressNotifier);
+  }) : _progress = progress,
+       super(repaint: progressNotifier);
 
   double get progress => progressNotifier?.value ?? _progress;
 
@@ -465,19 +523,25 @@ class WaveformPainter extends CustomPainter {
     final double currentIdx = currentProgress * (waveform.length - 1);
 
     // 绘制区域的中心 X (播放头位置)
-    final double centerX = isScrolling ? size.width / 2 : size.width * currentProgress;
+    final double centerX = isScrolling
+        ? size.width / 2
+        : size.width * currentProgress;
     final double viewCenterX = size.width / 2;
-    final double stepWidth = isScrolling ? totalBarWidth : (size.width / math.max(1, waveform.length));
+    final double stepWidth = isScrolling
+        ? totalBarWidth
+        : (size.width / math.max(1, waveform.length));
 
     // 计算起点与终点索引，仅绘制屏幕内可见的波形条
     int startIndex = 0;
     int endIndex = waveform.length;
 
     if (isScrolling) {
-      final double startFloat = currentIdx - (viewCenterX + barWidth) / stepWidth;
+      final double startFloat =
+          currentIdx - (viewCenterX + barWidth) / stepWidth;
       startIndex = math.max(0, startFloat.floor());
 
-      final double endFloat = currentIdx + (size.width - viewCenterX) / stepWidth;
+      final double endFloat =
+          currentIdx + (size.width - viewCenterX) / stepWidth;
       endIndex = math.min(waveform.length, endFloat.ceil() + 1);
     }
 

@@ -150,7 +150,9 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
       final normalizedPath = _normalizePath(current.path);
       if (normalizedPath != 'system') {
         final rootPath = _roots.rootPaths.firstWhereOrNull(
-          (root) => _pathsEqual(root, normalizedPath) || _pathContains(root, normalizedPath),
+          (root) =>
+              _pathsEqual(root, normalizedPath) ||
+              _pathContains(root, normalizedPath),
         );
         if (rootPath != null) {
           unawaited(loadRootFolderSongs(rootPath));
@@ -263,13 +265,18 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
         notifyListeners();
       }
     } catch (e) {
-      debugPrint('[ScannerService] Failed to load representative song for $normalizedPath: $e');
+      debugPrint(
+        '[ScannerService] Failed to load representative song for $normalizedPath: $e',
+      );
     } finally {
       _pendingRepresentativeSongFetches.remove(normalizedPath);
     }
   }
 
-  Future<void> updateSongThumbnailPath(String path, String thumbnailPath) async {
+  Future<void> updateSongThumbnailPath(
+    String path,
+    String thumbnailPath,
+  ) async {
     final existingMeta = _metadataStore.getMetadata(path);
     if (existingMeta != null) {
       if (existingMeta.thumbnailPath != null &&
@@ -297,7 +304,6 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
       }
     }
   }
-
 
   Future<List<MusicFile>> getAllRootSongs() async {
     final allSongs = <MusicFile>[];
@@ -346,7 +352,9 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
 
     final normalizedPath = _normalizePath(folder.path);
     final rootPath = _roots.rootPaths.firstWhereOrNull(
-      (root) => _pathsEqual(root, normalizedPath) || _pathContains(root, normalizedPath),
+      (root) =>
+          _pathsEqual(root, normalizedPath) ||
+          _pathContains(root, normalizedPath),
     );
 
     if (rootPath != null) {
@@ -360,7 +368,6 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
     final songsFromRepo = await _repository.getSongsUnderPath(normalizedPath);
     return songsFromRepo.map(_treeBuilder.musicFileFromSongMetadata).toList();
   }
-
 
   bool isPathInActiveRoots(String path) {
     if (path.isEmpty) return false;
@@ -395,8 +402,9 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
     String? folderPath,
   }) async {
     final songs = await _repository.searchSongs(query, folderPath: folderPath);
-    final musicFiles =
-        songs.map(_treeBuilder.musicFileFromSongMetadata).toList();
+    final musicFiles = songs
+        .map(_treeBuilder.musicFileFromSongMetadata)
+        .toList();
     if (folderPath != null && folderPath.isNotEmpty) {
       return musicFiles;
     }
@@ -440,12 +448,7 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
           _rootRepresentativeSongs[normalized] = repSongMeta;
         }
 
-        results.add(
-          MusicFolder(
-            path: path,
-            name: p.basename(path),
-          ),
-        );
+        results.add(MusicFolder(path: path, name: p.basename(path)));
       }
     }
 
@@ -786,9 +789,12 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
         final repFile = findRepresentativeSong(scanned);
         if (repFile != null) {
           final songMeta = await _repository.getSongMetadata(repFile.path);
-          final hasArtwork = songMeta != null &&
-              ((songMeta.artworkPath != null && songMeta.artworkPath!.isNotEmpty) ||
-               (songMeta.thumbnailPath != null && songMeta.thumbnailPath!.isNotEmpty));
+          final hasArtwork =
+              songMeta != null &&
+              ((songMeta.artworkPath != null &&
+                      songMeta.artworkPath!.isNotEmpty) ||
+                  (songMeta.thumbnailPath != null &&
+                      songMeta.thumbnailPath!.isNotEmpty));
           if (hasArtwork) {
             nextCache[normalized] = songMeta;
             continue;
@@ -990,7 +996,9 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
     String? persistentDocumentId,
   }) async {
     final normalizedPath = _normalizePath(path);
-    debugPrint('[ScannerService] addRootPath: path=$path, normalizedPath=$normalizedPath, persistentDocumentId=$persistentDocumentId, _linuxFlatpak=$_linuxFlatpak');
+    debugPrint(
+      '[ScannerService] addRootPath: path=$path, normalizedPath=$normalizedPath, persistentDocumentId=$persistentDocumentId, _linuxFlatpak=$_linuxFlatpak',
+    );
     if (Platform.isLinux && _linuxFlatpak && persistentDocumentId != null) {
       _linuxDocumentIds[normalizedPath] = persistentDocumentId;
       await _saveLinuxDocumentIds();
@@ -1138,7 +1146,9 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<bool> _registerPersistentAccess(String path) async {
-    debugPrint('[ScannerService] _registerPersistentAccess: path=$path, keys=${_linuxDocumentIds.keys.toList()}');
+    debugPrint(
+      '[ScannerService] _registerPersistentAccess: path=$path, keys=${_linuxDocumentIds.keys.toList()}',
+    );
     if (Platform.isLinux && _linuxFlatpak) {
       return _linuxDocumentIds.containsKey(_normalizePath(path));
     }
@@ -1329,10 +1339,7 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
       _scanCoordinator.requestRescan();
       if (!_scanCoordinator.isScanning) {
         unawaited(
-          _scanRootsWithFullFlow(
-            () => restoredRoots,
-            clearScannedRoots: false,
-          ),
+          _scanRootsWithFullFlow(() => restoredRoots, clearScannedRoots: false),
         );
       }
     }
@@ -1828,7 +1835,8 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
     if (!Platform.isAndroid) return;
 
     try {
-      final systemSongs = cachedSongs ?? await _repository.getSystemMediaSongs();
+      final systemSongs =
+          cachedSongs ?? await _repository.getSystemMediaSongs();
       if (systemSongs.isNotEmpty) {
         _systemMediaFolder = _treeBuilder.buildFolderTreeFromMetadata(
           systemSongs,
@@ -2329,7 +2337,9 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
     final pathList = directoriesToStat.toList(growable: false);
     const batchSize = 50;
     for (var i = 0; i < pathList.length; i += batchSize) {
-      final end = i + batchSize < pathList.length ? i + batchSize : pathList.length;
+      final end = i + batchSize < pathList.length
+          ? i + batchSize
+          : pathList.length;
       final chunk = pathList.sublist(i, end);
       await Future.wait(
         chunk.map((path) async {
@@ -2733,7 +2743,9 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
     );
   }
 
-  Future<void> _purgeRemovedRootsFromMetadataCache(Iterable<String> roots) async {
+  Future<void> _purgeRemovedRootsFromMetadataCache(
+    Iterable<String> roots,
+  ) async {
     final normalizedRoots = _normalizeDeclaredRootPaths(roots);
     if (normalizedRoots.isEmpty) return;
 
@@ -3058,20 +3070,14 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
         ...imageOnlyPaths,
       ];
 
-      await _timeScanStep(
-        'stage 3.1 mark root scan token batch',
-        () async {
-          await MetadataDatabase().markRootScanSeenWithToken(
-            visiblePaths,
-            scanToken: scanToken,
-            sourceMask: SongSourceFlags.rootScan,
-          );
-          await MetadataDatabase().bindSongsToRootBatch(
-            visiblePaths,
-            rootPath,
-          );
-        },
-      );
+      await _timeScanStep('stage 3.1 mark root scan token batch', () async {
+        await MetadataDatabase().markRootScanSeenWithToken(
+          visiblePaths,
+          scanToken: scanToken,
+          sourceMask: SongSourceFlags.rootScan,
+        );
+        await MetadataDatabase().bindSongsToRootBatch(visiblePaths, rootPath);
+      });
       if (!_isScanTokenCurrent(scanToken) ||
           !_isScanRootStillActive(rootPath)) {
         return null;
@@ -3136,7 +3142,10 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
       }
     }
 
-    final concurrency = (Platform.numberOfProcessors * 0.75).round().clamp(4, 16);
+    final concurrency = (Platform.numberOfProcessors * 0.75).round().clamp(
+      4,
+      16,
+    );
 
     try {
       var nextIndex = 0;
@@ -4184,7 +4193,9 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.inactive) {
       _stopRootAvailabilityTimer();
     } else if (state == AppLifecycleState.resumed) {
       _startRootAvailabilityTimer();
