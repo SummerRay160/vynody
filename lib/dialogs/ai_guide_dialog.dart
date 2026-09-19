@@ -705,6 +705,20 @@ class _LyricsApiKeyWizardDialogState
         provider: provider,
         modelId: '',
       );
+      settings.karaokePrimaryModel = LyricsAiModelSelection(
+        provider: provider,
+        modelId: provider == LyricsAiProvider.googleAiStudio
+            ? SettingsService.defaultKaraokePrimaryModelId
+            : provider == LyricsAiProvider.openRouter
+            ? SettingsService.defaultOpenRouterKaraokeModelId
+            : provider == LyricsAiProvider.doubao
+            ? SettingsService.defaultDoubaoKaraokeModelId
+            : '',
+      );
+      settings.karaokeFallbackModel = LyricsAiModelSelection(
+        provider: provider,
+        modelId: '',
+      );
       settings.translationPrimaryModel = LyricsAiModelSelection(
         provider: provider,
         modelId: provider == LyricsAiProvider.googleAiStudio

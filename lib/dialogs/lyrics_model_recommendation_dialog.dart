@@ -158,26 +158,41 @@ class _LyricsModelRecommendationDialogState
   }
 }
 
-Future<bool> ensureLyricsGenerationModelRecommendation(
+Future<bool> ensureLyricsModelRecommendation(
   BuildContext context,
-  WidgetRef ref,
-) async {
+  WidgetRef ref, {
+  LyricsAiModelPurpose purpose = LyricsAiModelPurpose.generation,
+}) async {
   final settings = ref.read(settingsServiceProvider);
-  final currentModel = settings.generationPrimaryModel;
+  final isKaraoke = purpose == LyricsAiModelPurpose.karaoke;
+  final currentModel = isKaraoke
+      ? (settings.karaokePrimaryModel.modelId.trim().isNotEmpty
+          ? settings.karaokePrimaryModel
+          : settings.generationPrimaryModel)
+      : settings.generationPrimaryModel;
 
   final String recommendedModelId;
   final bool isRecommended;
 
   switch (currentModel.provider) {
     case LyricsAiProvider.googleAiStudio:
-      recommendedModelId = SettingsService.defaultGenerationPrimaryModelId;
+      recommendedModelId = isKaraoke
+          ? SettingsService.defaultKaraokePrimaryModelId
+          : SettingsService.defaultGenerationPrimaryModelId;
       isRecommended = currentModel.modelId.trim() == recommendedModelId;
       break;
     case LyricsAiProvider.openRouter:
-      recommendedModelId = SettingsService.defaultOpenRouterGenerationModelId;
+      recommendedModelId = isKaraoke
+          ? SettingsService.defaultOpenRouterKaraokeModelId
+          : SettingsService.defaultOpenRouterGenerationModelId;
       final normalizedId = currentModel.modelId.trim().toLowerCase();
-      isRecommended = normalizedId == 'google/gemini-3.1-flash-lite' ||
-          normalizedId == 'gemini-3.1-flash-lite';
+      if (isKaraoke) {
+        isRecommended = normalizedId == 'google/gemini-3.5-flash-lite' ||
+            normalizedId == 'gemini-3.5-flash-lite';
+      } else {
+        isRecommended = normalizedId == 'google/gemini-3.1-flash-lite' ||
+            normalizedId == 'gemini-3.1-flash-lite';
+      }
       break;
     default:
       return true;
@@ -212,10 +227,37 @@ Future<bool> ensureLyricsGenerationModelRecommendation(
   }
 
   if (result.action == LyricsModelRecommendationAction.switchToRecommended) {
-    settings.generationPrimaryModel = currentModel.copyWith(
-      modelId: recommendedModelId,
-    );
+    if (isKaraoke) {
+      settings.karaokePrimaryModel = currentModel.copyWith(
+        modelId: recommendedModelId,
+      );
+    } else {
+      settings.generationPrimaryModel = currentModel.copyWith(
+        modelId: recommendedModelId,
+      );
+    }
   }
 
   return true;
 }
+
+Future<bool> ensureLyricsGenerationModelRecommendation(
+  BuildContext context,
+  WidgetRef ref,
+) =>
+    ensureLyricsModelRecommendation(
+      context,
+      ref,
+      purpose: LyricsAiModelPurpose.generation,
+    );
+
+Future<bool> ensureLyricsKaraokeModelRecommendation(
+  BuildContext context,
+  WidgetRef ref,
+) =>
+    ensureLyricsModelRecommendation(
+      context,
+      ref,
+      purpose: LyricsAiModelPurpose.karaoke,
+    );
+

@@ -36,6 +36,14 @@ final class LyricsAiRuntimeConfig {
   const LyricsAiRuntimeConfig({
     required this.generationPrimaryModel,
     required this.generationFallbackModel,
+    this.karaokePrimaryModel = const LyricsAiModelSelection(
+      provider: LyricsAiProvider.googleAiStudio,
+      modelId: '',
+    ),
+    this.karaokeFallbackModel = const LyricsAiModelSelection(
+      provider: LyricsAiProvider.googleAiStudio,
+      modelId: '',
+    ),
     required this.translationPrimaryModel,
     required this.translationFallbackModel,
     required this.geminiApiKey,
@@ -49,6 +57,8 @@ final class LyricsAiRuntimeConfig {
 
   final LyricsAiModelSelection generationPrimaryModel;
   final LyricsAiModelSelection generationFallbackModel;
+  final LyricsAiModelSelection karaokePrimaryModel;
+  final LyricsAiModelSelection karaokeFallbackModel;
   final LyricsAiModelSelection translationPrimaryModel;
   final LyricsAiModelSelection translationFallbackModel;
   final String geminiApiKey;
@@ -117,6 +127,10 @@ class LyricsAiService {
       _readConfig().generationPrimaryModel;
   LyricsAiModelSelection get _generationFallbackModel =>
       _readConfig().generationFallbackModel;
+  LyricsAiModelSelection get _karaokePrimaryModel =>
+      _readConfig().karaokePrimaryModel;
+  LyricsAiModelSelection get _karaokeFallbackModel =>
+      _readConfig().karaokeFallbackModel;
   LyricsAiModelSelection get _translationPrimaryModel =>
       _readConfig().translationPrimaryModel;
   LyricsAiModelSelection get _translationFallbackModel =>
@@ -126,6 +140,13 @@ class LyricsAiService {
 
   String get currentGenerationModelLabel {
     return _modelLabel(_generationPrimaryModel);
+  }
+
+  String get currentKaraokeModelLabel {
+    final effectiveModel = _karaokePrimaryModel.modelId.trim().isNotEmpty
+        ? _karaokePrimaryModel
+        : _generationPrimaryModel;
+    return _modelLabel(effectiveModel);
   }
 
   String get currentGenerationProviderTag =>
@@ -577,15 +598,23 @@ class LyricsAiService {
       final prompt = LyricsAiPromptBuilder.buildConvertToKaraokePrompt(
         lyrics: normalizedLyrics,
       );
+      final effectivePrimaryModel =
+          _karaokePrimaryModel.modelId.trim().isNotEmpty
+              ? _karaokePrimaryModel
+              : _generationPrimaryModel;
+      final effectiveFallbackModel =
+          _karaokeFallbackModel.modelId.trim().isNotEmpty
+              ? _karaokeFallbackModel
+              : _generationFallbackModel;
       final candidates = <LyricsAiModelSelection>[
         LyricsAiModelSelection(
-          provider: _generationPrimaryModel.provider,
+          provider: effectivePrimaryModel.provider,
           modelId: modelId?.trim().isNotEmpty == true
               ? modelId!.trim()
-              : _generationPrimaryModel.modelId,
+              : effectivePrimaryModel.modelId,
         ),
-        if (_generationFallbackModel.modelId.trim().isNotEmpty)
-          _generationFallbackModel,
+        if (effectiveFallbackModel.modelId.trim().isNotEmpty)
+          effectiveFallbackModel,
       ];
 
       String? lastError;

@@ -4839,6 +4839,18 @@ abstract class AppLocalizations {
   /// **'用于 AI 听歌生成歌词，以及给现有歌词生成/修正时间轴。'**
   String get lyricsGenerationModelDescription;
 
+  /// No description provided for @lyricsKaraokeModel.
+  ///
+  /// In zh, this message translates to:
+  /// **'逐字歌词模型'**
+  String get lyricsKaraokeModel;
+
+  /// No description provided for @lyricsKaraokeModelDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'用于将歌词转换为逐字卡拉OK时间轴的高精度音频对齐模型。'**
+  String get lyricsKaraokeModelDescription;
+
   /// No description provided for @lyricsTranslationModel.
   ///
   /// In zh, this message translates to:

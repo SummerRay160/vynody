@@ -2630,6 +2630,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Used for AI-generated lyrics and timeline generation/correction.';
 
   @override
+  String get lyricsKaraokeModel => 'Karaoke Lyrics Model';
+
+  @override
+  String get lyricsKaraokeModelDescription =>
+      'High-precision audio alignment model used for converting lyrics to word-by-word karaoke timeline.';
+
+  @override
   String get lyricsTranslationModel => 'Lyrics Translation Model';
 
   @override

@@ -705,6 +705,10 @@ class LyricsSection extends ConsumerWidget {
         settings.generationPrimaryModel,
       (LyricsAiModelPurpose.generation, LyricsAiModelSlot.fallback) =>
         settings.generationFallbackModel,
+      (LyricsAiModelPurpose.karaoke, LyricsAiModelSlot.primary) =>
+        settings.karaokePrimaryModel,
+      (LyricsAiModelPurpose.karaoke, LyricsAiModelSlot.fallback) =>
+        settings.karaokeFallbackModel,
       (LyricsAiModelPurpose.translation, LyricsAiModelSlot.primary) =>
         settings.translationPrimaryModel,
       (LyricsAiModelPurpose.translation, LyricsAiModelSlot.fallback) =>
@@ -723,6 +727,10 @@ class LyricsSection extends ConsumerWidget {
         settings.generationPrimaryModel = selection;
       case (LyricsAiModelPurpose.generation, LyricsAiModelSlot.fallback):
         settings.generationFallbackModel = selection;
+      case (LyricsAiModelPurpose.karaoke, LyricsAiModelSlot.primary):
+        settings.karaokePrimaryModel = selection;
+      case (LyricsAiModelPurpose.karaoke, LyricsAiModelSlot.fallback):
+        settings.karaokeFallbackModel = selection;
       case (LyricsAiModelPurpose.translation, LyricsAiModelSlot.primary):
         settings.translationPrimaryModel = selection;
       case (LyricsAiModelPurpose.translation, LyricsAiModelSlot.fallback):
@@ -758,6 +766,29 @@ class LyricsSection extends ConsumerWidget {
             ref: ref,
             settings: settings,
             purpose: LyricsAiModelPurpose.generation,
+            slot: LyricsAiModelSlot.fallback,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildModelGroupCard(
+          context,
+          title: l10n.lyricsKaraokeModel,
+          description: l10n.lyricsKaraokeModelDescription,
+          primarySelection: settings.karaokePrimaryModel,
+          fallbackSelection: settings.karaokeFallbackModel,
+          enabled: settings.hasAnyLyricsModelProvider,
+          onPrimaryTap: () => _selectLyricsModel(
+            context: context,
+            ref: ref,
+            settings: settings,
+            purpose: LyricsAiModelPurpose.karaoke,
+            slot: LyricsAiModelSlot.primary,
+          ),
+          onFallbackTap: () => _selectLyricsModel(
+            context: context,
+            ref: ref,
+            settings: settings,
+            purpose: LyricsAiModelPurpose.karaoke,
             slot: LyricsAiModelSlot.fallback,
           ),
         ),

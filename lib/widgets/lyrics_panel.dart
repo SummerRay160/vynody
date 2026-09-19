@@ -550,6 +550,10 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     return ensureLyricsGenerationModelRecommendation(context, ref);
   }
 
+  Future<bool> _ensureRecommendedKaraokeModel() async {
+    return ensureLyricsKaraokeModelRecommendation(context, ref);
+  }
+
   Future<bool> _ensureGeminiApiKey() async {
     return ensureGeminiApiKey(context, ref);
   }
@@ -900,7 +904,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
         }
 
         if (!context.mounted || !mounted) return;
-        if (!await _ensureRecommendedGenerationModel()) return;
+        if (!await _ensureRecommendedKaraokeModel()) return;
         final errorMessage = await _lyricsControllerActions
             .convertToKaraokeLyricsForCurrentSong();
         if (errorMessage != null) {

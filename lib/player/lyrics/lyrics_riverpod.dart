@@ -28,6 +28,8 @@ final lyricsAiRuntimeConfigProvider = Provider<LyricsAiRuntimeConfig>((ref) {
       (settings) => LyricsAiRuntimeConfig(
         generationPrimaryModel: settings.generationPrimaryModel,
         generationFallbackModel: settings.generationFallbackModel,
+        karaokePrimaryModel: settings.karaokePrimaryModel,
+        karaokeFallbackModel: settings.karaokeFallbackModel,
         translationPrimaryModel: settings.translationPrimaryModel,
         translationFallbackModel: settings.translationFallbackModel,
         geminiApiKey: settings.geminiApiKey,

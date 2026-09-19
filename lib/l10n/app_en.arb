@@ -958,6 +958,8 @@
   "openAppStore": "Go to App Store",
   "lyricsGenerationModel": "Lyrics Generation Model",
   "lyricsGenerationModelDescription": "Used for AI-generated lyrics and timeline generation/correction.",
+  "lyricsKaraokeModel": "Karaoke Lyrics Model",
+  "lyricsKaraokeModelDescription": "High-precision audio alignment model used for converting lyrics to word-by-word karaoke timeline.",
   "lyricsTranslationModel": "Lyrics Translation Model",
   "lyricsTranslationModelDescription": "Used for translating lyrics to the target language.",
   "onlyForLyricTranslation": "Only for lyric translation",

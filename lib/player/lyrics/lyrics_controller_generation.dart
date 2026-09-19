@@ -625,7 +625,7 @@ class LyricsGenerationCoordinator {
         song: song,
         databaseSource: LyricsCacheSource.aiKaraoke,
         statusLabel: _l10n().convertingToKaraoke,
-        modelLabel: _context.lyricsAiService.currentGenerationModelLabel,
+        modelLabel: _context.lyricsAiService.currentKaraokeModelLabel,
         cancelToken: cancelToken,
         publishProgressively: false,
         translationProvider: () =>
@@ -699,7 +699,7 @@ class LyricsGenerationCoordinator {
     _queueLyricsGeneration(
       song,
       statusLabel: _l10n().convertingToKaraoke,
-      modelLabel: _context.lyricsAiService.currentGenerationModelLabel,
+      modelLabel: _context.lyricsAiService.currentKaraokeModelLabel,
     );
 
     return _context.lyricsAiTaskQueue.enqueue(() {

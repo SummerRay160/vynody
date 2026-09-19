@@ -2661,6 +2661,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'Para que la IA genere letras a partir de la canción y genere/corrija la línea de tiempo de letras existentes.';
 
   @override
+  String get lyricsKaraokeModel => '逐字歌词模型';
+
+  @override
+  String get lyricsKaraokeModelDescription => '用于将歌词转换为逐字卡拉OK时间轴的高精度音频对齐模型。';
+
+  @override
   String get lyricsTranslationModel => 'Modelo de traducción de letras';
 
   @override

@@ -172,9 +172,11 @@ class _LyricsModelPickerDialogState
 
     return AlertDialog(
       title: Text(
-        widget.purpose == LyricsAiModelPurpose.generation
-            ? l10n.lyricsGenerationModel
-            : l10n.lyricsTranslationModel,
+        switch (widget.purpose) {
+          LyricsAiModelPurpose.generation => l10n.lyricsGenerationModel,
+          LyricsAiModelPurpose.karaoke => l10n.lyricsKaraokeModel,
+          LyricsAiModelPurpose.translation => l10n.lyricsTranslationModel,
+        },
       ),
       content: SizedBox(
         width: 560,

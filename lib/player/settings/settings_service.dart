@@ -21,7 +21,7 @@ AppLocalizations _l10n() => currentAppL10n;
 
 enum LyricsAiProvider { googleAiStudio, openRouter, doubao, deepseek, custom }
 
-enum LyricsAiModelPurpose { generation, translation }
+enum LyricsAiModelPurpose { generation, karaoke, translation }
 
 enum LyricsAiModelSlot { primary, fallback }
 
@@ -347,13 +347,19 @@ class SettingsService extends ChangeNotifier {
   static const String defaultGenerationPrimaryModelId =
       'gemini-3.1-flash-lite';
   static const String defaultGenerationFallbackModelId = '';
+  static const String defaultKaraokePrimaryModelId = 'gemini-3.5-flash-lite';
+  static const String defaultKaraokeFallbackModelId = '';
   static const String defaultTranslationPrimaryModelId = 'gemma-4-31b-it';
   static const String defaultTranslationFallbackModelId = '';
   static const String defaultOpenRouterGenerationModelId =
       'google/gemini-3.1-flash-lite';
+  static const String defaultOpenRouterKaraokeModelId =
+      'google/gemini-3.5-flash-lite';
   static const String defaultOpenRouterTranslationModelId =
       'google/gemini-3.1-flash-lite';
   static const String defaultDoubaoGenerationModelId =
+      'doubao-seed-2-0-lite-260428';
+  static const String defaultDoubaoKaraokeModelId =
       'doubao-seed-2-0-lite-260428';
   static const String defaultDoubaoTranslationModelId =
       'doubao-seed-2-0-lite-260428';
@@ -451,6 +457,14 @@ class SettingsService extends ChangeNotifier {
       'lyrics_generation_fallback_provider';
   static const String _keyGenerationFallbackModelId =
       'lyrics_generation_fallback_model_id';
+  static const String _keyKaraokePrimaryProvider =
+      'lyrics_karaoke_primary_provider';
+  static const String _keyKaraokePrimaryModelId =
+      'lyrics_karaoke_primary_model_id';
+  static const String _keyKaraokeFallbackProvider =
+      'lyrics_karaoke_fallback_provider';
+  static const String _keyKaraokeFallbackModelId =
+      'lyrics_karaoke_fallback_model_id';
   static const String _keyTranslationPrimaryProvider =
       'lyrics_translation_primary_provider';
   static const String _keyTranslationPrimaryModelId =
@@ -1192,6 +1206,64 @@ class SettingsService extends ChangeNotifier {
       prefs,
       key: key,
       legacyKey: _legacyKeyGeminiFallbackModelId,
+      defaultValue: def,
+    ),
+  );
+
+  late final _karaokePrimaryProviderProperty =
+      SettingProperty<LyricsAiProvider>(
+        key: _keyKaraokePrimaryProvider,
+        defaultValue: LyricsAiProvider.googleAiStudio,
+        prefs: _prefs,
+        onChanged: notifyListeners,
+        customRead: (prefs, key, def) => _initialLyricsProvider(
+          prefs,
+          key: key,
+          legacyKey: _keyGenerationPrimaryProvider,
+          defaultValue: def,
+        ),
+        customWrite: (prefs, key, val) =>
+            prefs.setString(key, val.storageValue),
+      );
+
+  late final _karaokePrimaryModelIdProperty = SettingProperty<String>(
+    key: _keyKaraokePrimaryModelId,
+    defaultValue: defaultKaraokePrimaryModelId,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+    customRead: (prefs, key, def) => _initialModelId(
+      prefs,
+      key: key,
+      legacyKey: '',
+      defaultValue: def,
+    ),
+  );
+
+  late final _karaokeFallbackProviderProperty =
+      SettingProperty<LyricsAiProvider>(
+        key: _keyKaraokeFallbackProvider,
+        defaultValue: LyricsAiProvider.googleAiStudio,
+        prefs: _prefs,
+        onChanged: notifyListeners,
+        customRead: (prefs, key, def) => _initialLyricsProvider(
+          prefs,
+          key: key,
+          legacyKey: _keyGenerationFallbackProvider,
+          defaultValue: def,
+        ),
+        customWrite: (prefs, key, val) =>
+            prefs.setString(key, val.storageValue),
+      );
+
+  late final _karaokeFallbackModelIdProperty = SettingProperty<String>(
+    key: _keyKaraokeFallbackModelId,
+    defaultValue: defaultKaraokeFallbackModelId,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+    customRead: (prefs, key, def) => _initialModelId(
+      prefs,
+      key: key,
+      legacyKey: '',
       defaultValue: def,
     ),
   );
@@ -2141,6 +2213,24 @@ class SettingsService extends ChangeNotifier {
     _generationFallbackModelIdProperty.value = value.modelId.trim();
   }
 
+  LyricsAiModelSelection get karaokePrimaryModel => LyricsAiModelSelection(
+    provider: _karaokePrimaryProviderProperty.value,
+    modelId: _karaokePrimaryModelIdProperty.value,
+  );
+  set karaokePrimaryModel(LyricsAiModelSelection value) {
+    _karaokePrimaryProviderProperty.value = value.provider;
+    _karaokePrimaryModelIdProperty.value = value.modelId.trim();
+  }
+
+  LyricsAiModelSelection get karaokeFallbackModel => LyricsAiModelSelection(
+    provider: _karaokeFallbackProviderProperty.value,
+    modelId: _karaokeFallbackModelIdProperty.value,
+  );
+  set karaokeFallbackModel(LyricsAiModelSelection value) {
+    _karaokeFallbackProviderProperty.value = value.provider;
+    _karaokeFallbackModelIdProperty.value = value.modelId.trim();
+  }
+
   LyricsAiModelSelection get translationPrimaryModel => LyricsAiModelSelection(
     provider: _translationPrimaryProviderProperty.value,
     modelId: _translationPrimaryModelIdProperty.value,
@@ -2247,6 +2337,22 @@ class SettingsService extends ChangeNotifier {
       }
     }
 
+    if (_isModelSelectionNotSet(karaokePrimaryModel)) {
+      final defaultModelId = switch (provider) {
+        LyricsAiProvider.googleAiStudio => defaultKaraokePrimaryModelId,
+        LyricsAiProvider.openRouter => defaultOpenRouterKaraokeModelId,
+        LyricsAiProvider.doubao => defaultDoubaoKaraokeModelId,
+        LyricsAiProvider.deepseek => '',
+        LyricsAiProvider.custom => '',
+      };
+      if (defaultModelId.isNotEmpty) {
+        karaokePrimaryModel = LyricsAiModelSelection(
+          provider: provider,
+          modelId: defaultModelId,
+        );
+      }
+    }
+
     if (_isModelSelectionNotSet(translationPrimaryModel)) {
       final defaultModelId = switch (provider) {
         LyricsAiProvider.googleAiStudio => defaultTranslationPrimaryModelId,
@@ -2281,6 +2387,18 @@ class SettingsService extends ChangeNotifier {
     }
     if (generationFallbackModel.provider == provider) {
       generationFallbackModel = LyricsAiModelSelection(
+        provider: fallbackProvider,
+        modelId: '',
+      );
+    }
+    if (karaokePrimaryModel.provider == provider) {
+      karaokePrimaryModel = LyricsAiModelSelection(
+        provider: fallbackProvider,
+        modelId: '',
+      );
+    }
+    if (karaokeFallbackModel.provider == provider) {
+      karaokeFallbackModel = LyricsAiModelSelection(
         provider: fallbackProvider,
         modelId: '',
       );
@@ -2933,6 +3051,14 @@ class SettingsService extends ChangeNotifier {
       provider: LyricsAiProvider.googleAiStudio,
       modelId: defaultGenerationFallbackModelId,
     );
+    karaokePrimaryModel = const LyricsAiModelSelection(
+      provider: LyricsAiProvider.googleAiStudio,
+      modelId: defaultKaraokePrimaryModelId,
+    );
+    karaokeFallbackModel = const LyricsAiModelSelection(
+      provider: LyricsAiProvider.googleAiStudio,
+      modelId: defaultKaraokeFallbackModelId,
+    );
     translationPrimaryModel = const LyricsAiModelSelection(
       provider: LyricsAiProvider.googleAiStudio,
       modelId: defaultTranslationPrimaryModelId,
@@ -2957,6 +3083,14 @@ class SettingsService extends ChangeNotifier {
           provider: LyricsAiProvider.openRouter,
           modelId: '',
         );
+        karaokePrimaryModel = const LyricsAiModelSelection(
+          provider: LyricsAiProvider.openRouter,
+          modelId: defaultOpenRouterKaraokeModelId,
+        );
+        karaokeFallbackModel = const LyricsAiModelSelection(
+          provider: LyricsAiProvider.openRouter,
+          modelId: '',
+        );
         translationPrimaryModel = const LyricsAiModelSelection(
           provider: LyricsAiProvider.openRouter,
           modelId: defaultOpenRouterTranslationModelId,
@@ -2972,6 +3106,14 @@ class SettingsService extends ChangeNotifier {
           modelId: defaultDoubaoGenerationModelId,
         );
         generationFallbackModel = const LyricsAiModelSelection(
+          provider: LyricsAiProvider.doubao,
+          modelId: '',
+        );
+        karaokePrimaryModel = const LyricsAiModelSelection(
+          provider: LyricsAiProvider.doubao,
+          modelId: defaultDoubaoKaraokeModelId,
+        );
+        karaokeFallbackModel = const LyricsAiModelSelection(
           provider: LyricsAiProvider.doubao,
           modelId: '',
         );

@@ -325,6 +325,7 @@ class LyricsModelCatalogService {
               lowerId.contains('flash') || lowerId.contains('gemini');
           final shouldInclude = switch (purpose) {
             LyricsAiModelPurpose.generation => looksLikeGeneration,
+            LyricsAiModelPurpose.karaoke => looksLikeGeneration,
             LyricsAiModelPurpose.translation =>
               looksLikeTranslation || looksLikeGeneration,
           };
@@ -377,7 +378,8 @@ class LyricsModelCatalogService {
                     const []
               : const <String>[];
           final supportsPurpose = switch (purpose) {
-            LyricsAiModelPurpose.generation =>
+            LyricsAiModelPurpose.generation ||
+            LyricsAiModelPurpose.karaoke =>
               inputModalities.contains('audio') &&
                   outputModalities.contains('text'),
             LyricsAiModelPurpose.translation =>
@@ -428,7 +430,8 @@ class LyricsModelCatalogService {
           final name = item['name']?.toString().trim() ?? id;
           final lowerId = id.toLowerCase();
           final supportsPurpose = switch (purpose) {
-            LyricsAiModelPurpose.generation =>
+            LyricsAiModelPurpose.generation ||
+            LyricsAiModelPurpose.karaoke =>
               lowerId.contains('seed') || lowerId.contains('doubao'),
             LyricsAiModelPurpose.translation =>
               lowerId.contains('seed') || lowerId.contains('doubao'),

@@ -2665,6 +2665,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'Pour la génération de paroles par IA et la correction de chronologie.';
 
   @override
+  String get lyricsKaraokeModel => '逐字歌词模型';
+
+  @override
+  String get lyricsKaraokeModelDescription => '用于将歌词转换为逐字卡拉OK时间轴的高精度音频对齐模型。';
+
+  @override
   String get lyricsTranslationModel => 'Modèle de traduction de paroles';
 
   @override

@@ -2507,6 +2507,12 @@ class AppLocalizationsZh extends AppLocalizations {
       '用于 AI 听歌生成歌词，以及给现有歌词生成/修正时间轴。';
 
   @override
+  String get lyricsKaraokeModel => '逐字歌词模型';
+
+  @override
+  String get lyricsKaraokeModelDescription => '用于将歌词转换为逐字卡拉OK时间轴的高精度音频对齐模型。';
+
+  @override
   String get lyricsTranslationModel => '歌词翻译模型';
 
   @override

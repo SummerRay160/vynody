@@ -2662,6 +2662,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Für KI-generierte Songtexte und Zeitachsen-Korrektur.';
 
   @override
+  String get lyricsKaraokeModel => '逐字歌词模型';
+
+  @override
+  String get lyricsKaraokeModelDescription => '用于将歌词转换为逐字卡拉OK时间轴的高精度音频对齐模型。';
+
+  @override
   String get lyricsTranslationModel => 'Songtext-Übersetzungsmodell';
 
   @override

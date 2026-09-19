@@ -47,6 +47,14 @@ void main() {
           provider: LyricsAiProvider.googleAiStudio,
           modelId: '',
         ),
+        karaokePrimaryModel: LyricsAiModelSelection(
+          provider: LyricsAiProvider.googleAiStudio,
+          modelId: 'gemini-3.5-flash-lite',
+        ),
+        karaokeFallbackModel: LyricsAiModelSelection(
+          provider: LyricsAiProvider.googleAiStudio,
+          modelId: '',
+        ),
         translationPrimaryModel: LyricsAiModelSelection(
           provider: LyricsAiProvider.googleAiStudio,
           modelId: '',
