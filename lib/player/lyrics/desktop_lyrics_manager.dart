@@ -6,6 +6,7 @@ import 'package:vynody/models/music_file.dart';
 import 'package:vynody/models/music_lyric.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/lyrics/lyrics_riverpod.dart';
+import 'package:vynody/player/lyrics/lyrics_controller_state.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 
 class DesktopLyricsManager {
@@ -15,9 +16,10 @@ class DesktopLyricsManager {
   ProviderSubscription<bool>? _isPlayingSub;
   ProviderSubscription<Duration>? _positionSub;
   ProviderSubscription<MusicFile?>? _musicSub;
+  ProviderSubscription<LyricsControllerState>? _lyricsSub;
 
   int _lastActiveLineIndex = -1;
-  int? _lastSongId;
+  String? _lastSongPath;
   Duration _lastSentPosition = Duration.zero;
   DateTime _lastSentTime = DateTime.fromMillisecondsSinceEpoch(0);
 
@@ -54,6 +56,15 @@ class DesktopLyricsManager {
     _musicSub = ref.listen<MusicFile?>(
       audioCurrentMusicProvider,
       (prev, next) => _onMusicChanged(next),
+    );
+
+    // 4. 监听歌词解析与加载完成状态，确保后台/异步拉取到歌词后立即刷新桌面歌词
+    _lyricsSub = ref.listen<LyricsControllerState>(
+      lyricsControllerProvider,
+      (prev, next) {
+        if (!DesktopLyrics.controller.isShowing) return;
+        _syncCurrentLine(force: true);
+      },
     );
 
     // 如果初始设置已经是开启桌面歌词，则直接显示
@@ -161,12 +172,13 @@ class DesktopLyricsManager {
       artist: currentMusic?.artist ?? '',
     );
 
+    ref.read(audioServiceProvider).ensureLyricsLoadedForCurrentSong();
     _syncCurrentLine(force: true);
   }
 
   void _onMusicChanged(MusicFile? music) {
-    if (music?.id != _lastSongId) {
-      _lastSongId = music?.id;
+    if (music?.path != _lastSongPath) {
+      _lastSongPath = music?.path;
       _lastActiveLineIndex = -1;
       _syncPlaybackState();
       _syncCurrentLine(force: true);
@@ -226,6 +238,9 @@ class DesktopLyricsManager {
               ? DesktopLyricLine(timestampMs: 0, text: currentMusic.title ?? '')
               : null,
         );
+      }
+      if (currentMusic != null && !lyricsState.hasLyrics && !lyricsState.isLyricsLoading) {
+        ref.read(audioServiceProvider).ensureLyricsLoadedForCurrentSong();
       }
       return;
     }
@@ -296,6 +311,7 @@ class DesktopLyricsManager {
     _isPlayingSub?.close();
     _positionSub?.close();
     _musicSub?.close();
+    _lyricsSub?.close();
     DesktopLyrics.controller.hide();
   }
 }

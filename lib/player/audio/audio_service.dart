@@ -81,6 +81,7 @@ class AudioService extends Notifier<AudioSnapshot> {
   void Function({required bool skipped})? _missingSongNoticeHandler;
   void Function(String message)? _remotePlaybackErrorHandler;
   bool _isLyricsActive = false;
+  bool _lastDesktopLyricsEnabled = false;
   Timer? _sleepTimer;
   DateTime? _sleepTimerEndAt;
   Duration? _sleepTimerDuration;
@@ -130,6 +131,15 @@ class AudioService extends Notifier<AudioSnapshot> {
   Color? get dynamicEndColor => _dynamicEndColor;
   Map<String, Color> get currentThemeColorsMap => _currentThemeColorsMap;
   bool get isLyricsActive => _isLyricsActive;
+  bool get isLyricsNeeded {
+    if (_isLyricsActive) return true;
+    if (!kIsWeb &&
+        (Platform.isWindows || Platform.isLinux || Platform.isMacOS) &&
+        settingsService.enableDesktopLyrics) {
+      return true;
+    }
+    return false;
+  }
   bool get isLyricsLoading => _lyricsState.isLyricsLoading;
   bool get hasLyrics => _lyricsState.hasLyrics;
   bool get lyricsSearchAttempted => _lyricsState.lyricsSearchAttempted;
@@ -244,6 +254,9 @@ class AudioService extends Notifier<AudioSnapshot> {
       },
     );
     _lastWaveformChunks = settingsService.waveformChunks;
+    _lastDesktopLyricsEnabled = !kIsWeb &&
+        (Platform.isWindows || Platform.isLinux || Platform.isMacOS) &&
+        settingsService.enableDesktopLyrics;
 
     _sessionManager = PlaybackSessionManager();
     _queueBackgroundProcessor = QueueBackgroundProcessor(
@@ -296,6 +309,16 @@ class AudioService extends Notifier<AudioSnapshot> {
         _lastWaveformChunks = currentWaveformChunks;
         unawaited(_handleWaveformChunkChange());
         return;
+      }
+
+      final desktopLyricsEnabled = !kIsWeb &&
+          (Platform.isWindows || Platform.isLinux || Platform.isMacOS) &&
+          settingsService.enableDesktopLyrics;
+      if (_lastDesktopLyricsEnabled != desktopLyricsEnabled) {
+        _lastDesktopLyricsEnabled = desktopLyricsEnabled;
+        if (desktopLyricsEnabled) {
+          ensureLyricsLoadedForCurrentSong();
+        }
       }
 
       unawaited(_refreshCurrentWaveform());
@@ -626,7 +649,7 @@ class AudioService extends Notifier<AudioSnapshot> {
       queue: () => _queue,
       currentIndex: () => _currentIndex,
       playerDuration: () => _duration,
-      isLyricsActive: () => isLyricsActive,
+      isLyricsActive: () => isLyricsNeeded,
       cacheSongDuration: _cacheSongDuration,
     );
   }
@@ -1349,9 +1372,9 @@ class AudioService extends Notifier<AudioSnapshot> {
     _linuxIntegration?.updatePlaybackStatus(_isPlaying);
     _updatePlaybackTrackingForCurrentSong();
 
-    // 如果当前开启了歌词模式，但因为切歌瞬间加载太快（时长 Duration 还没准备好）
+    // 如果当前开启了歌词模式或桌面歌词，但因为切歌瞬间加载太快（时长 Duration 还没准备好）
     // 导致 API 没匹配到或尚未开始加载，当时长变为有效正值时，自动触发补抓取。
-    if (isLyricsActive &&
+    if (isLyricsNeeded &&
         currentMusic != null &&
         _duration > Duration.zero &&
         !hasLyrics &&
@@ -1466,10 +1489,26 @@ class AudioService extends Notifier<AudioSnapshot> {
     unawaited(_persistPlaybackSession());
   }
 
+  /// 当桌面歌词开启或用户界面需要歌词时，确保当前播放歌曲的歌词已被加载或触发拉取。
+  void ensureLyricsLoadedForCurrentSong() {
+    final song = currentMusic;
+    if (song == null) return;
+    if (song.lyrics != null) {
+      _lyricsController.restoreFromSongLyrics(song);
+    } else if (!hasLyrics && !isLyricsLoading) {
+      if (!_lyricsController.isLyricsGenerationForSong(song.path)) {
+        _logLyricsDebug(
+          'ensureLyricsLoaded fetch -> title="${song.displayName}"',
+        );
+        _lyricsController.scheduleFetch(song);
+      }
+    }
+  }
+
   /// 设置歌词模式是否激活。
   /// 当激活时，如果当前歌曲尚未加载歌词，则立即触发加载。
   void setLyricsActive(bool active) {
-    if (isLyricsActive == active) return;
+    if (_isLyricsActive == active) return;
     _isLyricsActive = active;
     _logLyricsDebug(
       'lyrics mode ${active ? 'enabled' : 'disabled'} -> '
@@ -1477,7 +1516,7 @@ class AudioService extends Notifier<AudioSnapshot> {
       'loading=$isLyricsLoading searched=$lyricsSearchAttempted',
     );
 
-    if (isLyricsActive &&
+    if (isLyricsNeeded &&
         currentMusic?.path != null &&
         !hasLyrics &&
         !isLyricsLoading &&
@@ -1845,7 +1884,7 @@ class AudioService extends Notifier<AudioSnapshot> {
 
     if (queueChanged || isCurrentTrack) {
       if (isCurrentTrack &&
-          isLyricsActive &&
+          isLyricsNeeded &&
           !hasLyrics &&
           !isLyricsLoading &&
           !_lyricsController.isLyricsGenerationForSong(metadata.path)) {
@@ -2288,12 +2327,12 @@ class AudioService extends Notifier<AudioSnapshot> {
     // Otherwise clear lyric state and let the async lyric fetch pipeline decide
     // whether anything should be loaded.
     final songLyrics = latestCurrentSong.lyrics;
-    if (isLyricsActive && songLyrics != null) {
+    if (isLyricsNeeded && songLyrics != null) {
       _lyricsController.restoreFromSongLyrics(latestCurrentSong);
     } else {
       _logLyricsDebug(
         'lyrics state cleared -> title="${song.displayName}" '
-        'mode=$isLyricsActive hasCache=${songLyrics != null}',
+        'needed=$isLyricsNeeded hasCache=${songLyrics != null}',
       );
       _lyricsController.clearState(preserveTaskState: true);
     }
@@ -2320,9 +2359,9 @@ class AudioService extends Notifier<AudioSnapshot> {
     _darwinIntegration?.updateMetadata(song);
     _linuxIntegration?.updateMetadata(song);
 
-    // Trigger lyric loading only when lyric mode is active and we still do not
+    // Trigger lyric loading only when lyric mode / desktop lyric is active and we still do not
     // have lyrics for this track.
-    if (isLyricsActive && !hasLyrics) {
+    if (isLyricsNeeded && !hasLyrics) {
       if (_lyricsController.isLyricsGenerationForSong(song.path)) {
         _logLyricsDebug(
           'post-metadata fetch skipped because lyrics generation is active '
