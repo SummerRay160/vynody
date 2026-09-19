@@ -2627,9 +2627,9 @@ class SettingsService extends ChangeNotifier {
   double get equalizerPreamp => _equalizerPreampProperty.value;
   set equalizerPreamp(double value) => _equalizerPreampProperty.value = value;
 
-  double get equalizerBassBoost => _equalizerBassBoostProperty.value;
+  double get equalizerBassBoost => _equalizerBassBoostProperty.value.clamp(0.0, 12.0);
   set equalizerBassBoost(double value) =>
-      _equalizerBassBoostProperty.value = value;
+      _equalizerBassBoostProperty.value = value.clamp(0.0, 12.0);
 
   List<EqPreset> get customEqPresets => _customEqPresetsProperty.value;
 

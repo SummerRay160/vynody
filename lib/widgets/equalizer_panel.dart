@@ -1229,9 +1229,9 @@ class _EqualizerPanelState extends ConsumerState<EqualizerPanel> {
       children: [
         _buildKnobControl(
           label: l10n.bassBoost,
-          value: config.bassBoostDb,
+          value: config.bassBoostDb.clamp(0.0, 12.0),
           min: 0,
-          max: 100,
+          max: 12,
           accentColor: accentColor,
           onChanged: (val) => audio.setBassBoost(val),
         ),
@@ -1331,7 +1331,7 @@ class _EqualizerPanelState extends ConsumerState<EqualizerPanel> {
         ),
         const SizedBox(height: 8),
         Text(
-          '${value.toInt()}%',
+          '${value > 0 ? '+' : ''}${value.toStringAsFixed(1)} dB',
           style: TextStyle(
             color: accentColor,
             fontSize: 12,
@@ -2099,7 +2099,7 @@ class _Knob extends StatefulWidget {
   const _Knob({
     required this.value,
     this.min = 0,
-    this.max = 100,
+    this.max = 12,
     required this.size,
     required this.themeColor,
     required this.onChanged,
