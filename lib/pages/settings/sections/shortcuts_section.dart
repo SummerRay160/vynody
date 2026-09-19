@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:vynody/dialogs/shortcut_settings_dialog.dart';
 import 'package:vynody/l10n/app_localizations.dart';
@@ -10,12 +12,15 @@ class ShortcutsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isMobile = Platform.isAndroid || Platform.isIOS;
     return ListView(
       padding: const EdgeInsets.only(bottom: 100),
       children: [
         SettingsSectionHeader(
           title: l10n.shortcutSettingsTitle,
-          description: l10n.shortcutSettingsDescription,
+          description: isMobile
+              ? '${l10n.shortcutSettingsDescription} ${l10n.shortcutPhysicalKeyboardHint}'
+              : l10n.shortcutSettingsDescription,
         ),
         SettingsGroupCard(
           title: l10n.shortcutSettingsTitle,
@@ -24,7 +29,11 @@ class ShortcutsSection extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.keyboard),
               title: Text(l10n.shortcutSettingsTitle),
-              subtitle: Text(l10n.shortcutSettingsDescription),
+              subtitle: Text(
+                isMobile
+                    ? '${l10n.shortcutSettingsDescription}\n${l10n.shortcutPhysicalKeyboardHint}'
+                    : l10n.shortcutSettingsDescription,
+              ),
               trailing: FilledButton.tonal(
                 onPressed: () {
                   showShortcutSettingsDialog(context);

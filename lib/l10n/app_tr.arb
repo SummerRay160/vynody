@@ -592,6 +592,7 @@
   },
   "shortcutSettingsTitle": "Kısayol Ayarları",
   "shortcutSettingsDescription": "Oynatıcı eylemleri için kısayolları yeniden atamak ve kaydetmek için tıklayın.",
+  "shortcutPhysicalKeyboardHint": "Kısayollar harici fiziksel klavyeler için tasarlanmıştır (örn. Bluetooth veya Magic Keyboard).",
   "edit": "Düzenle",
   "lyricsSectionTitle": "Şarkı Sözleri",
   "lyricsSectionDescription": "Bu ayarlar yalnızca söz oluşturma ve zaman çizelgesi hizalamayı etkiler.",

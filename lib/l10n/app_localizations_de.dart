@@ -1458,6 +1458,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Klicken Sie, um Tastenkürzel für Player-Aktionen neu zu belegen.';
 
   @override
+  String get shortcutPhysicalKeyboardHint =>
+      'Tastenkürzel sind für externe physische Tastaturen gedacht (z. B. Bluetooth oder Magic Keyboard).';
+
+  @override
   String get edit => 'Bearbeiten';
 
   @override

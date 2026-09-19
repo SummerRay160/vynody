@@ -528,6 +528,7 @@
   },
   "shortcutSettingsTitle": "Benutzerdefinierte Tastenkürzel",
   "shortcutSettingsDescription": "Klicken Sie, um Tastenkürzel für Player-Aktionen neu zu belegen.",
+  "shortcutPhysicalKeyboardHint": "Tastenkürzel sind für externe physische Tastaturen gedacht (z. B. Bluetooth oder Magic Keyboard).",
   "edit": "Bearbeiten",
   "lyricsSectionTitle": "Songtexte",
   "lyricsSectionDescription": "Diese Einstellungen betreffen nur die Generierung von Songtexten und Zeitachsen.",

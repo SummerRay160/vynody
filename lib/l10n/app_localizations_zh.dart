@@ -1392,6 +1392,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shortcutSettingsDescription => '点击后可以为播放器操作重新录制快捷键并保存。';
 
   @override
+  String get shortcutPhysicalKeyboardHint => '快捷键适用于外接物理键盘（如蓝牙键盘、妙控键盘）。';
+
+  @override
   String get edit => '编辑';
 
   @override
@@ -6034,6 +6037,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get shortcutSettingsDescription => '點選後可以為播放器操作重新錄製快捷鍵並儲存。';
+
+  @override
+  String get shortcutPhysicalKeyboardHint => '快速鍵適用於外接實體鍵盤（如藍牙鍵盤、巧控鍵盤）。';
 
   @override
   String get edit => '編輯';

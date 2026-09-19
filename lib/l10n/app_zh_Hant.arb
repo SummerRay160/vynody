@@ -438,6 +438,7 @@
   "shortAudioScanThresholdValue": "{seconds} 秒",
   "shortcutSettingsTitle": "自訂快捷鍵",
   "shortcutSettingsDescription": "點選後可以為播放器操作重新錄製快捷鍵並儲存。",
+  "shortcutPhysicalKeyboardHint": "快速鍵適用於外接實體鍵盤（如藍牙鍵盤、巧控鍵盤）。",
   "edit": "編輯",
   "lyricsSectionTitle": "歌詞",
   "lyricsSectionDescription": "這裡的設定只影響歌詞生成和時間軸生成。",

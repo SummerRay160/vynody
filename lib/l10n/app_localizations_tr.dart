@@ -1442,6 +1442,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Oynatıcı eylemleri için kısayolları yeniden atamak ve kaydetmek için tıklayın.';
 
   @override
+  String get shortcutPhysicalKeyboardHint =>
+      'Kısayollar harici fiziksel klavyeler için tasarlanmıştır (örn. Bluetooth veya Magic Keyboard).';
+
+  @override
   String get edit => 'Düzenle';
 
   @override

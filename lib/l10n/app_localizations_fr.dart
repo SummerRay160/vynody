@@ -1460,6 +1460,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Cliquez pour redéfinir et enregistrer les raccourcis des actions du lecteur.';
 
   @override
+  String get shortcutPhysicalKeyboardHint =>
+      'Les raccourcis sont conçus pour les claviers physiques externes (ex. Bluetooth ou Magic Keyboard).';
+
+  @override
   String get edit => 'Modifier';
 
   @override

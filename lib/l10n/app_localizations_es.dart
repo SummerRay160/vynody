@@ -1458,6 +1458,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Haz clic para volver a asignar y guardar atajos para las acciones del reproductor.';
 
   @override
+  String get shortcutPhysicalKeyboardHint =>
+      'Los atajos están diseñados para teclados físicos externos (por ejemplo, Bluetooth o Magic Keyboard).';
+
+  @override
   String get edit => 'Editar';
 
   @override

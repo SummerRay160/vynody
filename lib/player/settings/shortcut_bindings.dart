@@ -58,31 +58,33 @@ extension AppShortcutActionX on AppShortcutAction {
     AppShortcutAction.toggleWasapiExclusive => _l10n.toggleWasapiExclusiveDescription,
   };
 
+  static bool get isApplePlatform => Platform.isMacOS || Platform.isIOS;
+
   ShortcutBinding get defaultBinding {
-    final isMac = Platform.isMacOS;
+    final isApple = isApplePlatform;
     return switch (this) {
       AppShortcutAction.playPause => ShortcutBinding(
           keyId: LogicalKeyboardKey.space.keyId,
         ),
       AppShortcutAction.next => ShortcutBinding(
           keyId: LogicalKeyboardKey.arrowRight.keyId,
-          control: !isMac,
-          meta: isMac,
+          control: !isApple,
+          meta: isApple,
         ),
       AppShortcutAction.previous => ShortcutBinding(
           keyId: LogicalKeyboardKey.arrowLeft.keyId,
-          control: !isMac,
-          meta: isMac,
+          control: !isApple,
+          meta: isApple,
         ),
       AppShortcutAction.volumeUp => ShortcutBinding(
           keyId: LogicalKeyboardKey.arrowUp.keyId,
-          control: !isMac,
-          meta: isMac,
+          control: !isApple,
+          meta: isApple,
         ),
       AppShortcutAction.volumeDown => ShortcutBinding(
           keyId: LogicalKeyboardKey.arrowDown.keyId,
-          control: !isMac,
-          meta: isMac,
+          control: !isApple,
+          meta: isApple,
         ),
       AppShortcutAction.mute => ShortcutBinding(
           keyId: LogicalKeyboardKey.audioVolumeMute.keyId,
@@ -96,15 +98,15 @@ extension AppShortcutActionX on AppShortcutAction {
           alt: true,
         ),
       AppShortcutAction.toggleFullScreen => ShortcutBinding(
-          keyId: isMac ? LogicalKeyboardKey.keyF.keyId : LogicalKeyboardKey.f11.keyId,
-          control: isMac,
-          meta: isMac,
+          keyId: isApple ? LogicalKeyboardKey.keyF.keyId : LogicalKeyboardKey.f11.keyId,
+          control: isApple,
+          meta: isApple,
         ),
       AppShortcutAction.toggleWasapiExclusive => ShortcutBinding(
           keyId: LogicalKeyboardKey.keyW.keyId,
-          control: !isMac,
+          control: !isApple,
           shift: true,
-          meta: isMac,
+          meta: isApple,
         ),
     };
   }
@@ -231,12 +233,12 @@ class ShortcutBinding {
 
   String get displayLabel {
     final key = logicalKey;
-    final isMac = Platform.isMacOS;
+    final isApple = AppShortcutActionX.isApplePlatform;
     final parts = <String>[
       if (control) 'Ctrl',
       if (shift) 'Shift',
-      if (alt) (isMac ? 'Opt' : 'Alt'),
-      if (meta) (isMac ? 'Cmd' : 'Meta'),
+      if (alt) (isApple ? 'Opt' : 'Alt'),
+      if (meta) (isApple ? 'Cmd' : 'Meta'),
       _formatKeyLabel(key),
     ];
     return parts.join(' + ');
@@ -245,6 +247,12 @@ class ShortcutBinding {
   static String _formatKeyLabel(LogicalKeyboardKey? key) {
     if (key == null) {
       return currentAppL10n.unknownKey;
+    }
+
+    if (key == LogicalKeyboardKey.space ||
+        key.keyId == LogicalKeyboardKey.space.keyId ||
+        key.keyLabel == ' ') {
+      return 'Space';
     }
 
     final label = key.keyLabel.trim();
@@ -256,6 +264,19 @@ class ShortcutBinding {
     if (debugName != null && debugName.isNotEmpty) {
       return debugName;
     }
+
+    if (key == LogicalKeyboardKey.arrowRight) return 'Arrow Right';
+    if (key == LogicalKeyboardKey.arrowLeft) return 'Arrow Left';
+    if (key == LogicalKeyboardKey.arrowUp) return 'Arrow Up';
+    if (key == LogicalKeyboardKey.arrowDown) return 'Arrow Down';
+    if (key == LogicalKeyboardKey.escape) return 'Esc';
+    if (key == LogicalKeyboardKey.enter) return 'Enter';
+    if (key == LogicalKeyboardKey.tab) return 'Tab';
+    if (key == LogicalKeyboardKey.backspace) return 'Backspace';
+    if (key == LogicalKeyboardKey.delete) return 'Delete';
+    if (key == LogicalKeyboardKey.audioVolumeMute) return 'Mute';
+    if (key == LogicalKeyboardKey.audioVolumeUp) return 'Volume Up';
+    if (key == LogicalKeyboardKey.audioVolumeDown) return 'Volume Down';
 
     return '0x${key.keyId.toRadixString(16)}';
   }

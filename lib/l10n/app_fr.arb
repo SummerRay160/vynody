@@ -528,6 +528,7 @@
   },
   "shortcutSettingsTitle": "Raccourcis personnalisés",
   "shortcutSettingsDescription": "Cliquez pour redéfinir et enregistrer les raccourcis des actions du lecteur.",
+  "shortcutPhysicalKeyboardHint": "Les raccourcis sont conçus pour les claviers physiques externes (ex. Bluetooth ou Magic Keyboard).",
   "edit": "Modifier",
   "lyricsSectionTitle": "Paroles",
   "lyricsSectionDescription": "Ces réglages n'affectent que la génération de paroles et de chronologie.",

@@ -528,6 +528,7 @@
   },
   "shortcutSettingsTitle": "Atajos personalizados",
   "shortcutSettingsDescription": "Haz clic para volver a asignar y guardar atajos para las acciones del reproductor.",
+  "shortcutPhysicalKeyboardHint": "Los atajos están diseñados para teclados físicos externos (por ejemplo, Bluetooth o Magic Keyboard).",
   "edit": "Editar",
   "lyricsSectionTitle": "Letras",
   "lyricsSectionDescription": "Esta configuración solo afecta la generación de letras y línea de tiempo.",

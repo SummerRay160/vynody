@@ -1408,6 +1408,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get shortcutSettingsDescription => '클릭하여 플레이어 동작의 단축키를 다시 기록하고 저장합니다.';
 
   @override
+  String get shortcutPhysicalKeyboardHint =>
+      '단축키는 외장 물리 키보드(예: 블루투스 또는 매직 키보드) 전용입니다.';
+
+  @override
   String get edit => '편집';
 
   @override

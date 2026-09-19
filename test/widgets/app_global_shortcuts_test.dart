@@ -7,6 +7,7 @@ import 'package:vynody/main.dart' show navigatorKey;
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/audio/audio_service.dart';
 import 'package:vynody/player/settings/settings_service.dart';
+import 'package:vynody/player/settings/shortcut_bindings.dart';
 import 'package:vynody/widgets/app_global_shortcuts.dart';
 
 class _FakeAudioService extends AudioService {
@@ -39,6 +40,11 @@ void main() {
 
       // Escape -> ExitFullScreenIntent
       expect(map.values.whereType<ExitFullScreenIntent>().isNotEmpty, isTrue);
+    });
+
+    test('Space key displays as Space instead of 0x20', () {
+      final spaceBinding = AppShortcutAction.playPause.defaultBinding;
+      expect(spaceBinding.displayLabel, 'Space');
     });
 
     testWidgets('AppGlobalShortcuts wraps child with Shortcuts and Actions', (tester) async {
@@ -86,7 +92,7 @@ void main() {
                   onPressed: () {
                     showGeneralDialog(
                       context: context,
-                      pageBuilder: (dialogCtx, _, __) {
+                      pageBuilder: (dialogCtx, _, _) {
                         return const Center(
                           child: Material(
                             child: Text('Dialog Content'),

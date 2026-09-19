@@ -1436,6 +1436,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Click to re-record and save shortcuts for player actions.';
 
   @override
+  String get shortcutPhysicalKeyboardHint =>
+      'Shortcuts are designed for external physical keyboards (e.g., Bluetooth or Magic Keyboard).';
+
+  @override
   String get edit => 'Edit';
 
   @override

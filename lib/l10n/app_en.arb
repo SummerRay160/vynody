@@ -536,6 +536,7 @@
   },
   "shortcutSettingsTitle": "Custom Shortcuts",
   "shortcutSettingsDescription": "Click to re-record and save shortcuts for player actions.",
+  "shortcutPhysicalKeyboardHint": "Shortcuts are designed for external physical keyboards (e.g., Bluetooth or Magic Keyboard).",
   "edit": "Edit",
   "lyricsSectionTitle": "Lyrics",
   "lyricsSectionDescription": "These settings only affect lyric generation and timeline generation.",

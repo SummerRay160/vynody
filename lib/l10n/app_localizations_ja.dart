@@ -1406,6 +1406,10 @@ class AppLocalizationsJa extends AppLocalizations {
       'クリックしてプレイヤー操作のショートカットキーを再設定して保存します。';
 
   @override
+  String get shortcutPhysicalKeyboardHint =>
+      'ショートカットは外付け物理キーボード（BluetoothやMagic Keyboardなど）向けです。';
+
+  @override
   String get edit => '編集';
 
   @override

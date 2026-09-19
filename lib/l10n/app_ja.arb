@@ -528,6 +528,7 @@
   },
   "shortcutSettingsTitle": "カスタムショートカット",
   "shortcutSettingsDescription": "クリックしてプレイヤー操作のショートカットキーを再設定して保存します。",
+  "shortcutPhysicalKeyboardHint": "ショートカットは外付け物理キーボード（BluetoothやMagic Keyboardなど）向けです。",
   "edit": "編集",
   "lyricsSectionTitle": "歌詞",
   "lyricsSectionDescription": "これらの設定は歌詞生成とタイムライン生成にのみ影響します。",

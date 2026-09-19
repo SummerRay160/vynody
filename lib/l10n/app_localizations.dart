@@ -2763,6 +2763,12 @@ abstract class AppLocalizations {
   /// **'点击后可以为播放器操作重新录制快捷键并保存。'**
   String get shortcutSettingsDescription;
 
+  /// No description provided for @shortcutPhysicalKeyboardHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'快捷键适用于外接物理键盘（如蓝牙键盘、妙控键盘）。'**
+  String get shortcutPhysicalKeyboardHint;
+
   /// No description provided for @edit.
   ///
   /// In zh, this message translates to:

@@ -37,9 +37,14 @@ class _ShortcutSettingsDialogState
   late final ScrollController _scrollController;
 
   List<AppShortcutAction> get _availableActions {
+    final isDesktop =
+        Platform.isWindows || Platform.isLinux || Platform.isMacOS;
     return AppShortcutAction.values.where((action) {
       if (action == AppShortcutAction.toggleWasapiExclusive) {
         return Platform.isWindows;
+      }
+      if (action == AppShortcutAction.toggleFullScreen) {
+        return isDesktop;
       }
       return true;
     }).toList();
@@ -84,37 +89,83 @@ class _ShortcutSettingsDialogState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final maxHeight = MediaQuery.of(context).size.height * 0.72;
+    final screenSize = MediaQuery.sizeOf(context);
+    final maxHeight = screenSize.height * 0.72;
+    final dialogWidth = (screenSize.width - 48).clamp(0.0, 760.0);
+    final isMobile = Platform.isAndroid || Platform.isIOS;
     final actionsList = _availableActions;
 
     return AlertDialog(
       title: Text(l10n.customShortcuts),
       content: SizedBox(
-        width: 760,
+        width: dialogWidth,
         child: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: maxHeight),
-          child: Scrollbar(
-            controller: _scrollController,
-            child: ListView.separated(
-              controller: _scrollController,
-              shrinkWrap: true,
-              itemCount: actionsList.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final action = actionsList[index];
-                final binding = _draftBindings[action] ?? action.defaultBinding;
-                return _ShortcutBindingRow(
-                  action: action,
-                  binding: binding,
-                  onChanged: (nextBinding) {
-                    setState(() {
-                      _draftBindings[action] = nextBinding;
-                    });
-                  },
-                  theme: theme,
-                );
-              },
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (isMobile)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer
+                        .withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color:
+                          theme.colorScheme.primary.withValues(alpha: 0.25),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.keyboard_outlined,
+                        size: 20,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l10n.shortcutPhysicalKeyboardHint,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Flexible(
+                child: Scrollbar(
+                  controller: _scrollController,
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    shrinkWrap: true,
+                    itemCount: actionsList.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final action = actionsList[index];
+                      final binding =
+                          _draftBindings[action] ?? action.defaultBinding;
+                      return _ShortcutBindingRow(
+                        action: action,
+                        binding: binding,
+                        onChanged: (nextBinding) {
+                          setState(() {
+                            _draftBindings[action] = nextBinding;
+                          });
+                        },
+                        theme: theme,
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -171,10 +222,13 @@ class _SingleShortcutEditDialogState
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final dialogWidth = (screenWidth - 48).clamp(0.0, 440.0);
+
     return AlertDialog(
       title: Text(widget.action.label),
       content: SizedBox(
-        width: 440,
+        width: dialogWidth,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,28 +294,45 @@ class _ShortcutBindingRow extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(action.label, style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 4),
-                  Text(action.description, style: theme.textTheme.bodySmall),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-            SizedBox(
-              width: 260,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 460;
+            final info = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(action.label, style: theme.textTheme.titleMedium),
+                const SizedBox(height: 4),
+                Text(action.description, style: theme.textTheme.bodySmall),
+              ],
+            );
+            final recorder = SizedBox(
+              width: isNarrow ? double.infinity : 260,
               child: ShortcutRecorderField(
                 value: binding,
                 onChanged: onChanged,
               ),
-            ),
-          ],
+            );
+
+            if (isNarrow) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  info,
+                  const SizedBox(height: 12),
+                  recorder,
+                ],
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: info),
+                const SizedBox(width: 16),
+                recorder,
+              ],
+            );
+          },
         ),
       ),
     );
