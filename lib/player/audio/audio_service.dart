@@ -201,6 +201,15 @@ class AudioService extends Notifier<AudioSnapshot> {
         if (_isAppBackgrounded != nextBackgrounded) {
           _isAppBackgrounded = nextBackgrounded;
           _updateEffectiveVisualizerState();
+          _updatePlaybackSessionAutoSaveTimer();
+          _player.setBackgroundThrottled(_isAppBackgrounded);
+          if (_isAppBackgrounded) {
+            unawaited(_persistPlaybackSession());
+          } else {
+            if (_queue.isNotEmpty && _currentIndex >= 0 && _currentIndex < _queue.length) {
+              _startQueueBackgroundProcessing(priorityPath: _queue[_currentIndex].path);
+            }
+          }
         }
       },
     );
@@ -541,10 +550,12 @@ class AudioService extends Notifier<AudioSnapshot> {
     await _updatePalette();
   }
 
+  bool get isAppBackgrounded => _isAppBackgrounded;
+
   void _updatePlaybackSessionAutoSaveTimer() {
     if (!_playbackSessionReady || _disposed) return;
 
-    final shouldRun = _queue.isNotEmpty && _isPlaying;
+    final shouldRun = _queue.isNotEmpty && _isPlaying && !_isAppBackgrounded;
     if (shouldRun) {
       _sessionManager.ensureAutoSaveTimer(() => _persistPlaybackSession());
     } else {
@@ -3301,6 +3312,7 @@ class AudioService extends Notifier<AudioSnapshot> {
     _queueBackgroundProcessor.start(
       queue: _queue,
       priorityPath: priorityPath,
+      isBackground: _isAppBackgrounded,
       onChanged: notifyListeners,
       onThemeChanged: _applyThemeColors,
       currentMusic: () => currentMusic,

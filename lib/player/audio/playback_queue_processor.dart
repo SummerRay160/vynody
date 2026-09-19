@@ -76,6 +76,7 @@ class PlaybackQueueProcessor {
     required String? currentFilePath,
     required Function(String path, Map<String, dynamic> updates) onUpdate,
     Function(String path, String artworkPath)? onHdArtworkLoaded,
+    bool isBackground = false,
   }) async {
     if (_disposed) return;
     final artworkThemeService = TrackArtworkThemeService(db: db);
@@ -153,6 +154,7 @@ class PlaybackQueueProcessor {
           artworkThemeService: artworkThemeService,
           onUpdate: onUpdate,
           myId: myId,
+          isBackground: isBackground,
         );
       }
 
@@ -291,26 +293,30 @@ class PlaybackQueueProcessor {
       }
 
       // Phase 2: SLOW PASS - Process thumbnails, colors and waveforms
-      // Only process songs within dbPriorityPaths (prev 2 to next 3) to save CPU
-      for (final song in sortedList) {
-        // Check if we've been superseded by a newer request
-        if (_disposed || myId != _currentProcessId) {
-          debugPrint(
-            'Background process $myId superseded by $_currentProcessId, exiting.',
+      // Only process songs within dbPriorityPaths (prev 2 to next 3) to save CPU.
+      // When in background/screen locked, skip Phase 2 to prevent heavy CPU wakeups.
+      if (!isBackground) {
+        for (final song in sortedList) {
+          // Check if we've been superseded by a newer request
+          if (_disposed || myId != _currentProcessId) {
+            debugPrint(
+              'Background process $myId superseded by $_currentProcessId, exiting.',
+            );
+            return;
+          }
+
+          if (dbPriorityPaths.isNotEmpty && !dbPriorityPaths.contains(song.path)) {
+            continue;
+          }
+
+          await _processSongHeavyData(
+            song: song,
+            artworkThemeService: artworkThemeService,
+            onUpdate: onUpdate,
+            myId: myId,
+            isBackground: isBackground,
           );
-          return;
         }
-
-        if (dbPriorityPaths.isNotEmpty && !dbPriorityPaths.contains(song.path)) {
-          continue;
-        }
-
-        await _processSongHeavyData(
-          song: song,
-          artworkThemeService: artworkThemeService,
-          onUpdate: onUpdate,
-          myId: myId,
-        );
       }
     } finally {
       _isProcessing = false;
@@ -441,6 +447,7 @@ class PlaybackQueueProcessor {
     required TrackArtworkThemeService artworkThemeService,
     required Function(String path, Map<String, dynamic> updates) onUpdate,
     required int myId,
+    bool isBackground = false,
   }) async {
     if (_disposed || myId != _currentProcessId) return;
 
@@ -674,8 +681,8 @@ class PlaybackQueueProcessor {
           }
         }
 
-        // Extract waveform if missing or invalid AND enabled in settings
-        final needsWaveform = showWaveform &&
+        // Extract waveform if missing or invalid AND enabled in settings (skip in background to save battery)
+        final needsWaveform = !isBackground && showWaveform &&
             (meta.waveformBlob == null ||
                 !WaveformService.isWaveformValid(
                   waveformService.waveformFromBlob(meta.waveformBlob),

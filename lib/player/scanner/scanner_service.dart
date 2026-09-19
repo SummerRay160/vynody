@@ -891,10 +891,7 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
       });
       // Auto scan on startup
       await _timeInitStep('startup scan', scan);
-      _rootAvailabilityTimer = Timer.periodic(const Duration(seconds: 4), (_) {
-        _pendingRootAvailabilityRescan = true;
-        _scheduleRootAvailabilityRefresh();
-      });
+      _startRootAvailabilityTimer();
     } finally {
       totalStopwatch.stop();
       _logInitTiming('init total', totalStopwatch);
@@ -4171,9 +4168,26 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
     });
   }
 
+  void _startRootAvailabilityTimer() {
+    if (_isDisposed) return;
+    _rootAvailabilityTimer?.cancel();
+    _rootAvailabilityTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      _pendingRootAvailabilityRescan = true;
+      _scheduleRootAvailabilityRefresh();
+    });
+  }
+
+  void _stopRootAvailabilityTimer() {
+    _rootAvailabilityTimer?.cancel();
+    _rootAvailabilityTimer = null;
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      _stopRootAvailabilityTimer();
+    } else if (state == AppLifecycleState.resumed) {
+      _startRootAvailabilityTimer();
       debugPrint(
         '[ScannerService] App resumed, triggering root availability check',
       );
@@ -4199,8 +4213,7 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
   void dispose() {
     _isDisposed = true;
     WidgetsBinding.instance.removeObserver(this);
-    _rootAvailabilityTimer?.cancel();
-    _rootAvailabilityTimer = null;
+    _stopRootAvailabilityTimer();
     _navigationState.removeListener(_handleNavigationChanged);
     _navigationState.dispose();
     _roots.dispose();

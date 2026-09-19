@@ -26,6 +26,7 @@ class QueueBackgroundProcessor {
     required MusicFile? Function() currentMusic,
     required void Function(String) logTrace,
     required String Function(MusicFile?) debugSongLabel,
+    bool isBackground = false,
   }) {
     if (queue.isEmpty) return;
     MemoryTrace.snapshot(
@@ -172,6 +173,7 @@ class QueueBackgroundProcessor {
       queueProcessor.processQueue(
         playlist: List.from(queue),
         currentFilePath: priorityPath ?? currentMusic()?.path,
+        isBackground: isBackground,
         onUpdate: (path, updates) {
           logTrace(
             '_queueProcessor onUpdate path=$path '

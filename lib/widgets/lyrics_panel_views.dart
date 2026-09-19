@@ -994,24 +994,27 @@ class WordWordLyricsWidget extends ConsumerStatefulWidget {
   ConsumerState<WordWordLyricsWidget> createState() => _WordWordLyricsWidgetState();
 }
 
-class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget> with SingleTickerProviderStateMixin {
+class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final Ticker _ticker;
   Duration _lastObservedPosition = Duration.zero;
   DateTime _lastObservedAt = DateTime.now();
   bool _isPlaying = false;
+  bool _isBackgroundSuspended = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _ticker = createTicker((_) {
-      if (mounted && _isPlaying && widget.isActive) {
+      if (mounted && !_isBackgroundSuspended && _isPlaying && widget.isActive) {
         setState(() {});
       }
     });
   }
 
   void _updateTickerState() {
-    if (_isPlaying && widget.isActive) {
+    if (!_isBackgroundSuspended && _isPlaying && widget.isActive) {
       if (!_ticker.isActive) {
         _ticker.start();
       }
@@ -1022,23 +1025,36 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget> wit
     }
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      if (!_isBackgroundSuspended) {
+        _isBackgroundSuspended = true;
+        if (_ticker.isActive) {
+          _ticker.stop();
+        }
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      if (_isBackgroundSuspended) {
+        _isBackgroundSuspended = false;
+        _updateTickerState();
+      }
+    }
+  }
+
   DateTime _lastLogTime = DateTime.fromMillisecondsSinceEpoch(0);
 
   @override
   void didUpdateWidget(covariant WordWordLyricsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isActive != widget.isActive) {
-      // final lineStr = widget.words.map((w) => w.text).join();
-      // AppLog.log(
-      //   '[LyricsDebug] Line isActive changed: ${oldWidget.isActive} -> ${widget.isActive} | line="$lineStr"',
-      //   mirrorToConsole: true,
-      // );
       _updateTickerState();
     }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _ticker.dispose();
     super.dispose();
   }
