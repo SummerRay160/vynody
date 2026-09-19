@@ -1292,10 +1292,10 @@ class AudioService extends Notifier<AudioSnapshot> {
     final now = DateTime.now();
     if (now.difference(_lastPositionDebugLogAt) >= const Duration(seconds: 1)) {
       _lastPositionDebugLogAt = now;
-      debugPrint(
-        '[AudioService] _handlePlayerChanges: pos=${realPosition.inMilliseconds}ms '
-        'isPlaying=$_isPlaying isAppBg=$_isAppBackgrounded isMin=$_isWindowMinimized',
-      );
+      // debugPrint(
+      //   '[AudioService] _handlePlayerChanges: pos=${realPosition.inMilliseconds}ms '
+      //   'isPlaying=$_isPlaying isAppBg=$_isAppBackgrounded isMin=$_isWindowMinimized',
+      // );
     }
     if (_isSeeking) {
       final target = _seekTargetPosition ?? Duration.zero;
