@@ -567,6 +567,19 @@
   "searchFontHint": "Search font name...",
   "lyricsFontPreview": "Font Preview",
   "defaultFontOption": "Default (Follow System)",
+  "importFontFile": "Import Font File",
+  "importedFonts": "Imported Fonts",
+  "noImportedFontsHint": "No imported fonts. Tap below to import .ttf / .otf font file.",
+  "deleteFontConfirm": "Are you sure you want to delete font \"{name}\"?",
+  "@deleteFontConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fontImportSuccess": "Font imported successfully",
+  "fontImportFailed": "Failed to import font",
   "resumeLyricsSync": "Resume Sync",
   "followSystemLanguage": "Follow system",
   "autoSwitchLyricsProvider": "Auto-switch lyric provider",

@@ -1542,6 +1542,26 @@ class AppLocalizationsTr extends AppLocalizations {
   String get defaultFontOption => '默认（跟随系统）';
 
   @override
+  String get importFontFile => '导入字体文件';
+
+  @override
+  String get importedFonts => '已导入字体';
+
+  @override
+  String get noImportedFontsHint => '暂无导入字体，点击下方按钮导入本地 .ttf / .otf 字体文件';
+
+  @override
+  String deleteFontConfirm(String name) {
+    return '确定删除字体 \"$name\" 吗？';
+  }
+
+  @override
+  String get fontImportSuccess => '字体导入成功';
+
+  @override
+  String get fontImportFailed => '字体导入失败';
+
+  @override
   String get resumeLyricsSync => 'Eşitlemeyi Sürdür';
 
   @override

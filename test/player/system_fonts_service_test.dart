@@ -3,10 +3,13 @@ import 'package:vynody/player/lyrics/system_fonts_service.dart';
 
 void main() {
   group('SystemFontsService Tests', () {
-    test('getAvailableFontsSync returns non-empty font list', () {
-      final fonts = SystemFontsService.instance.getAvailableFontsSync();
+    test('getAvailableFonts loads system fonts and getAvailableFontsSync returns cached list', () async {
+      final fonts = await SystemFontsService.instance.getAvailableFonts();
       expect(fonts, isNotEmpty);
-      expect(fonts.any((f) => f.family == 'Segoe UI' || f.family == 'PingFang SC' || f.family == 'Microsoft YaHei'), isTrue);
+
+      final cached = SystemFontsService.instance.getAvailableFontsSync();
+      expect(cached, isNotEmpty);
+      expect(cached.length, fonts.length);
     });
 
     test('getAvailableFonts returns system fonts with display names and categories', () async {

@@ -2949,6 +2949,42 @@ abstract class AppLocalizations {
   /// **'默认（跟随系统）'**
   String get defaultFontOption;
 
+  /// No description provided for @importFontFile.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入字体文件'**
+  String get importFontFile;
+
+  /// No description provided for @importedFonts.
+  ///
+  /// In zh, this message translates to:
+  /// **'已导入字体'**
+  String get importedFonts;
+
+  /// No description provided for @noImportedFontsHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无导入字体，点击下方按钮导入本地 .ttf / .otf 字体文件'**
+  String get noImportedFontsHint;
+
+  /// No description provided for @deleteFontConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定删除字体 \"{name}\" 吗？'**
+  String deleteFontConfirm(String name);
+
+  /// No description provided for @fontImportSuccess.
+  ///
+  /// In zh, this message translates to:
+  /// **'字体导入成功'**
+  String get fontImportSuccess;
+
+  /// No description provided for @fontImportFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'字体导入失败'**
+  String get fontImportFailed;
+
   /// No description provided for @resumeLyricsSync.
   ///
   /// In zh, this message translates to:

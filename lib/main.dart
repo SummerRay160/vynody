@@ -23,6 +23,7 @@ import 'utils/memory_trace.dart';
 import 'package:vynody/player/sharing/security/tls_certificate_service.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/player/platform/desktop_tray_service.dart';
+import 'package:vynody/player/lyrics/custom_font_service.dart';
 import 'package:vynody/player/pro/iap_service.dart';
 import 'widgets/app_global_shortcuts.dart';
 import 'package:flutter_desktop_lyrics/flutter_desktop_lyrics.dart';
@@ -273,6 +274,8 @@ void main(List<String> args) async {
     }
   }
 
+  AppLog.log('initializing custom font service', mirrorToConsole: true);
+  await CustomFontService.instance.init();
   AppLog.log('initializing settings service', mirrorToConsole: true);
   final settingsService = await SettingsService.init();
   MemoryTrace.snapshot('main:settings-ready');

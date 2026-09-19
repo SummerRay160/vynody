@@ -1537,6 +1537,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defaultFontOption => 'Default (Follow System)';
 
   @override
+  String get importFontFile => 'Import Font File';
+
+  @override
+  String get importedFonts => 'Imported Fonts';
+
+  @override
+  String get noImportedFontsHint =>
+      'No imported fonts. Tap below to import .ttf / .otf font file.';
+
+  @override
+  String deleteFontConfirm(String name) {
+    return 'Are you sure you want to delete font \"$name\"?';
+  }
+
+  @override
+  String get fontImportSuccess => 'Font imported successfully';
+
+  @override
+  String get fontImportFailed => 'Failed to import font';
+
+  @override
   String get resumeLyricsSync => 'Resume Sync';
 
   @override

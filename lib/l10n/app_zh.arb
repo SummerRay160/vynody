@@ -1098,6 +1098,19 @@
   "searchFontHint": "搜索字体名称或别名...",
   "lyricsFontPreview": "字体效果预览",
   "defaultFontOption": "默认（跟随系统）",
+  "importFontFile": "导入字体文件",
+  "importedFonts": "已导入字体",
+  "noImportedFontsHint": "暂无导入字体，点击下方按钮导入本地 .ttf / .otf 字体文件",
+  "deleteFontConfirm": "确定删除字体 \"{name}\" 吗？",
+  "@deleteFontConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fontImportSuccess": "字体导入成功",
+  "fontImportFailed": "字体导入失败",
   "resumeLyricsSync": "恢复歌词同步",
   "followSystemLanguage": "跟随系统",
   "autoSwitchLyricsProvider": "自动切换歌词供应商",

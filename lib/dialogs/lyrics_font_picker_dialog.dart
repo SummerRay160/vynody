@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../player/lyrics/custom_font_service.dart';
 import '../player/lyrics/system_fonts_service.dart';
+import '../utils/app_snack_bar.dart';
 import 'custom_font_family_dialog.dart';
 
 /// Shows a comprehensive font picker dialog with live preview and system font listing.
@@ -46,12 +49,15 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
   List<FontItem> _allFonts = [];
   bool _isLoading = true;
 
+  bool get _isAndroid => Platform.isAndroid;
+  bool get _hasCustomFonts => _allFonts.any((f) => f.isCustom);
+
   @override
   void initState() {
     super.initState();
     _selectedFont = widget.initialFont.trim();
     _searchController = TextEditingController();
-    _category = widget.isCjkMode ? FontCategory.recommended : FontCategory.recommended;
+    _category = _isAndroid ? FontCategory.all : FontCategory.recommended;
 
     // Load initial sync presets first, then await full scan
     _allFonts = SystemFontsService.instance.getAvailableFontsSync();
@@ -80,12 +86,60 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
     widget.onFontPreview?.call(_selectedFont);
   }
 
+  Future<void> _handleImportFont() async {
+    final l10n = AppLocalizations.of(context)!;
+    final imported = await CustomFontService.instance.importFontFile();
+    if (imported == null) return;
+    if (!mounted) return;
+
+    SystemFontsService.instance.invalidateCache();
+    await _loadSystemFonts();
+    _selectFont(imported.family);
+
+    if (mounted) {
+      AppSnackBar.show(context, null, SnackBar(content: Text(l10n.fontImportSuccess)));
+    }
+  }
+
+  Future<void> _handleDeleteFont(FontItem item) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.deleteFontConfirm(item.displayName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    await CustomFontService.instance.deleteFont(item.family);
+    SystemFontsService.instance.invalidateCache();
+    await _loadSystemFonts();
+
+    if (_selectedFont == item.family) {
+      _selectFont('');
+    }
+  }
+
   List<FontItem> _getFilteredFonts() {
     final query = _searchController.text.trim().toLowerCase();
 
     return _allFonts.where((item) {
       // 1. Category check
       switch (_category) {
+        case FontCategory.custom:
+          if (!item.isCustom) return false;
+          break;
         case FontCategory.recommended:
           if (!item.isRecommended) return false;
           if (widget.isCjkMode && !item.isCjk) return false;
@@ -201,37 +255,47 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
                     ),
                     onChanged: (_) => setState(() {}),
                   ),
-                  const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildCategoryChip(
-                          label: l10n.recommendedFonts,
-                          category: FontCategory.recommended,
-                          colorScheme: colorScheme,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildCategoryChip(
-                          label: l10n.cjkFonts,
-                          category: FontCategory.cjk,
-                          colorScheme: colorScheme,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildCategoryChip(
-                          label: l10n.latinFonts,
-                          category: FontCategory.latin,
-                          colorScheme: colorScheme,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildCategoryChip(
-                          label: '${l10n.allFonts} (${_allFonts.length})',
-                          category: FontCategory.all,
-                          colorScheme: colorScheme,
-                        ),
-                      ],
+                  if (!_isAndroid) ...[
+                    const SizedBox(height: 10),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildCategoryChip(
+                            label: l10n.recommendedFonts,
+                            category: FontCategory.recommended,
+                            colorScheme: colorScheme,
+                          ),
+                          if (_hasCustomFonts) ...[
+                            const SizedBox(width: 8),
+                            _buildCategoryChip(
+                              label: '${l10n.importedFonts} (${_allFonts.where((f) => f.isCustom).length})',
+                              category: FontCategory.custom,
+                              colorScheme: colorScheme,
+                            ),
+                          ],
+                          const SizedBox(width: 8),
+                          _buildCategoryChip(
+                            label: l10n.cjkFonts,
+                            category: FontCategory.cjk,
+                            colorScheme: colorScheme,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildCategoryChip(
+                            label: l10n.latinFonts,
+                            category: FontCategory.latin,
+                            colorScheme: colorScheme,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildCategoryChip(
+                            label: '${l10n.allFonts} (${_allFonts.length})',
+                            category: FontCategory.all,
+                            colorScheme: colorScheme,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -242,7 +306,9 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                itemCount: filteredFonts.length + 1, // +1 for "Follow System"
+                itemCount: filteredFonts.isEmpty && _isAndroid
+                    ? 2 // index 0: default, index 1: empty hint
+                    : filteredFonts.length + 1,
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     // Default / Follow System
@@ -254,9 +320,38 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
                           : 'The quick brown fox jumps over the lazy dog',
                       fontFamily: '',
                       isSelected: isSelected,
+                      isCustom: false,
                       colorScheme: colorScheme,
                       theme: theme,
                       onTap: () => _selectFont(''),
+                    );
+                  }
+
+                  if (filteredFonts.isEmpty && _isAndroid) {
+                    return Container(
+                      margin: const EdgeInsets.only(top: 24, left: 16, right: 16),
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.font_download_outlined, size: 40, color: colorScheme.outline),
+                          const SizedBox(height: 10),
+                          Text(
+                            l10n.noImportedFontsHint,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }
 
@@ -271,9 +366,11 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
                     subtitle: sampleText,
                     fontFamily: item.family,
                     isSelected: isSelected,
+                    isCustom: item.isCustom,
                     colorScheme: colorScheme,
                     theme: theme,
                     onTap: () => _selectFont(item.family),
+                    onDelete: item.isCustom ? () => _handleDeleteFont(item) : null,
                   );
                 },
               ),
@@ -286,20 +383,28 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
-                  TextButton.icon(
-                    icon: const Icon(Icons.edit_note_rounded, size: 18),
-                    label: Text(l10n.customFontOption),
-                    onPressed: () async {
-                      final entered = await showCustomFontFamilyDialog(
-                        context,
-                        initialFontFamily: _selectedFont,
-                        title: widget.title,
-                      );
-                      if (entered != null) {
-                        _selectFont(entered);
-                      }
-                    },
+                  FilledButton.tonalIcon(
+                    icon: const Icon(Icons.file_upload_outlined, size: 18),
+                    label: Text(l10n.importFontFile),
+                    onPressed: _handleImportFont,
                   ),
+                  if (!_isAndroid) ...[
+                    const SizedBox(width: 8),
+                    TextButton.icon(
+                      icon: const Icon(Icons.edit_note_rounded, size: 18),
+                      label: Text(l10n.customFontOption),
+                      onPressed: () async {
+                        final entered = await showCustomFontFamilyDialog(
+                          context,
+                          initialFontFamily: _selectedFont,
+                          title: widget.title,
+                        );
+                        if (entered != null) {
+                          _selectFont(entered);
+                        }
+                      },
+                    ),
+                  ],
                   const Spacer(),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
@@ -421,9 +526,11 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
     required String subtitle,
     required String fontFamily,
     required bool isSelected,
+    required bool isCustom,
     required ColorScheme colorScheme,
     required ThemeData theme,
     required VoidCallback onTap,
+    VoidCallback? onDelete,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
@@ -434,12 +541,35 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         dense: true,
-        title: Text(
-          title,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? colorScheme.primary : null,
-          ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? colorScheme.primary : null,
+                ),
+              ),
+            ),
+            if (isCustom)
+              Container(
+                margin: const EdgeInsets.only(left: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: colorScheme.secondaryContainer.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  AppLocalizations.of(context)!.importedFonts,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSecondaryContainer,
+                  ),
+                ),
+              ),
+          ],
         ),
         subtitle: Text(
           subtitle,
@@ -453,9 +583,20 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        trailing: isSelected
-            ? Icon(Icons.check_circle_rounded, color: colorScheme.primary, size: 20)
-            : null,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onDelete != null)
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+                color: colorScheme.error.withValues(alpha: 0.7),
+                onPressed: onDelete,
+              ),
+            if (isSelected)
+              Icon(Icons.check_circle_rounded, color: colorScheme.primary, size: 20),
+          ],
+        ),
         onTap: onTap,
       ),
     );

@@ -1,9 +1,11 @@
 import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
+import 'custom_font_service.dart';
 
 enum FontCategory {
   all,
+  custom,
   recommended,
   cjk,
   latin,
@@ -14,12 +16,14 @@ class FontItem {
   final String displayName;
   final bool isCjk;
   final bool isRecommended;
+  final bool isCustom;
 
   const FontItem({
     required this.family,
     required this.displayName,
     this.isCjk = false,
     this.isRecommended = false,
+    this.isCustom = false,
   });
 
   @override
@@ -111,6 +115,10 @@ class SystemFontsService {
   List<FontItem>? _cachedFonts;
   bool _isLoading = false;
 
+  void invalidateCache() {
+    _cachedFonts = null;
+  }
+
   /// Returns cached list immediately or default presets while async loading runs.
   List<FontItem> getAvailableFontsSync() {
     if (_cachedFonts != null && _cachedFonts!.isNotEmpty) {
@@ -143,7 +151,21 @@ class SystemFontsService {
       final items = <FontItem>[];
       final seen = <String>{};
 
-      // 1. Process all raw families
+      // 1. Process imported custom fonts first
+      for (final customFont in CustomFontService.instance.fonts) {
+        final fam = customFont.family;
+        if (fam.isNotEmpty && seen.add(fam.toLowerCase())) {
+          items.add(FontItem(
+            family: fam,
+            displayName: fam,
+            isCjk: _isCjkFont(fam),
+            isRecommended: true,
+            isCustom: true,
+          ));
+        }
+      }
+
+      // 2. Process real system fonts actually found on the OS
       for (final raw in rawFamilies) {
         final fam = raw.trim();
         if (fam.isEmpty || !seen.add(fam.toLowerCase())) continue;
@@ -157,34 +179,17 @@ class SystemFontsService {
           displayName: displayName,
           isCjk: isCjk,
           isRecommended: isRec,
+          isCustom: false,
         ));
       }
 
-      // 2. Ensure all presets are present even if not installed
-      for (final fam in _recommendedCjk) {
-        if (seen.add(fam.toLowerCase())) {
-          items.add(FontItem(
-            family: fam,
-            displayName: _cjkDisplayNameMap[fam] ?? fam,
-            isCjk: true,
-            isRecommended: true,
-          ));
+      // Sort: custom fonts first, then alphabetically by display name
+      items.sort((a, b) {
+        if (a.isCustom != b.isCustom) {
+          return a.isCustom ? -1 : 1;
         }
-      }
-
-      for (final fam in _recommendedLatin) {
-        if (seen.add(fam.toLowerCase())) {
-          items.add(FontItem(
-            family: fam,
-            displayName: fam,
-            isCjk: false,
-            isRecommended: true,
-          ));
-        }
-      }
-
-      // Sort alphabetically by display name
-      items.sort((a, b) => a.displayName.compareTo(b.displayName));
+        return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
+      });
       _cachedFonts = items;
     } catch (_) {
       _cachedFonts ??= _buildPresetFonts();
@@ -195,23 +200,15 @@ class SystemFontsService {
 
   List<FontItem> _buildPresetFonts() {
     final list = <FontItem>[];
-    for (final fam in _recommendedCjk) {
+    for (final customFont in CustomFontService.instance.fonts) {
       list.add(FontItem(
-        family: fam,
-        displayName: _cjkDisplayNameMap[fam] ?? fam,
-        isCjk: true,
+        family: customFont.family,
+        displayName: customFont.family,
+        isCjk: _isCjkFont(customFont.family),
         isRecommended: true,
+        isCustom: true,
       ));
     }
-    for (final fam in _recommendedLatin) {
-      list.add(FontItem(
-        family: fam,
-        displayName: fam,
-        isCjk: false,
-        isRecommended: true,
-      ));
-    }
-    list.sort((a, b) => a.displayName.compareTo(b.displayName));
     return list;
   }
 
