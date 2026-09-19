@@ -127,7 +127,9 @@ dependencies:
       url: https://github.com/axel10/flutter_desktop_tray
       ref: main
   flutter_desktop_lyrics: 
-    path: ./flutter_desktop_lyrics
+    git:
+      url: https://github.com/axel10/flutter_desktop_lyrics
+      ref: master
   dbus: ^0.7.14
   linux_directory_access:
     git:

@@ -142,221 +142,203 @@ Future<void> _handleFileOpenArgs(
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   if (DesktopLyrics.isLyricsWindow(args)) {
-    await runZonedGuarded(
-      () async {
-        FlutterError.onError = (FlutterErrorDetails details) {
-          FlutterError.presentError(details);
-          debugPrint('[DesktopLyrics FlutterError] ${details.exceptionAsString()}');
-          if (details.stack != null) {
-            debugPrint('[DesktopLyrics FlutterError Stack] ${details.stack}');
-          }
-        };
-        PlatformDispatcher.instance.onError = (error, stack) {
-          debugPrint('[DesktopLyrics PlatformDispatcher Error] $error\n$stack');
-          return false;
-        };
-        runApp(DesktopLyrics.createLyricsWindowApp(args));
-      },
-      (error, stack) {
-        debugPrint('[DesktopLyrics Uncaught Error] $error\n$stack');
-      },
-    );
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      debugPrint('[DesktopLyrics FlutterError] ${details.exceptionAsString()}');
+      if (details.stack != null) {
+        debugPrint('[DesktopLyrics FlutterError Stack] ${details.stack}');
+      }
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      debugPrint('[DesktopLyrics PlatformDispatcher Error] $error\n$stack');
+      return true;
+    };
+    runApp(DesktopLyrics.createLyricsWindowApp(args));
     return;
   }
 
-  await runZonedGuarded(
-    () async {
-      await AppLog.init();
-      AppLog.install();
-      FlutterError.onError = (FlutterErrorDetails details) {
-        FlutterError.presentError(details); // 强制在控制台显示
-        AppLog.log(
-          'Caught FlutterError: ${details.exceptionAsString()}',
-          mirrorToConsole: true,
-          stackTrace: details.stack,
-        );
-      };
-      PlatformDispatcher.instance.onError = (error, stack) {
-        AppLog.log(
-          'Caught PlatformDispatcher error: $error',
-          mirrorToConsole: true,
-          stackTrace: stack,
-        );
-        return false;
-      };
+  await AppLog.init();
+  AppLog.install();
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details); // 强制在控制台显示
+    AppLog.log(
+      'Caught FlutterError: ${details.exceptionAsString()}',
+      mirrorToConsole: true,
+      stackTrace: details.stack,
+    );
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    AppLog.log(
+      'Caught PlatformDispatcher error: $error',
+      mirrorToConsole: true,
+      stackTrace: stack,
+    );
+    return true;
+  };
 
-      HttpOverrides.global = LanHttpOverrides();
+  HttpOverrides.global = LanHttpOverrides();
 
-      if (Platform.isAndroid) {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      }
-      AppOrientationManager.init();
-      AppLog.log('main start args=$args', mirrorToConsole: true);
-      final traceMemory =
-          args.any(
-            (arg) => arg == '--trace-memory' || arg == '--memory-trace',
-          ) ||
-          Platform.environment['VYNODY_TRACE_MEMORY'] == '1';
-      MemoryTrace.configure(enabled: traceMemory);
-      MemoryTrace.snapshot(
-        'main:start',
-        details: <String, Object?>{'args': args.length},
-      );
+  if (Platform.isAndroid) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
+  AppOrientationManager.init();
+  AppLog.log('main start args=$args', mirrorToConsole: true);
+  final traceMemory =
+      args.any(
+        (arg) => arg == '--trace-memory' || arg == '--memory-trace',
+      ) ||
+      Platform.environment['VYNODY_TRACE_MEMORY'] == '1';
+  MemoryTrace.configure(enabled: traceMemory);
+  MemoryTrace.snapshot(
+    'main:start',
+    details: <String, Object?>{'args': args.length},
+  );
 
-      if (Platform.isWindows || Platform.isLinux) {
-        AppLog.log(
-          'registering single instance handler',
-          mirrorToConsole: true,
-        );
-        const singleInstanceChannel = MethodChannel('vynody/single_instance');
-        singleInstanceChannel.setMethodCallHandler((call) async {
-          if (call.method == 'onSecondInstance') {
-            try {
-              if (await windowManager.isMinimized()) {
-                await windowManager.restore();
-              }
-              await windowManager.show();
-              await windowManager.focus();
-            } catch (e) {
-              AppLog.log('Failed to restore window on second instance: $e', mirrorToConsole: true);
-            }
-
-            final List<dynamic> rawArgs = call.arguments;
-            final argsList = rawArgs.cast<String>();
-            AppLog.log(
-              'second window args=$argsList count=${argsList.length}',
-              mirrorToConsole: true,
-            );
-            queueFileOpen(argsList);
-          }
-        });
-      }
-
-      if (Platform.isMacOS || Platform.isAndroid) {
-        AppLog.log(
-          '[file-opener] registering file opener channel for ${Platform.operatingSystem}',
-          mirrorToConsole: true,
-        );
-        const fileOpenerChannel = MethodChannel('vynody/file_opener');
-        fileOpenerChannel.setMethodCallHandler((call) async {
-          AppLog.log(
-            '[file-opener] received method call: method=${call.method} args=${call.arguments}',
-            mirrorToConsole: true,
-          );
-          if (call.method == 'onOpenFiles') {
-            final List<dynamic> rawArgs = call.arguments;
-            final argsList = rawArgs.cast<String>();
-            AppLog.log(
-              '[file-opener] onOpenFiles processing args=$argsList count=${argsList.length}',
-              mirrorToConsole: true,
-            );
-            queueFileOpen(argsList);
-          }
-        });
-
+  if (Platform.isWindows || Platform.isLinux) {
+    AppLog.log(
+      'registering single instance handler',
+      mirrorToConsole: true,
+    );
+    const singleInstanceChannel = MethodChannel('vynody/single_instance');
+    singleInstanceChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onSecondInstance') {
         try {
-          AppLog.log(
-            '[file-opener] invoking getPendingFiles...',
-            mirrorToConsole: true,
-          );
-          final List<dynamic>? pending = await fileOpenerChannel.invokeMethod(
-            'getPendingFiles',
-          );
-          AppLog.log(
-            '[file-opener] getPendingFiles returned: $pending',
-            mirrorToConsole: true,
-          );
-          if (pending != null && pending.isNotEmpty) {
-            final argsList = pending.cast<String>();
-            AppLog.log(
-              '[file-opener] queueing pending files=$argsList',
-              mirrorToConsole: true,
-            );
-            queueFileOpen(argsList);
-          }
-        } catch (e) {
-          AppLog.log(
-            '[file-opener] failed to get pending files: $e',
-            mirrorToConsole: true,
-          );
-        }
-      }
-
-      AppLog.log('initializing settings service', mirrorToConsole: true);
-      final settingsService = await SettingsService.init();
-      MemoryTrace.snapshot('main:settings-ready');
-
-      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-        AppLog.log('initializing window manager', mirrorToConsole: true);
-        await windowManager.ensureInitialized();
-        WindowOptions windowOptions = WindowOptions(
-          size: settingsService.savedRegularWindowSize,
-          minimumSize: const Size(400, 650),
-          center: true,
-          backgroundColor: Colors.transparent,
-          skipTaskbar: false,
-          titleBarStyle: TitleBarStyle.hidden,
-          title: 'Vynody',
-        );
-        windowManager.waitUntilReadyToShow(windowOptions, () async {
-          AppLog.log('window ready to show', mirrorToConsole: true);
-          MemoryTrace.snapshot('main:window-ready');
-          if (settingsService.isRegularWindowMaximized &&
-              !settingsService.isSmallWindowMode) {
-            await windowManager.maximize();
+          if (await windowManager.isMinimized()) {
+            await windowManager.restore();
           }
           await windowManager.show();
           await windowManager.focus();
-        });
-      }
-
-      if (Platform.isWindows) {
-        AppLog.log('initializing SMTCWindows', mirrorToConsole: true);
-        await SMTCWindows.initialize();
-      }
-
-      if (Platform.isWindows) {
-        try {
-          if (settingsService.windowsAutoRepairShortcut) {
-            const MethodChannel(
-              'vynody/single_instance',
-            ).invokeMethod('registerShortcut');
-          }
         } catch (e) {
-          AppLog.log(
-            'failed to trigger registerShortcut: $e',
-            mirrorToConsole: true,
-          );
+          AppLog.log('Failed to restore window on second instance: $e', mirrorToConsole: true);
         }
+
+        final List<dynamic> rawArgs = call.arguments;
+        final argsList = rawArgs.cast<String>();
+        AppLog.log(
+          'second window args=$argsList count=${argsList.length}',
+          mirrorToConsole: true,
+        );
+        queueFileOpen(argsList);
       }
+    });
+  }
+
+  if (Platform.isMacOS || Platform.isAndroid) {
+    AppLog.log(
+      '[file-opener] registering file opener channel for ${Platform.operatingSystem}',
+      mirrorToConsole: true,
+    );
+    const fileOpenerChannel = MethodChannel('vynody/file_opener');
+    fileOpenerChannel.setMethodCallHandler((call) async {
       AppLog.log(
-        'cleaning lyrics AI temporary transcode files',
+        '[file-opener] received method call: method=${call.method} args=${call.arguments}',
         mirrorToConsole: true,
       );
-      await cleanupLyricsAiTempArtifacts();
-      // 优化内存占用：将默认 100MB / 1000 张的图片缓存限制调整为更合理的 40MB / 100 张
-      PaintingBinding.instance.imageCache.maximumSizeBytes = 40 * 1024 * 1024;
-      PaintingBinding.instance.imageCache.maximumSize = 100;
+      if (call.method == 'onOpenFiles') {
+        final List<dynamic> rawArgs = call.arguments;
+        final argsList = rawArgs.cast<String>();
+        AppLog.log(
+          '[file-opener] onOpenFiles processing args=$argsList count=${argsList.length}',
+          mirrorToConsole: true,
+        );
+        queueFileOpen(argsList);
+      }
+    });
 
-
-      AppLog.log('calling runApp', mirrorToConsole: true);
-      MemoryTrace.snapshot('main:runApp');
-      runApp(
-        ProviderScope(
-          overrides: [
-            settingsServiceProvider.overrideWith((ref) => settingsService),
-          ],
-          child: MyApp(args: args),
-        ),
-      );
-    },
-    (error, stack) {
+    try {
       AppLog.log(
-        'Caught zone error: $error',
+        '[file-opener] invoking getPendingFiles...',
         mirrorToConsole: true,
-        stackTrace: stack,
       );
-    },
+      final List<dynamic>? pending = await fileOpenerChannel.invokeMethod(
+        'getPendingFiles',
+      );
+      AppLog.log(
+        '[file-opener] getPendingFiles returned: $pending',
+        mirrorToConsole: true,
+      );
+      if (pending != null && pending.isNotEmpty) {
+        final argsList = pending.cast<String>();
+        AppLog.log(
+          '[file-opener] queueing pending files=$argsList',
+          mirrorToConsole: true,
+        );
+        queueFileOpen(argsList);
+      }
+    } catch (e) {
+      AppLog.log(
+        '[file-opener] failed to get pending files: $e',
+        mirrorToConsole: true,
+      );
+    }
+  }
+
+  AppLog.log('initializing settings service', mirrorToConsole: true);
+  final settingsService = await SettingsService.init();
+  MemoryTrace.snapshot('main:settings-ready');
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    AppLog.log('initializing window manager', mirrorToConsole: true);
+    await windowManager.ensureInitialized();
+    WindowOptions windowOptions = WindowOptions(
+      size: settingsService.savedRegularWindowSize,
+      minimumSize: const Size(400, 650),
+      center: true,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden,
+      title: 'Vynody',
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      AppLog.log('window ready to show', mirrorToConsole: true);
+      MemoryTrace.snapshot('main:window-ready');
+      if (settingsService.isRegularWindowMaximized &&
+          !settingsService.isSmallWindowMode) {
+        await windowManager.maximize();
+      }
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
+
+  if (Platform.isWindows) {
+    AppLog.log('initializing SMTCWindows', mirrorToConsole: true);
+    await SMTCWindows.initialize();
+  }
+
+  if (Platform.isWindows) {
+    try {
+      if (settingsService.windowsAutoRepairShortcut) {
+        const MethodChannel(
+          'vynody/single_instance',
+        ).invokeMethod('registerShortcut');
+      }
+    } catch (e) {
+      AppLog.log(
+        'failed to trigger registerShortcut: $e',
+        mirrorToConsole: true,
+      );
+    }
+  }
+  AppLog.log(
+    'cleaning lyrics AI temporary transcode files',
+    mirrorToConsole: true,
+  );
+  await cleanupLyricsAiTempArtifacts();
+  // 优化内存占用：将默认 100MB / 1000 张的图片缓存限制调整为更合理的 40MB / 100 张
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 40 * 1024 * 1024;
+  PaintingBinding.instance.imageCache.maximumSize = 100;
+
+
+  AppLog.log('calling runApp', mirrorToConsole: true);
+  MemoryTrace.snapshot('main:runApp');
+  runApp(
+    ProviderScope(
+      overrides: [
+        settingsServiceProvider.overrideWith((ref) => settingsService),
+      ],
+      child: MyApp(args: args),
+    ),
   );
 }
 

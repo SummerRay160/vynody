@@ -545,9 +545,11 @@ packages:
   flutter_desktop_lyrics:
     dependency: "direct main"
     description:
-      path: flutter_desktop_lyrics
-      relative: true
-    source: path
+      path: "."
+      ref: master
+      resolved-ref: "8c1d777c1fc6d85c2ac1755a9c66903ef6e892eb"
+      url: "https://github.com/axel10/flutter_desktop_lyrics"
+    source: git
     version: "0.0.1"
   flutter_desktop_tray:
     dependency: "direct main"
