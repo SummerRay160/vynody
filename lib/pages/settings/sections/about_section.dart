@@ -12,6 +12,7 @@ import 'package:vynody/utils/file_selector_helper.dart';
 import 'package:vynody/widgets/pro/pro_badge.dart';
 import '../widgets/settings_group_card.dart';
 import '../widgets/settings_section_header.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 
 class AboutSection extends StatefulWidget {
   const AboutSection({super.key});
@@ -149,7 +150,9 @@ class _AboutSectionState extends State<AboutSection> {
 
       if (_compareVersions(currentVersion, latestVersion) >= 0) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.show(
+          context,
+          null,
           SnackBar(content: Text(l10n.alreadyLatestVersion)),
         );
         return;
@@ -182,7 +185,9 @@ class _AboutSectionState extends State<AboutSection> {
     } catch (_) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.show(
+        context,
+        null,
         SnackBar(content: Text(l10n.checkUpdateFailedNetwork)),
       );
     } finally {
@@ -200,7 +205,9 @@ class _AboutSectionState extends State<AboutSection> {
     final logPath = AppLog.logFilePath;
     if (logPath == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.show(
+          context,
+          null,
           SnackBar(content: Text(AppLocalizations.of(context)!.noLogFileFound)),
         );
       }
@@ -210,7 +217,9 @@ class _AboutSectionState extends State<AboutSection> {
     final logFile = File(logPath);
     if (!await logFile.exists()) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.show(
+          context,
+          null,
           SnackBar(content: Text(AppLocalizations.of(context)!.noLogFileFound)),
         );
       }
@@ -237,7 +246,9 @@ class _AboutSectionState extends State<AboutSection> {
 
       if (path != null) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          AppSnackBar.show(
+            context,
+            null,
             SnackBar(
               content: Text(AppLocalizations.of(context)!.exportLogsSuccess),
             ),
@@ -246,7 +257,9 @@ class _AboutSectionState extends State<AboutSection> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.show(
+          context,
+          null,
           SnackBar(
             content: Text(
               '${AppLocalizations.of(context)!.exportLogsFailed}: $e',

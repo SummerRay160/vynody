@@ -8,6 +8,7 @@ import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/library/music_file_utils.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/models/music_file.dart';
+import '../utils/app_snack_bar.dart';
 
 class GlobalDropTarget extends ConsumerStatefulWidget {
   final Widget child;
@@ -58,7 +59,6 @@ class _GlobalDropTargetState extends ConsumerState<GlobalDropTarget> {
       onDragDone: (details) async {
         if (!widget.enable) return;
         final audio = ref.read(audioServiceProvider);
-        final messenger = ScaffoldMessenger.of(context);
         final l10n = AppLocalizations.of(context)!;
         final List<MusicFile> allFiles = [];
 
@@ -137,13 +137,13 @@ class _GlobalDropTargetState extends ConsumerState<GlobalDropTarget> {
           await audio.appendToQueue(newSongs);
         }
 
-        if (!mounted) return;
+        if (!mounted || !context.mounted) return;
 
         final message = existingCount > 0
             ? l10n.dropAddedSongsWithExisting(newSongs.length, existingCount)
             : l10n.dropAddedSongs(newSongs.length);
 
-        messenger.showSnackBar(SnackBar(content: Text(message)));
+        AppSnackBar.show(context, ref, SnackBar(content: Text(message)));
 
         // 多文件拖入只做静默入队，不改变当前播放歌曲。
       },

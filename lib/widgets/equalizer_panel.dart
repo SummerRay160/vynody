@@ -8,6 +8,7 @@ import 'package:vynody/player/audio/audio_service.dart';
 import 'package:vynody/player/audio/equalizer_presets.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/app_snack_bar.dart';
 
 class EqualizerPanel extends ConsumerStatefulWidget {
   const EqualizerPanel({super.key});
@@ -605,13 +606,14 @@ class _EqualizerPanelState extends ConsumerState<EqualizerPanel> {
       _selectedPresetId = updated.id;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    AppSnackBar.show(
+      context,
+      ref,
       SnackBar(
         content: Text(
           '${l10n.presetUpdated}: ${updated.getLocalizedName(l10n)} (${l10n.bandsCountOption(updated.bandCount)})',
         ),
         duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -713,7 +715,6 @@ class _EqualizerPanelState extends ConsumerState<EqualizerPanel> {
 
     final initialName = preset.getLocalizedName(l10n);
     final controller = TextEditingController(text: initialName);
-    final messenger = ScaffoldMessenger.of(context);
     String? errorText;
 
     final result = await showDialog<String>(
@@ -869,13 +870,14 @@ class _EqualizerPanelState extends ConsumerState<EqualizerPanel> {
       ),
     );
 
-    if (result != null && result.isNotEmpty && mounted) {
+    if (result != null && result.isNotEmpty && mounted && context.mounted) {
       ref.read(settingsServiceProvider).renameCustomEqPreset(preset.id, result);
-      messenger.showSnackBar(
+      AppSnackBar.show(
+        context,
+        ref,
         SnackBar(
           content: Text('${l10n.presetRenamed}: $result'),
           duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
         ),
       );
     }
@@ -895,7 +897,6 @@ class _EqualizerPanelState extends ConsumerState<EqualizerPanel> {
     final accentColor = theme.colorScheme.primary;
 
     final controller = TextEditingController();
-    final messenger = ScaffoldMessenger.of(context);
     String? errorText;
 
     final result = await showDialog<String>(
@@ -1058,12 +1059,13 @@ class _EqualizerPanelState extends ConsumerState<EqualizerPanel> {
         _selectedPresetId = newPreset.id;
       });
 
-      if (mounted) {
-        messenger.showSnackBar(
+      if (mounted && context.mounted) {
+        AppSnackBar.show(
+          context,
+          ref,
           SnackBar(
             content: Text('${l10n.presetSaved}: $result'),
             duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
           ),
         );
       }

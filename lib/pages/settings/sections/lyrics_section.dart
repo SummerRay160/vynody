@@ -18,6 +18,7 @@ import '../dialogs/lyrics_model_picker_dialog.dart';
 import '../widgets/settings_dropdown_tile.dart';
 import '../widgets/settings_group_card.dart';
 import '../widgets/settings_section_header.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 
 class LyricsSection extends ConsumerWidget {
   final SettingsService settings;
@@ -329,13 +330,17 @@ class LyricsSection extends ConsumerWidget {
       final count = (jsonDecode(jsonStr)['lyricsCaches'] as List).length;
 
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.show(
+        context,
+        null,
         SnackBar(content: Text(l10n.exportSuccess(count))),
       );
     } catch (e) {
       debugPrint('Export error: $e');
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.show(
+        context,
+        null,
         SnackBar(content: Text(l10n.exportFailed(e.toString()))),
       );
     }
@@ -373,7 +378,9 @@ class LyricsSection extends ConsumerWidget {
       Navigator.of(context).pop();
 
       if (result.conflicts.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.show(
+          context,
+          null,
           SnackBar(content: Text(l10n.importSuccess(result.autoImportedCount))),
         );
         return;
@@ -383,7 +390,9 @@ class LyricsSection extends ConsumerWidget {
     } catch (e) {
       debugPrint('Import error: $e');
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.show(
+        context,
+        null,
         SnackBar(content: Text(l10n.importFailed(e.toString()))),
       );
     }
@@ -433,7 +442,9 @@ class LyricsSection extends ConsumerWidget {
         );
       }
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.show(
+        context,
+        null,
         SnackBar(content: Text(l10n.importSuccess(conflicts.length))),
       );
     } else if (choice == 'one_by_one') {
@@ -489,7 +500,9 @@ class LyricsSection extends ConsumerWidget {
       }
 
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.show(
+        context,
+        null,
         SnackBar(content: Text(l10n.importSuccess(importedCount))),
       );
     }
@@ -982,7 +995,9 @@ class LyricsSection extends ConsumerWidget {
                   settings.geminiApiKey = enteredApiKey;
 
                   if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  AppSnackBar.show(
+                    context,
+                    ref,
                     SnackBar(
                       content: Text(
                         enteredApiKey.trim().isEmpty
@@ -1017,7 +1032,9 @@ class LyricsSection extends ConsumerWidget {
                   }
                   settings.openRouterApiKey = enteredApiKey;
                   if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  AppSnackBar.show(
+                    context,
+                    ref,
                     SnackBar(
                       content: Text(
                         enteredApiKey.trim().isEmpty
@@ -1054,7 +1071,9 @@ class LyricsSection extends ConsumerWidget {
                   }
                   settings.doubaoApiKey = enteredApiKey;
                   if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  AppSnackBar.show(
+                    context,
+                    ref,
                     SnackBar(
                       content: Text(
                         enteredApiKey.trim().isEmpty
@@ -1087,7 +1106,9 @@ class LyricsSection extends ConsumerWidget {
                   }
                   settings.deepseekApiKey = enteredApiKey;
                   if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  AppSnackBar.show(
+                    context,
+                    ref,
                     SnackBar(
                       content: Text(
                         enteredApiKey.trim().isEmpty
@@ -1125,7 +1146,9 @@ class LyricsSection extends ConsumerWidget {
                   settings.customProviderApiKey = result.apiKey;
                   settings.customProviderName = result.name;
                   if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  AppSnackBar.show(
+                    context,
+                    ref,
                     SnackBar(
                       content: Text(
                         result.apiKey.trim().isEmpty

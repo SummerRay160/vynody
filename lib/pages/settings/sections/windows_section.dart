@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vynody/l10n/app_localizations.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/settings/windows_association_service.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 import '../widgets/settings_group_card.dart';
 import '../widgets/settings_section_header.dart';
 
@@ -73,12 +74,16 @@ class _WindowsSectionState extends ConsumerState<WindowsSection> {
                         await WindowsAssociationService.associate();
                         await _checkAssociationStatus();
                         if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        AppSnackBar.show(
+                          context,
+                          ref,
                           SnackBar(content: Text(l10n.associationSuccess)),
                         );
                       } catch (e) {
                         if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        AppSnackBar.show(
+                          context,
+                          ref,
                           SnackBar(content: Text(l10n.associationFailed(e.toString()))),
                         );
                       }
@@ -92,12 +97,16 @@ class _WindowsSectionState extends ConsumerState<WindowsSection> {
                           await WindowsAssociationService.disassociate();
                           await _checkAssociationStatus();
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          AppSnackBar.show(
+                            context,
+                            ref,
                             SnackBar(content: Text(l10n.disassociationSuccess)),
                           );
                         } catch (e) {
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          AppSnackBar.show(
+                            context,
+                            ref,
                             SnackBar(
                               content: Text(l10n.associationFailed(e.toString())),
                             ),

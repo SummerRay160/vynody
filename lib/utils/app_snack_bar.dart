@@ -10,21 +10,29 @@ class AppSnackBar {
     BuildContext context,
     WidgetRef? ref,
     SnackBar snackBar, {
-    double offset = 70.0,
+    double? offset,
     Duration duration = const Duration(seconds: 4),
   }) {
     final messenger = ScaffoldMessenger.of(context);
-    final controller = ref != null
-        ? ref.read(mainLayoutUiControllerProvider.notifier)
-        : ProviderScope.containerOf(context, listen: false)
+    MainLayoutUiController? controller;
+    if (ref != null) {
+      try {
+        controller = ref.read(mainLayoutUiControllerProvider.notifier);
+      } catch (_) {}
+    } else {
+      try {
+        controller = ProviderScope.containerOf(context, listen: false)
             .read(mainLayoutUiControllerProvider.notifier);
+      } catch (_) {}
+    }
 
     // Cancel any previous timer
     _autoDismissTimer?.cancel();
 
     // Dismiss any active snackbar immediately to avoid queuing and layout collision
     messenger.hideCurrentSnackBar();
-    controller.setSnackBarOffset(offset);
+    final effectiveOffset = offset ?? (snackBar.action != null ? 80.0 : 70.0);
+    controller?.setSnackBarOffset(effectiveOffset);
 
     // Use passed duration or snackBar's own duration if set
     final effectiveDuration = snackBar.duration != const Duration(milliseconds: 4000)
@@ -56,7 +64,7 @@ class AppSnackBar {
 
     controllerEntry.closed.then((reason) {
       _autoDismissTimer?.cancel();
-      controller.setSnackBarOffset(0.0);
+      controller?.setSnackBarOffset(0.0);
     });
 
     // Fallback timer to guarantee dismissal even if Flutter's internal timer is skipped by accessibleNavigation or desktop mouse events

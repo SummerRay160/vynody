@@ -12,6 +12,7 @@ import '../dialogs/custom_proxy_dialog.dart';
 import '../widgets/settings_dropdown_tile.dart';
 import '../widgets/settings_group_card.dart';
 import '../widgets/settings_section_header.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 
 class GeneralSection extends ConsumerWidget {
   final SettingsService settings;
@@ -808,7 +809,9 @@ class GeneralSection extends ConsumerWidget {
                   settings.hasShownOnboarding = false;
                   settings.hasShownCoverTapLyricTip = false;
                   settings.hasShownLyricsMenuTip = false;
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  AppSnackBar.show(
+                    context,
+                    ref,
                     SnackBar(content: Text(l10n.onboardingReset)),
                   );
                 },

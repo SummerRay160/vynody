@@ -4,6 +4,7 @@ import 'package:vynody/l10n/app_localizations.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/remote/remote_service_providers.dart';
 import 'package:vynody/player/settings/settings_service.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 import '../widgets/settings_dropdown_tile.dart';
 import '../widgets/settings_group_card.dart';
 import '../widgets/settings_section_header.dart';
@@ -101,7 +102,9 @@ class _StorageSectionState extends ConsumerState<StorageSection> {
                           await streamManager.clearCache();
                           await _loadCacheSize();
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            AppSnackBar.show(
+                              context,
+                              ref,
                               SnackBar(content: Text(l10n.remoteCacheCleared)),
                             );
                           }
@@ -213,7 +216,9 @@ class _StorageSectionState extends ConsumerState<StorageSection> {
                           final audio = ref.read(audioServiceProvider);
                           await audio.clearWaveformCache();
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            AppSnackBar.show(
+                              context,
+                              ref,
                               SnackBar(
                                   content: Text(l10n.waveformCacheCleared)),
                             );

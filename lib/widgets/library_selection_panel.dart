@@ -8,6 +8,7 @@ import 'package:vynody/dialogs/transcode_dialog.dart';
 import 'package:vynody/dialogs/song_details_dialog.dart';
 import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
 import 'package:vynody/utils/song_context_menu_utils.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 import 'package:vynody/l10n/app_localizations.dart';
 
 class LibrarySelectionPanel extends ConsumerStatefulWidget {
@@ -312,7 +313,9 @@ class _LibrarySelectionPanelState extends ConsumerState<LibrarySelectionPanel> {
                         widget.selectedSongs,
                       );
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        AppSnackBar.show(
+                          context,
+                          ref,
                           SnackBar(
                             content: Text(
                               l10n.addedToPlaylist(

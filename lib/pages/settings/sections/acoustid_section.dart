@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:vynody/dialogs/acoustid_api_key_dialog.dart';
 import 'package:vynody/l10n/app_localizations.dart';
 import 'package:vynody/player/settings/settings_service.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 import '../widgets/settings_group_card.dart';
 import '../widgets/settings_section_header.dart';
 
@@ -71,9 +72,11 @@ class AcoustidSection extends StatelessWidget {
 
                   settings.acoustidApiKey = enteredApiKey;
                   if (!context.mounted) return;
-                  ScaffoldMessenger.of(
+                  AppSnackBar.show(
                     context,
-                  ).showSnackBar(SnackBar(content: Text(l10n.acoustidApiKeySaved)));
+                    null,
+                    SnackBar(content: Text(l10n.acoustidApiKeySaved)),
+                  );
                 },
                 child: Text(
                   settings.hasCustomAcoustidApiKey ? l10n.modify : l10n.fill,

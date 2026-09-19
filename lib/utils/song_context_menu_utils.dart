@@ -23,6 +23,7 @@ import 'package:vynody/utils/lrc_utils.dart';
 import 'package:vynody/utils/language_code_utils.dart';
 import 'package:vynody/widgets/song_thumbnail.dart';
 import 'package:vynody/widgets/app_context_menu.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 
 enum SongContextMenuMode { full, title, artistAlbum }
 
@@ -121,7 +122,6 @@ Future<void> importLyricsForSongWithContainer(
   MusicFile song,
 ) async {
   final l10n = AppLocalizations.of(context)!;
-  final scaffoldMessenger = ScaffoldMessenger.of(context);
 
   try {
     final filePath = await FileSelectorHelper.pickFile(
@@ -129,10 +129,14 @@ Future<void> importLyricsForSongWithContainer(
       extensions: ['lrc', 'txt'],
     );
     if (filePath == null || filePath.trim().isEmpty) return;
+    if (!context.mounted) return;
 
     final file = File(filePath);
     if (!await file.exists()) {
-      scaffoldMessenger.showSnackBar(
+      if (!context.mounted) return;
+      AppSnackBar.show(
+        context,
+        null,
         SnackBar(content: Text(l10n.importLyricsFailed)),
       );
       return;
@@ -146,7 +150,10 @@ Future<void> importLyricsForSongWithContainer(
         final bytes = await file.readAsBytes();
         content = utf8.decode(bytes, allowMalformed: true);
       } catch (_) {
-        scaffoldMessenger.showSnackBar(
+        if (!context.mounted) return;
+        AppSnackBar.show(
+          context,
+          null,
           SnackBar(content: Text(l10n.importLyricsFailed)),
         );
         return;
@@ -155,7 +162,10 @@ Future<void> importLyricsForSongWithContainer(
 
     final normalizedText = content.replaceAll('\r\n', '\n').trim();
     if (normalizedText.isEmpty) {
-      scaffoldMessenger.showSnackBar(
+      if (!context.mounted) return;
+      AppSnackBar.show(
+        context,
+        null,
         SnackBar(content: Text(l10n.emptyLyricsFile)),
       );
       return;
@@ -232,14 +242,21 @@ Future<void> importLyricsForSongWithContainer(
       }
     }
 
-    scaffoldMessenger.showSnackBar(
+    if (!context.mounted) return;
+    AppSnackBar.show(
+      context,
+      null,
       SnackBar(content: Text(l10n.importLyricsSuccess)),
     );
   } catch (e) {
     debugPrint('[ImportLyrics] Error importing lyrics: $e');
-    scaffoldMessenger.showSnackBar(
-      SnackBar(content: Text(l10n.importLyricsFailed)),
-    );
+    if (context.mounted) {
+      AppSnackBar.show(
+        context,
+        null,
+        SnackBar(content: Text(l10n.importLyricsFailed)),
+      );
+    }
   }
 }
 
@@ -799,7 +816,9 @@ Future<void> showSongBottomSheet(
     case 'add_to_favorites':
       await playlistService.addSongToFavorite(song);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.show(
+          context,
+          null,
           SnackBar(
             content: Text('${l10n.addToFavorites} · ${song.displayName}'),
           ),

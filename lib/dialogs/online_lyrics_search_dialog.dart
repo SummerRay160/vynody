@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:vynody/player/lyrics/lyrics_service.dart';
 import 'package:vynody/utils/localized_text.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 
 AppLocalizations _l10n() => currentAppL10n;
 
@@ -183,9 +183,11 @@ class _OnlineLyricsSearchDialogState extends State<_OnlineLyricsSearchDialog> {
           _lastErrorMessage = error.toString();
         }
       });
-      ScaffoldMessenger.of(
+      AppSnackBar.show(
         context,
-      ).showSnackBar(SnackBar(content: Text(_lastErrorMessage!)));
+        null,
+        SnackBar(content: Text(_lastErrorMessage!)),
+      );
     }
   }
 

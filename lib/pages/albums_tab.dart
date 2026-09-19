@@ -23,6 +23,7 @@ import '../dialogs/sort_options_dialog.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 import 'main_layout_riverpod.dart';
 import 'package:vynody/utils/layout_constants.dart';
+import '../utils/app_snack_bar.dart';
 
 class AlbumsTab extends ConsumerStatefulWidget {
   const AlbumsTab({
@@ -1033,7 +1034,9 @@ Future<void> _showAlbumContextMenu(
           await ref.read(playlistServiceProvider).addSongToFavorite(song);
         }
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          AppSnackBar.show(
+            context,
+            ref,
             SnackBar(
               content: Text('${l10n.addToFavorites} · ${album.trackCount}'),
             ),

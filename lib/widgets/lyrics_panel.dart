@@ -23,6 +23,7 @@ import '../dialogs/manual_lyrics_dialog.dart';
 import '../dialogs/online_lyrics_search_dialog.dart';
 import '../dialogs/timeline_adjustment_dialog.dart';
 import '../dialogs/lyrics_font_scale_dialog.dart';
+import '../utils/app_snack_bar.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/lyrics/lyrics_controller.dart';
 import 'package:vynody/player/lyrics/lyrics_controller_state.dart';
@@ -555,9 +556,11 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
 
   void _showGenerationErrorSnack(String message) {
     if (!mounted || message.trim().isEmpty) return;
-    ScaffoldMessenger.of(
+    AppSnackBar.show(
       context,
-    ).showSnackBar(SnackBar(content: Text(message.trim())));
+      ref,
+      SnackBar(content: Text(message.trim())),
+    );
   }
 
   @override
@@ -1038,7 +1041,6 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     final songAlbum = currentSong.album?.trim();
 
     final l10n = AppLocalizations.of(context)!;
-    final messenger = ScaffoldMessenger.of(context);
     final service = ref.read(lyricsServiceProvider);
 
     final selectedTrack = await showOnlineLyricsSearchDialog(
@@ -1073,7 +1075,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
         ? selectedTrack.syncedLyrics!.trim()
         : selectedTrack.plainLyrics?.trim() ?? '';
     if (lyricsText.isEmpty) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.noMatchingResults)));
+      AppSnackBar.show(context, ref, SnackBar(content: Text(l10n.noMatchingResults)));
       return;
     }
 

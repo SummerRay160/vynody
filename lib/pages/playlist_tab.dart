@@ -19,6 +19,7 @@ import 'package:vynody/utils/selection_utils.dart';
 import '../widgets/library_selection_panel.dart';
 import '../widgets/library_selection_scope.dart';
 import 'package:vynody/utils/layout_constants.dart';
+import '../utils/app_snack_bar.dart';
 
 class PlaylistTab extends ConsumerStatefulWidget {
   const PlaylistTab({super.key});
@@ -253,7 +254,9 @@ class _PlaylistTabState extends ConsumerState<PlaylistTab>
       if (!context.mounted) return;
       if (imported.isNotEmpty) {
         final last = imported.last;
-        ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.show(
+          context,
+          ref,
           SnackBar(
             content: Text(
               l10n.importPlaylistSuccess(last.name, last.songs.length),
@@ -264,7 +267,9 @@ class _PlaylistTabState extends ConsumerState<PlaylistTab>
     } catch (e) {
       if (!context.mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.show(
+        context,
+        ref,
         SnackBar(
           content: Text(l10n.importPlaylistFailed(e.toString())),
         ),
@@ -278,7 +283,9 @@ class _PlaylistTabState extends ConsumerState<PlaylistTab>
   ) async {
     final l10n = AppLocalizations.of(context)!;
     if (playlist.songs.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.show(
+        context,
+        ref,
         SnackBar(
           content: Text(l10n.noSongsInPlaylist),
         ),
@@ -305,7 +312,9 @@ class _PlaylistTabState extends ConsumerState<PlaylistTab>
       );
 
       if (savedPath != null && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.show(
+          context,
+          ref,
           SnackBar(
             content: Text(l10n.exportPlaylistSuccess),
           ),
@@ -313,7 +322,9 @@ class _PlaylistTabState extends ConsumerState<PlaylistTab>
       }
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.show(
+        context,
+        ref,
         SnackBar(
           content: Text(l10n.exportPlaylistFailed(e.toString())),
         ),
@@ -803,7 +814,9 @@ class _PlaylistTabState extends ConsumerState<PlaylistTab>
                   activePlaylist.id,
                   indices,
                 );
-                ScaffoldMessenger.of(context).showSnackBar(
+                AppSnackBar.show(
+                  context,
+                  ref,
                   SnackBar(
                     content: Text(l10n.deletedSongs(indices.length)),
                   ),
@@ -850,7 +863,6 @@ class _PlaylistManagerSheetState extends ConsumerState<_PlaylistManagerSheet> {
   ) {
     final l10n = AppLocalizations.of(context)!;
     final count = playlistIds.length;
-    final messenger = ScaffoldMessenger.of(context);
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -869,12 +881,14 @@ class _PlaylistManagerSheetState extends ConsumerState<_PlaylistManagerSheet> {
               await ref
                   .read(playlistServiceProvider)
                   .deletePlaylists(idsToDelete);
-              if (mounted) {
+              if (mounted && context.mounted) {
                 setState(() {
                   _selectedPlaylistIds.clear();
                   _isSelectionMode = false;
                 });
-                messenger.showSnackBar(
+                AppSnackBar.show(
+                  context,
+                  ref,
                   SnackBar(
                     content: Text(l10n.playlistsDeleted(count)),
                   ),

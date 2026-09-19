@@ -11,6 +11,7 @@ import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/library/music_file_utils.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/utils/layout_constants.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 
 class QueueFileDropTarget extends ConsumerStatefulWidget {
   const QueueFileDropTarget({
@@ -153,7 +154,6 @@ class _QueueFileDropTargetState extends ConsumerState<QueueFileDropTarget> {
     required Offset dropLocalPosition,
   }) async {
     final audio = ref.read(audioServiceProvider);
-    final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final List<MusicFile> allFiles = [];
 
@@ -233,7 +233,7 @@ class _QueueFileDropTargetState extends ConsumerState<QueueFileDropTarget> {
         ? l10n.dropAddedSongsWithExisting(newSongs.length, existingCount)
         : l10n.dropAddedSongs(newSongs.length);
 
-    messenger.showSnackBar(SnackBar(content: Text(message)));
+    AppSnackBar.show(context, ref, SnackBar(content: Text(message)));
   }
 
   @override
