@@ -93,14 +93,54 @@ class WebDavClient implements RemoteDirectoryClient {
         'Authorization': basicAuthHeader,
       };
 
+  /// Safely encodes a relative or absolute URL path segment-by-segment.
+  /// Converts `#` to `%23`, `+` to `%2B`, spaces to `%20`, brackets, etc.
+  /// Idempotent (does not double-encode already percent-encoded strings).
+  static String safeEncodePath(String path) {
+    if (path.isEmpty) return path;
+    final isAbsolute = path.startsWith('/');
+    final segments = path.split('/').map((seg) {
+      if (seg.isEmpty) return seg;
+      try {
+        final decoded = Uri.decodeComponent(seg);
+        return Uri.encodeComponent(decoded);
+      } catch (_) {
+        return Uri.encodeComponent(seg);
+      }
+    }).toList();
+    var result = segments.join('/');
+    if (isAbsolute && !result.startsWith('/')) {
+      result = '/$result';
+    }
+    return result;
+  }
+
   static String safeEncodeUrl(String url) {
+    if (url.isEmpty) return url;
     try {
-      // Decode first if already percent-encoded to make encoding idempotent and prevent double-encoding (%XX -> %25XX)
-      final decoded = Uri.decodeFull(url);
-      return Uri.encodeFull(decoded);
+      final schemeEnd = url.indexOf('://');
+      if (schemeEnd > 0) {
+        final scheme = url.substring(0, schemeEnd);
+        final rest = url.substring(schemeEnd + 3);
+        final pathStart = rest.indexOf('/');
+        if (pathStart >= 0) {
+          final hostPart = rest.substring(0, pathStart);
+          final rawPath = rest.substring(pathStart);
+          final queryIdx = rawPath.indexOf('?');
+          if (queryIdx >= 0) {
+            final pathOnly = rawPath.substring(0, queryIdx);
+            final queryPart = rawPath.substring(queryIdx);
+            return '$scheme://$hostPart${safeEncodePath(pathOnly)}$queryPart';
+          }
+          return '$scheme://$hostPart${safeEncodePath(rawPath)}';
+        }
+        return '$scheme://$rest';
+      }
+      return safeEncodePath(url);
     } catch (_) {
       try {
-        return Uri.encodeFull(url);
+        final decoded = Uri.decodeFull(url);
+        return Uri.encodeFull(decoded);
       } catch (_) {
         return url;
       }
