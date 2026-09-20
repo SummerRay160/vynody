@@ -777,6 +777,23 @@
   },
   "onboardingTitle": "Welcome to Vynody",
   "onboardingSubtitle": "Just a few simple steps to start your music journey.",
+  "@onboardingProTrialBadge": {
+    "description": "Badge in onboarding welcome page indicating free trial status",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingProTrialBadge": "{days}-Day Full-Featured Free Trial Activated",
+  "@onboardingProPurchasedBadge": {
+    "description": "Badge in onboarding welcome page when Pro is purchased"
+  },
+  "onboardingProPurchasedBadge": "Vynody Pro Activated",
+  "@onboardingProExpiredBadge": {
+    "description": "Badge in onboarding welcome page when Pro trial expired"
+  },
+  "onboardingProExpiredBadge": "Pro Trial Expired · Core Playback Forever Free",
   "onboardingStepFileAssociation": "Associate File Types",
   "onboardingFileAssociationDesc": "Associate common music formats (mp3, flac, wav, etc.) with Vynody to play music by double-clicking them in file explorer.",
   "onboardingFileAssociationTip": "After associating, the system may pop up an 'Open with' selection menu. Please make sure to choose 'Vynody' from the list and select 'Always use this app'.",
@@ -1657,6 +1674,23 @@
   "proSettingsTrialRemaining": "{days} days trial remaining",
   "proSettingsUpgradePrompt": "Upgrade to unlock AI lyrics, FFT visualizer, and Pro features",
   "proSettingsLifetimeNotice": "Enjoy all Pro features and future updates",
+  "@proSettingsCardTrialSubtitle": {
+    "description": "Subtitle for Pro status card during trial",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "proSettingsCardTrialSubtitle": "{days} days left · Enjoy AI synced lyrics, cross-device sync & more",
+  "@proSettingsCardExpiredSubtitle": {
+    "description": "Subtitle for Pro status card when trial expired"
+  },
+  "proSettingsCardExpiredSubtitle": "Upgrade to unlock AI synced lyrics, cross-device sync & pro features",
+  "@proSettingsCardActivatedSubtitle": {
+    "description": "Subtitle for Pro status card when Pro is purchased"
+  },
+  "proSettingsCardActivatedSubtitle": "Full access to AI synced lyrics, cross-device sync & all features unlocked",
   "proSettingsUpgrade": "Upgrade",
   "proSettingsView": "View",
   "connectingToStore": "Connecting to store...",

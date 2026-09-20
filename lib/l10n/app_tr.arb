@@ -845,8 +845,25 @@
       "error": {}
     }
   },
-  "onboardingTitle": "Hoş Geldiniz",
+  "onboardingTitle": "Vynody'ye Hoş Geldiniz",
   "onboardingSubtitle": "Müzik yolculuğunuza başlamak için birkaç basit adım.",
+  "@onboardingProTrialBadge": {
+    "description": "Badge in onboarding welcome page indicating free trial status",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingProTrialBadge": "{days} günlük tüm özellikler ücretsiz deneme süresi başladı",
+  "@onboardingProPurchasedBadge": {
+    "description": "Badge in onboarding welcome page when Pro is purchased"
+  },
+  "onboardingProPurchasedBadge": "Vynody Pro Etkinleştirildi",
+  "@onboardingProExpiredBadge": {
+    "description": "Badge in onboarding welcome page when Pro trial expired"
+  },
+  "onboardingProExpiredBadge": "Pro deneme süresi bitti · Temel çalma kalıcı olarak ücretsiz",
   "onboardingStepFileAssociation": "Dosya Türlerini İlişkilendir",
   "onboardingFileAssociationDesc": "Yaygın müzik formatlarını (mp3, flac, wav vb.) Vynody ile ilişkilendirerek dosya yöneticisinden çift tıklamayla doğrudan çalın.",
   "onboardingFileAssociationTip": "İlişkilendirmenin ardından sistem 'Birlikte aç' menüsü gösterebilir. Listeden 'Vynody'yi seçtiğinizden ve 'Her zaman bu uygulamayı kullan'ı işaretlediğinizden emin olun.",
@@ -1695,6 +1712,23 @@
   "proSettingsTrialRemaining": "{days} gün deneme süresi kaldı",
   "proSettingsUpgradePrompt": "Yapay zeka sözleri, FFT spektrumu ve Pro özelliklerinin kilidini açın",
   "proSettingsLifetimeNotice": "Tüm Pro özellikleri ve gelecek güncellemeler dahil",
+  "@proSettingsCardTrialSubtitle": {
+    "description": "Subtitle for Pro status card during trial",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "proSettingsCardTrialSubtitle": "{days} gün kaldı · Yapay zeka senkronize sözler, cihazlar arası senkronizasyon ve fazlası",
+  "@proSettingsCardExpiredSubtitle": {
+    "description": "Subtitle for Pro status card when trial expired"
+  },
+  "proSettingsCardExpiredSubtitle": "Yapay zeka senkronize sözler, cihazlar arası senkronizasyon ve gelişmiş özellikler için yükseltin",
+  "@proSettingsCardActivatedSubtitle": {
+    "description": "Subtitle for Pro status card when Pro is purchased"
+  },
+  "proSettingsCardActivatedSubtitle": "Yapay zeka senkronize sözler, cihazlar arası senkronizasyon ve tüm özelliklerin kilidi açıldı",
   "proSettingsUpgrade": "Yükselt",
   "proSettingsView": "Görüntüle",
   "connectingToStore": "Mağazaya bağlanılıyor...",

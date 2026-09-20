@@ -769,6 +769,23 @@
   },
   "onboardingTitle": "Vynody에 오신 것을 환영합니다",
   "onboardingSubtitle": "몇 가지 간단한 단계로 음악 여정을 시작하세요.",
+  "@onboardingProTrialBadge": {
+    "description": "Badge in onboarding welcome page indicating free trial status",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingProTrialBadge": "{days}일간의 모든 기능 무료 체험이 시작되었습니다",
+  "@onboardingProPurchasedBadge": {
+    "description": "Badge in onboarding welcome page when Pro is purchased"
+  },
+  "onboardingProPurchasedBadge": "Vynody Pro 활성화됨",
+  "@onboardingProExpiredBadge": {
+    "description": "Badge in onboarding welcome page when Pro trial expired"
+  },
+  "onboardingProExpiredBadge": "Pro 체험 종료 · 기본 재생 기능은 평생 무료",
   "onboardingStepFileAssociation": "파일 형식 연결",
   "onboardingFileAssociationDesc": "일반적인 음악 형식(mp3, flac, wav 등)을 Vynody와 연결하여 파일 탐색기에서 더블클릭으로 음악을 재생하세요.",
   "onboardingFileAssociationTip": "연결 후 시스템에서 '연결 프로그램' 선택 메뉴가 나타날 수 있습니다. 목록에서 'Vynody'를 선택하고 '항상 이 앱 사용'을 선택해주세요.",
@@ -1571,6 +1588,23 @@
   "proSettingsTrialRemaining": "남은 체험 기간 {days}일",
   "proSettingsUpgradePrompt": "업그레이드하여 AI 가사, FFT 스펙트럼 및 고급 기능 해제",
   "proSettingsLifetimeNotice": "모든 Pro 기능 및 향후 업데이트 포함",
+  "@proSettingsCardTrialSubtitle": {
+    "description": "Subtitle for Pro status card during trial",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "proSettingsCardTrialSubtitle": "남은 기간 {days}일 · AI 실시간 가사 및 기기 간 동기화 등 모든 기능 지원",
+  "@proSettingsCardExpiredSubtitle": {
+    "description": "Subtitle for Pro status card when trial expired"
+  },
+  "proSettingsCardExpiredSubtitle": "Pro로 업그레이드하여 AI 실시간 가사 및 기기 간 동기화 등 고급 기능을 잠금 해제하세요",
+  "@proSettingsCardActivatedSubtitle": {
+    "description": "Subtitle for Pro status card when Pro is purchased"
+  },
+  "proSettingsCardActivatedSubtitle": "AI 실시간 가사 및 기기 간 동기화 등 모든 기능이 활성화되었습니다",
   "proSettingsUpgrade": "업그레이드",
   "proSettingsView": "확인",
   "connectingToStore": "스토어에 연결 중...",

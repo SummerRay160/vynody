@@ -1949,6 +1949,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardingSubtitle => '몇 가지 간단한 단계로 음악 여정을 시작하세요.';
 
   @override
+  String onboardingProTrialBadge(int days) {
+    return '$days일간의 모든 기능 무료 체험이 시작되었습니다';
+  }
+
+  @override
+  String get onboardingProPurchasedBadge => 'Vynody Pro 활성화됨';
+
+  @override
+  String get onboardingProExpiredBadge => 'Pro 체험 종료 · 기본 재생 기능은 평생 무료';
+
+  @override
   String get onboardingStepFileAssociation => '파일 형식 연결';
 
   @override
@@ -3916,6 +3927,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get proSettingsLifetimeNotice => '모든 Pro 기능 및 향후 업데이트 포함';
+
+  @override
+  String proSettingsCardTrialSubtitle(int days) {
+    return '남은 기간 $days일 · AI 실시간 가사 및 기기 간 동기화 등 모든 기능 지원';
+  }
+
+  @override
+  String get proSettingsCardExpiredSubtitle =>
+      'Pro로 업그레이드하여 AI 실시간 가사 및 기기 간 동기화 등 고급 기능을 잠금 해제하세요';
+
+  @override
+  String get proSettingsCardActivatedSubtitle =>
+      'AI 실시간 가사 및 기기 간 동기화 등 모든 기능이 활성화되었습니다';
 
   @override
   String get proSettingsUpgrade => '업그레이드';

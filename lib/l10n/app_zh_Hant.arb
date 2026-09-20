@@ -610,6 +610,23 @@
   "associationFailed": "關聯失敗：{error}",
   "onboardingTitle": "歡迎使用 Vynody",
   "onboardingSubtitle": "只需幾個簡單步驟，即可開始你的音樂之旅。",
+  "@onboardingProTrialBadge": {
+    "description": "Badge in onboarding welcome page indicating free trial status",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingProTrialBadge": "已為您開啟 {days} 天全功能免費體驗",
+  "@onboardingProPurchasedBadge": {
+    "description": "Badge in onboarding welcome page when Pro is purchased"
+  },
+  "onboardingProPurchasedBadge": "已激活 Vynody Pro 專業版",
+  "@onboardingProExpiredBadge": {
+    "description": "Badge in onboarding welcome page when Pro trial expired"
+  },
+  "onboardingProExpiredBadge": "Pro 試用已結束 · 基礎播放永久免費",
   "onboardingStepFileAssociation": "關聯檔案開啟方式",
   "onboardingFileAssociationDesc": "將常見的音樂格式（mp3、flac、wav 等）與 Vynody 關聯，在檔案總管中按兩下即可直接播放。",
   "onboardingFileAssociationTip": "關聯後，系統可能會彈出選擇預設開啟程式的對話方塊。請務必在清單中選擇「Vynody」並設為始終使用。",
@@ -1266,6 +1283,23 @@
   "proSettingsTrialRemaining": "剩餘 {days} 天試用期",
   "proSettingsUpgradePrompt": "可升級解鎖 AI 歌詞、FFT 頻譜與高級特性",
   "proSettingsLifetimeNotice": "享有全部高級特性與更新支援",
+  "@proSettingsCardTrialSubtitle": {
+    "description": "Subtitle for Pro status card during trial",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "proSettingsCardTrialSubtitle": "剩餘 {days} 天 · 暢享 AI 逐字歌詞、跨裝置同步等全功能",
+  "@proSettingsCardExpiredSubtitle": {
+    "description": "Subtitle for Pro status card when trial expired"
+  },
+  "proSettingsCardExpiredSubtitle": "升級解鎖 AI 逐字歌詞生成、跨裝置同步與進階功能",
+  "@proSettingsCardActivatedSubtitle": {
+    "description": "Subtitle for Pro status card when Pro is purchased"
+  },
+  "proSettingsCardActivatedSubtitle": "已解鎖 AI 逐字歌詞、跨裝置同步等全部特權",
   "proSettingsUpgrade": "升級",
   "proSettingsView": "檢視",
   "connectingToStore": "正在連線商店...",

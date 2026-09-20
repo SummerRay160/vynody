@@ -27,6 +27,13 @@ class ProLicenseService extends ChangeNotifier {
   static const _secureStorage = appSecureStorage;
 
   LicenseState _state;
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
 
   static LicenseState _computeInitialState(SharedPreferences? prefs) {
     if (AppChannel.isGitHubRelease) {
@@ -221,6 +228,7 @@ class ProLicenseService extends ChangeNotifier {
       );
     }
 
+    if (_disposed) return;
     notifyListeners();
   }
 
@@ -233,11 +241,13 @@ class ProLicenseService extends ChangeNotifier {
   Future<void> setPurchased(bool purchased) async {
     final prefs = _prefs ?? await SharedPreferences.getInstance();
     await prefs.setBool(_kProPurchasedKey, purchased);
+    if (_disposed) return;
     if (purchased) {
       _state = _state.copyWith(type: LicenseType.purchasedPro);
     } else {
       await _init();
     }
+    if (_disposed) return;
     notifyListeners();
   }
 
@@ -247,6 +257,7 @@ class ProLicenseService extends ChangeNotifier {
     final newStart = DateTime.now().subtract(Duration(days: offsetDays));
     await _writePersistentFirstLaunchMs(prefs, newStart.millisecondsSinceEpoch);
     await prefs.setBool(_kProPurchasedKey, false);
+    if (_disposed) return;
     await _init();
   }
 
@@ -258,7 +269,7 @@ class ProLicenseService extends ChangeNotifier {
 
 /// Provider for the [ProLicenseService] instance.
 final proLicenseServiceProvider = ChangeNotifierProvider<ProLicenseService>((ref) {
-  final prefs = ref.watch(settingsServiceProvider).prefs;
+  final prefs = ref.read(settingsServiceProvider).prefs;
   return ProLicenseService(prefs: prefs);
 });
 

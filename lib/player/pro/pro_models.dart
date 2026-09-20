@@ -200,6 +200,9 @@ class LicenseState {
       type == LicenseType.unlimitedCommunity ||
       type == LicenseType.purchasedPro;
 
+  /// Whether the license is purchased Pro.
+  bool get isPurchased => type == LicenseType.purchasedPro;
+
   /// Whether the app is running in an active trial period.
   bool get isInTrial => type == LicenseType.activeTrial;
 

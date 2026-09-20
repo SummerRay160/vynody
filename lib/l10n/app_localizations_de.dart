@@ -2013,6 +2013,18 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein paar einfache Schritte, um Ihre Musikreise zu beginnen.';
 
   @override
+  String onboardingProTrialBadge(int days) {
+    return '$days Tage kostenloser Test aller Funktionen aktiviert';
+  }
+
+  @override
+  String get onboardingProPurchasedBadge => 'Vynody Pro aktiviert';
+
+  @override
+  String get onboardingProExpiredBadge =>
+      'Pro-Testphase abgelaufen · Grundfunktionen dauerhaft kostenlos';
+
+  @override
   String get onboardingStepFileAssociation => 'Dateitypen zuordnen';
 
   @override
@@ -4111,6 +4123,19 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get proSettingsLifetimeNotice =>
       'Alle Pro-Funktionen und zukünftige Updates inklusive';
+
+  @override
+  String proSettingsCardTrialSubtitle(int days) {
+    return 'Noch $days Tage · AI-Synchrontexte, geräteübergreifende Synchronisierung & mehr';
+  }
+
+  @override
+  String get proSettingsCardExpiredSubtitle =>
+      'Upgrade auf Pro für AI-Synchrontexte, geräteübergreifende Synchronisierung & mehr';
+
+  @override
+  String get proSettingsCardActivatedSubtitle =>
+      'Alle Funktionen inklusive AI-Synchrontexte und geräteübergreifender Synchronisierung freigeschaltet';
 
   @override
   String get proSettingsUpgrade => 'Upgrade';

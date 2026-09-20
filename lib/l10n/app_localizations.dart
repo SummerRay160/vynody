@@ -3753,6 +3753,24 @@ abstract class AppLocalizations {
   /// **'只需几个简单步骤，即可开启你的音乐之旅。'**
   String get onboardingSubtitle;
 
+  /// Badge in onboarding welcome page indicating free trial status
+  ///
+  /// In zh, this message translates to:
+  /// **'已为您开启 {days} 天全功能免费体验'**
+  String onboardingProTrialBadge(int days);
+
+  /// Badge in onboarding welcome page when Pro is purchased
+  ///
+  /// In zh, this message translates to:
+  /// **'已激活 Vynody Pro 专业版'**
+  String get onboardingProPurchasedBadge;
+
+  /// Badge in onboarding welcome page when Pro trial expired
+  ///
+  /// In zh, this message translates to:
+  /// **'Pro 试用已结束 · 基础播放永久免费'**
+  String get onboardingProExpiredBadge;
+
   /// No description provided for @onboardingStepFileAssociation.
   ///
   /// In zh, this message translates to:
@@ -7256,6 +7274,24 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'享有全部高级特性与更新支持'**
   String get proSettingsLifetimeNotice;
+
+  /// Subtitle for Pro status card during trial
+  ///
+  /// In zh, this message translates to:
+  /// **'剩余 {days} 天 · 畅享 AI 逐字歌词、跨设备同步等全功能'**
+  String proSettingsCardTrialSubtitle(int days);
+
+  /// Subtitle for Pro status card when trial expired
+  ///
+  /// In zh, this message translates to:
+  /// **'升级解锁 AI 逐字歌词生成、跨设备同步与高级特性'**
+  String get proSettingsCardExpiredSubtitle;
+
+  /// Subtitle for Pro status card when Pro is purchased
+  ///
+  /// In zh, this message translates to:
+  /// **'已解锁 AI 逐字歌词、跨设备同步等全部特权'**
+  String get proSettingsCardActivatedSubtitle;
 
   /// Settings page upgrade button label
   ///

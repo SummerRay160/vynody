@@ -769,6 +769,23 @@
   },
   "onboardingTitle": "Vynodyへようこそ",
   "onboardingSubtitle": "いくつかの簡単なステップで音楽の旅を始めましょう。",
+  "@onboardingProTrialBadge": {
+    "description": "Badge in onboarding welcome page indicating free trial status",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingProTrialBadge": "{days}日間の全機能無料体験を開始しました",
+  "@onboardingProPurchasedBadge": {
+    "description": "Badge in onboarding welcome page when Pro is purchased"
+  },
+  "onboardingProPurchasedBadge": "Vynody Pro 有効化済み",
+  "@onboardingProExpiredBadge": {
+    "description": "Badge in onboarding welcome page when Pro trial expired"
+  },
+  "onboardingProExpiredBadge": "Pro試用期間終了 · 基本再生機能は永続無料",
   "onboardingStepFileAssociation": "ファイルタイプを関連付ける",
   "onboardingFileAssociationDesc": "一般的な音楽形式（mp3, flac, wavなど）をVynodyに関連付けて、ファイルエクスプローラーでダブルクリックするだけで音楽を再生できます。",
   "onboardingFileAssociationTip": "関連付け後、システムが「開くアプリの選択」メニューを表示する場合があります。リストから「Vynody」を選択し、「常にこのアプリを使う」にチェックを入れてください。",
@@ -1670,6 +1687,23 @@
   "proSettingsTrialRemaining": "残り {days} 日間のトライアル",
   "proSettingsUpgradePrompt": "アップグレードしてAI歌詞、FFTスペクトラム、Pro機能を解放",
   "proSettingsLifetimeNotice": "すべてのPro機能と今後のアップデートを利用可能",
+  "@proSettingsCardTrialSubtitle": {
+    "description": "Subtitle for Pro status card during trial",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "proSettingsCardTrialSubtitle": "残り {days} 日 · AI歌詞生成やデバイス間同期など全機能をご利用いただけます",
+  "@proSettingsCardExpiredSubtitle": {
+    "description": "Subtitle for Pro status card when trial expired"
+  },
+  "proSettingsCardExpiredSubtitle": "Proにアップグレードして、AI歌詞生成やデバイス間同期などの高度な機能を解放",
+  "@proSettingsCardActivatedSubtitle": {
+    "description": "Subtitle for Pro status card when Pro is purchased"
+  },
+  "proSettingsCardActivatedSubtitle": "AI歌詞生成やデバイス間同期など、すべての機能が解放されています",
   "proSettingsUpgrade": "アップグレード",
   "proSettingsView": "確認",
   "connectingToStore": "ストアに接続中...",

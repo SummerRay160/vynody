@@ -1924,6 +1924,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboardingSubtitle => '只需几个简单步骤，即可开启你的音乐之旅。';
 
   @override
+  String onboardingProTrialBadge(int days) {
+    return '已为您开启 $days 天全功能免费体验';
+  }
+
+  @override
+  String get onboardingProPurchasedBadge => '已激活 Vynody Pro 专业版';
+
+  @override
+  String get onboardingProExpiredBadge => 'Pro 试用已结束 · 基础播放永久免费';
+
+  @override
   String get onboardingStepFileAssociation => '关联文件打开方式';
 
   @override
@@ -3843,6 +3854,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proSettingsLifetimeNotice => '享有全部高级特性与更新支持';
+
+  @override
+  String proSettingsCardTrialSubtitle(int days) {
+    return '剩余 $days 天 · 畅享 AI 逐字歌词、跨设备同步等全功能';
+  }
+
+  @override
+  String get proSettingsCardExpiredSubtitle => '升级解锁 AI 逐字歌词生成、跨设备同步与高级特性';
+
+  @override
+  String get proSettingsCardActivatedSubtitle => '已解锁 AI 逐字歌词、跨设备同步等全部特权';
 
   @override
   String get proSettingsUpgrade => '升级';
@@ -6591,6 +6613,17 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get onboardingSubtitle => '只需幾個簡單步驟，即可開始你的音樂之旅。';
 
   @override
+  String onboardingProTrialBadge(int days) {
+    return '已為您開啟 $days 天全功能免費體驗';
+  }
+
+  @override
+  String get onboardingProPurchasedBadge => '已激活 Vynody Pro 專業版';
+
+  @override
+  String get onboardingProExpiredBadge => 'Pro 試用已結束 · 基礎播放永久免費';
+
+  @override
   String get onboardingStepFileAssociation => '關聯檔案開啟方式';
 
   @override
@@ -8510,6 +8543,17 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get proSettingsLifetimeNotice => '享有全部高級特性與更新支援';
+
+  @override
+  String proSettingsCardTrialSubtitle(int days) {
+    return '剩餘 $days 天 · 暢享 AI 逐字歌詞、跨裝置同步等全功能';
+  }
+
+  @override
+  String get proSettingsCardExpiredSubtitle => '升級解鎖 AI 逐字歌詞生成、跨裝置同步與進階功能';
+
+  @override
+  String get proSettingsCardActivatedSubtitle => '已解鎖 AI 逐字歌詞、跨裝置同步等全部特權';
 
   @override
   String get proSettingsUpgrade => '升級';

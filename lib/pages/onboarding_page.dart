@@ -10,6 +10,8 @@ import 'package:vynody/player/scanner/scanner_service.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 import 'package:vynody/dialogs/progress_bar_style_dialog.dart';
+import 'package:vynody/player/pro/app_channel.dart';
+import 'package:vynody/player/pro/pro_license_service.dart';
 import 'package:vynody/utils/app_snack_bar.dart';
 import '../l10n/app_localizations.dart';
 import 'package:vynody/transcode/transcode_riverpod.dart';
@@ -397,6 +399,84 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               height: 1.5,
             ),
           ),
+          if (!AppChannel.isGitHubRelease) ...[
+            const SizedBox(height: 24),
+            Consumer(
+              builder: (context, ref, _) {
+                final license = ref.watch(licenseStateProvider);
+                final isDark = theme.brightness == Brightness.dark;
+
+                final Color accentColor;
+                final IconData iconData;
+                final String text;
+
+                if (license.isPurchased) {
+                  // 1. Paid users resetting onboarding
+                  accentColor = const Color(0xFF4CAF50);
+                  iconData = Icons.verified_rounded;
+                  text = l10n.onboardingProPurchasedBadge;
+                } else if (license.isTrialExpired) {
+                  // 2. Expired trial users resetting onboarding
+                  accentColor = const Color(0xFFFF9800);
+                  iconData = Icons.schedule_rounded;
+                  text = l10n.onboardingProExpiredBadge;
+                } else {
+                  // 3. Active trial
+                  accentColor = const Color(0xFFFFB300);
+                  iconData = Icons.workspace_premium_rounded;
+                  final isFresh = license.trialDaysRemaining >= license.trialTotalDays;
+                  text = isFresh
+                      ? l10n.onboardingProTrialBadge(license.trialTotalDays > 0 ? license.trialTotalDays : ProConfig.trialDays)
+                      : l10n.proTrialActive(license.trialDaysRemaining);
+                }
+
+                final textColor = isDark
+                    ? accentColor
+                    : (accentColor == const Color(0xFFFFB300)
+                        ? const Color(0xFFB26A00)
+                        : accentColor);
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? accentColor.withValues(alpha: 0.12)
+                        : accentColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: accentColor.withValues(alpha: isDark ? 0.45 : 0.35),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        iconData,
+                        size: 16,
+                        color: accentColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        text,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
         ],
       ),
     );

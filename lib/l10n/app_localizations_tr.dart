@@ -1989,11 +1989,23 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get onboardingTitle => 'Hoş Geldiniz';
+  String get onboardingTitle => 'Vynody\'ye Hoş Geldiniz';
 
   @override
   String get onboardingSubtitle =>
       'Müzik yolculuğunuza başlamak için birkaç basit adım.';
+
+  @override
+  String onboardingProTrialBadge(int days) {
+    return '$days günlük tüm özellikler ücretsiz deneme süresi başladı';
+  }
+
+  @override
+  String get onboardingProPurchasedBadge => 'Vynody Pro Etkinleştirildi';
+
+  @override
+  String get onboardingProExpiredBadge =>
+      'Pro deneme süresi bitti · Temel çalma kalıcı olarak ücretsiz';
 
   @override
   String get onboardingStepFileAssociation => 'Dosya Türlerini İlişkilendir';
@@ -4075,6 +4087,19 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get proSettingsLifetimeNotice =>
       'Tüm Pro özellikleri ve gelecek güncellemeler dahil';
+
+  @override
+  String proSettingsCardTrialSubtitle(int days) {
+    return '$days gün kaldı · Yapay zeka senkronize sözler, cihazlar arası senkronizasyon ve fazlası';
+  }
+
+  @override
+  String get proSettingsCardExpiredSubtitle =>
+      'Yapay zeka senkronize sözler, cihazlar arası senkronizasyon ve gelişmiş özellikler için yükseltin';
+
+  @override
+  String get proSettingsCardActivatedSubtitle =>
+      'Yapay zeka senkronize sözler, cihazlar arası senkronizasyon ve tüm özelliklerin kilidi açıldı';
 
   @override
   String get proSettingsUpgrade => 'Yükselt';

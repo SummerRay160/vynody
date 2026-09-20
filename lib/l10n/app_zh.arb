@@ -1325,6 +1325,23 @@
   },
   "onboardingTitle": "欢迎使用 Vynody",
   "onboardingSubtitle": "只需几个简单步骤，即可开启你的音乐之旅。",
+  "@onboardingProTrialBadge": {
+    "description": "Badge in onboarding welcome page indicating free trial status",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingProTrialBadge": "已为您开启 {days} 天全功能免费体验",
+  "@onboardingProPurchasedBadge": {
+    "description": "Badge in onboarding welcome page when Pro is purchased"
+  },
+  "onboardingProPurchasedBadge": "已激活 Vynody Pro 专业版",
+  "@onboardingProExpiredBadge": {
+    "description": "Badge in onboarding welcome page when Pro trial expired"
+  },
+  "onboardingProExpiredBadge": "Pro 试用已结束 · 基础播放永久免费",
   "onboardingStepFileAssociation": "关联文件打开方式",
   "onboardingFileAssociationDesc": "将常见的音乐格式（mp3, flac, wav 等）与 Vynody 关联，在文件管理器中双击即可直接播放。",
   "onboardingFileAssociationTip": "关联后，系统可能会弹出选择默认打开程序的对话框。请务必在列表中选择「Vynody」并设为始终使用。",
@@ -2323,6 +2340,23 @@
     "description": "Settings page Pro purchased notice"
   },
   "proSettingsLifetimeNotice": "享有全部高级特性与更新支持",
+  "@proSettingsCardTrialSubtitle": {
+    "description": "Subtitle for Pro status card during trial",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "proSettingsCardTrialSubtitle": "剩余 {days} 天 · 畅享 AI 逐字歌词、跨设备同步等全功能",
+  "@proSettingsCardExpiredSubtitle": {
+    "description": "Subtitle for Pro status card when trial expired"
+  },
+  "proSettingsCardExpiredSubtitle": "升级解锁 AI 逐字歌词生成、跨设备同步与高级特性",
+  "@proSettingsCardActivatedSubtitle": {
+    "description": "Subtitle for Pro status card when Pro is purchased"
+  },
+  "proSettingsCardActivatedSubtitle": "已解锁 AI 逐字歌词、跨设备同步等全部特权",
   "@proSettingsUpgrade": {
     "description": "Settings page upgrade button label"
   },

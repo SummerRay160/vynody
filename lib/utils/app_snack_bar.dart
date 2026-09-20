@@ -30,7 +30,7 @@ class AppSnackBar {
     _autoDismissTimer?.cancel();
 
     // Dismiss any active snackbar immediately to avoid queuing and layout collision
-    messenger.hideCurrentSnackBar();
+    messenger.clearSnackBars();
     final effectiveOffset = offset ?? (snackBar.action != null ? 80.0 : 70.0);
     controller?.setSnackBarOffset(effectiveOffset);
 

@@ -203,8 +203,10 @@ class _MainLayoutState extends ConsumerState<MainLayout>
   final GlobalKey<FoldersPageState> _foldersPageKey =
       GlobalKey<FoldersPageState>();
 
+  bool _showOnboarding = false;
   AnimationController? _onboardingAnimController;
   bool _isOnboardingAnimatingOut = false;
+  int _onboardingKey = 0;
 
   MainLayoutUiController get _ui => _uiController;
 
@@ -283,12 +285,13 @@ class _MainLayoutState extends ConsumerState<MainLayout>
   void initState() {
     super.initState();
     final settings = ref.read(settingsServiceProvider);
+    _showOnboarding = !settings.hasShownOnboarding;
     final isStressTest = widget.args.any(
       (arg) => arg == '--stress-test' || arg == '--audio-stress-test',
     );
     final initialIndex = isStressTest
         ? 0
-        : (!settings.hasShownOnboarding ? 0 : widget.initialIndex);
+        : (_showOnboarding ? 0 : widget.initialIndex);
     _currentIndex = initialIndex;
     _lastVolume = ref.read(audioVolumeProvider);
     _audioService = ref.read(audioServiceProvider);
@@ -879,6 +882,7 @@ class _MainLayoutState extends ConsumerState<MainLayout>
       settings.hasShownOnboarding = true;
       if (mounted) {
         setState(() {
+          _showOnboarding = false;
           _isOnboardingAnimatingOut = false;
         });
         if (_currentIndex != 0) {
@@ -891,6 +895,21 @@ class _MainLayoutState extends ConsumerState<MainLayout>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    // Listen for onboarding status change (e.g. reset from settings)
+    ref.listen<bool>(
+      settingsServiceProvider.select((s) => s.hasShownOnboarding),
+      (previous, next) {
+        if (!next && !_showOnboarding) {
+          setState(() {
+            _showOnboarding = true;
+            _isOnboardingAnimatingOut = false;
+            _onboardingKey++;
+            _onboardingAnimController?.reset();
+          });
+        }
+      },
+    );
+
     // Listen for small window mode transitions
     ref.listen<
       ({bool isSmallMode, SmallWindowBottomPanelMode bottomPanelMode})
@@ -1511,7 +1530,7 @@ class _MainLayoutState extends ConsumerState<MainLayout>
         );
 
     final showOnboarding =
-        !settings.hasShownOnboarding || _isOnboardingAnimatingOut;
+        _showOnboarding || _isOnboardingAnimatingOut;
 
     if (showOnboarding) {
       _onboardingAnimController ??= AnimationController(
@@ -1561,6 +1580,7 @@ class _MainLayoutState extends ConsumerState<MainLayout>
                         child: IgnorePointer(
                           ignoring: _isOnboardingAnimatingOut,
                           child: OnboardingScreen(
+                            key: ValueKey(_onboardingKey),
                             onComplete: _completeOnboarding,
                           ),
                         ),

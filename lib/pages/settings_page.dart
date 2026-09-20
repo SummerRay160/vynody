@@ -8,6 +8,9 @@ import '../l10n/app_localizations.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 import '../widgets/desktop_window_title_bar.dart';
+import 'package:vynody/dialogs/upgrade_to_pro_dialog.dart';
+import 'package:vynody/player/pro/app_channel.dart';
+import 'package:vynody/player/pro/pro_license_service.dart';
 import 'settings/sections/about_section.dart';
 import 'settings/sections/acoustid_section.dart';
 import 'settings/sections/audio_section.dart';
@@ -281,8 +284,13 @@ class SettingsPageState extends ConsumerState<SettingsPage> {
 
     return Column(
       children: [
+        if (!AppChannel.isGitHubRelease)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: _buildProStatusCard(context),
+          ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: _buildSearchField(
             context,
             key: const ValueKey('portrait_settings_search_field'),
@@ -370,6 +378,154 @@ class SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
+  Widget _buildProStatusCard(BuildContext context, {bool compact = false}) {
+    final license = ref.watch(licenseStateProvider);
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final String title;
+    final String subtitle;
+    final String actionText;
+    final Color accentColor;
+    final IconData iconData;
+
+    if (license.isInTrial) {
+      accentColor = const Color(0xFFFFB300);
+      iconData = Icons.workspace_premium_rounded;
+      title = l10n.proStatusTrialTitle(license.trialTotalDays);
+      subtitle = l10n.proSettingsCardTrialSubtitle(license.trialDaysRemaining);
+      actionText = l10n.proSettingsUpgrade;
+    } else if (license.isTrialExpired) {
+      accentColor = const Color(0xFFFF5252);
+      iconData = Icons.schedule_rounded;
+      title = l10n.proStatusTrialExpiredTitle;
+      subtitle = l10n.proSettingsCardExpiredSubtitle;
+      actionText = l10n.proSettingsUpgrade;
+    } else {
+      // Purchased Pro
+      accentColor = const Color(0xFF4CAF50);
+      iconData = Icons.verified_rounded;
+      title = l10n.proStatusActivatedTitle;
+      subtitle = l10n.proSettingsCardActivatedSubtitle;
+      actionText = l10n.proSettingsView;
+    }
+
+    final textColor = isDark
+        ? accentColor
+        : (accentColor == const Color(0xFFFFB300)
+            ? const Color(0xFFB26A00)
+            : accentColor);
+
+    return Container(
+      margin: EdgeInsets.only(bottom: compact ? 0 : 4),
+      decoration: BoxDecoration(
+        color: isDark
+            ? accentColor.withValues(alpha: 0.08)
+            : accentColor.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(compact ? 14 : 16),
+        border: Border.all(
+          color: accentColor.withValues(alpha: isDark ? 0.35 : 0.25),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(compact ? 14 : 16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(compact ? 14 : 16),
+          onTap: () => showUpgradeToProDialog(context),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: compact ? 12 : 16,
+              vertical: compact ? 10 : 12,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(compact ? 5 : 6),
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(alpha: isDark ? 0.2 : 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        iconData,
+                        size: compact ? 18 : 20,
+                        color: accentColor,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: compact ? 13 : 14,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: compact ? 8 : 10,
+                        vertical: compact ? 3 : 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(alpha: isDark ? 0.25 : 0.15),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            actionText,
+                            style: TextStyle(
+                              fontSize: compact ? 11 : 12,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            size: compact ? 14 : 16,
+                            color: textColor,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.only(left: 2),
+                  child: Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: compact ? 11 : 12,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.65)
+                          : Colors.black.withValues(alpha: 0.6),
+                      height: 1.35,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionContent(
     BuildContext context,
     SettingsService settings,
@@ -427,6 +583,11 @@ class SettingsPageState extends ConsumerState<SettingsPage> {
             ],
           ),
         ),
+        if (!AppChannel.isGitHubRelease)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: _buildProStatusCard(context, compact: true),
+          ),
         _buildSearchField(
           context,
           key: const ValueKey('landscape_settings_search_field'),
@@ -611,7 +772,9 @@ class SettingsPageState extends ConsumerState<SettingsPage> {
     final showCustomTitleBar =
         Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
-    Widget content = _buildRootScaffold(context, settings);
+    Widget content = ScaffoldMessenger(
+      child: _buildRootScaffold(context, settings),
+    );
 
     if (showCustomTitleBar || isMacOS) {
       content = Material(

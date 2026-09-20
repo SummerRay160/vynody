@@ -769,6 +769,23 @@
   },
   "onboardingTitle": "Bienvenido a Vynody",
   "onboardingSubtitle": "Solo unos simples pasos para comenzar tu viaje musical.",
+  "@onboardingProTrialBadge": {
+    "description": "Badge in onboarding welcome page indicating free trial status",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingProTrialBadge": "Prueba gratuita completa de {days} días activada",
+  "@onboardingProPurchasedBadge": {
+    "description": "Badge in onboarding welcome page when Pro is purchased"
+  },
+  "onboardingProPurchasedBadge": "Vynody Pro activado",
+  "@onboardingProExpiredBadge": {
+    "description": "Badge in onboarding welcome page when Pro trial expired"
+  },
+  "onboardingProExpiredBadge": "Prueba Pro finalizada · Reproducción básica gratis para siempre",
   "onboardingStepFileAssociation": "Asociar tipos de archivo",
   "onboardingFileAssociationDesc": "Asocia formatos de música comunes (mp3, flac, wav, etc.) con Vynody para reproducir al hacer doble clic.",
   "onboardingFileAssociationTip": "Después de asociar, el sistema puede mostrar un menú de selección. Asegúrate de elegir 'Vynody' y seleccionar 'Usar siempre'.",
@@ -1571,6 +1588,23 @@
   "proSettingsTrialRemaining": "Quedan {days} días de prueba",
   "proSettingsUpgradePrompt": "Actualice para desbloquear letras IA, espectro FFT y funciones Pro",
   "proSettingsLifetimeNotice": "Incluye todas las funciones Pro y futuras actualizaciones",
+  "@proSettingsCardTrialSubtitle": {
+    "description": "Subtitle for Pro status card during trial",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "proSettingsCardTrialSubtitle": "Quedan {days} días · Disfruta de letras sincronizadas con IA, sincronización entre dispositivos y más",
+  "@proSettingsCardExpiredSubtitle": {
+    "description": "Subtitle for Pro status card when trial expired"
+  },
+  "proSettingsCardExpiredSubtitle": "Mejora a Pro para desbloquear letras sincronizadas con IA, sincronización entre dispositivos y más",
+  "@proSettingsCardActivatedSubtitle": {
+    "description": "Subtitle for Pro status card when Pro is purchased"
+  },
+  "proSettingsCardActivatedSubtitle": "Acceso completo a letras sincronizadas con IA, sincronización entre dispositivos y más",
   "proSettingsUpgrade": "Actualizar",
   "proSettingsView": "Ver",
   "connectingToStore": "Conectando con la tienda...",
