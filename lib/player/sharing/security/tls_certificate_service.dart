@@ -231,10 +231,5 @@ class LanHttpOverrides extends HttpOverrides {
     };
     return client;
   }
-
-  @override
-  String findProxyFromEnvironment(Uri url, Map<String, String>? environment) {
-    return AppProxyManager.instance.resolveProxyRuleSync(url);
-  }
 }
 

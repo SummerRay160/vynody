@@ -820,7 +820,8 @@ class GeneralSection extends ConsumerWidget {
             ),
           ],
         ),
-        _buildProxySection(context, settings),
+        if (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
+          _buildProxySection(context, settings),
         if (settings.showDeveloperOptions) ...[
           const SizedBox(height: 8),
           SettingsSectionHeader(

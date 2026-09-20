@@ -136,7 +136,16 @@ class AppProxyManager {
           }
           return 'PROXY $cleanHost:${sysProxy.port}; DIRECT';
         }
-        return HttpClient.findProxyFromEnvironment(uri);
+        final envProxy = Platform.environment['https_proxy'] ??
+            Platform.environment['http_proxy'] ??
+            Platform.environment['ALL_PROXY'];
+        if (envProxy != null && envProxy.isNotEmpty) {
+          final parsedAddress = normalizeProxyAddress(envProxy);
+          if (parsedAddress.isNotEmpty) {
+            return 'PROXY $parsedAddress; DIRECT';
+          }
+        }
+        return 'DIRECT';
     }
   }
 

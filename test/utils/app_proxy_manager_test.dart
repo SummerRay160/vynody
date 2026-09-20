@@ -156,5 +156,11 @@ void main() {
       expect(rule1, equals('PROXY 127.0.0.1:7890; DIRECT'));
       expect(rule2, equals('PROXY 127.0.0.1:7890; DIRECT'));
     });
+
+    test('resolveProxyRuleSync does not cause recursion or stack overflow in system mode', () {
+      manager.updateSettings(mode: AppProxyMode.system);
+      final rule = manager.resolveProxyRuleSync(Uri.parse('https://demo.navidrome.org/rest/ping.view'));
+      expect(rule, isNotEmpty);
+    });
   });
 }
