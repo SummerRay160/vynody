@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,6 +77,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final double safeTopPadding =
         isDesktop ? 32.0 : MediaQuery.of(context).padding.top;
     final double topPadding = safeTopPadding + kToolbarHeight;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: Stack(
@@ -88,27 +91,27 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 : null,
             children: [
               KeepAliveWrapper(
-                child: Padding(
-                  padding: EdgeInsets.only(top: topPadding, left: leftPadding),
-                  child: const PlaylistTab(),
+                child: PlaylistTab(
+                  contentTopPadding: topPadding,
+                  contentLeftPadding: leftPadding,
                 ),
               ),
               KeepAliveWrapper(
-                child: Padding(
-                  padding: EdgeInsets.only(top: topPadding, left: leftPadding),
-                  child: const RecentlyPlayedTab(),
+                child: RecentlyPlayedTab(
+                  contentTopPadding: topPadding,
+                  contentLeftPadding: leftPadding,
                 ),
               ),
               KeepAliveWrapper(
-                child: Padding(
-                  padding: EdgeInsets.only(top: topPadding, left: leftPadding),
-                  child: const MostPlayedTab(),
+                child: MostPlayedTab(
+                  contentTopPadding: topPadding,
+                  contentLeftPadding: leftPadding,
                 ),
               ),
               KeepAliveWrapper(
-                child: Padding(
-                  padding: EdgeInsets.only(top: topPadding, left: leftPadding),
-                  child: const RecentlyAddedTab(),
+                child: RecentlyAddedTab(
+                  contentTopPadding: topPadding,
+                  contentLeftPadding: leftPadding,
                 ),
               ),
               KeepAliveWrapper(
@@ -120,42 +123,55 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 ),
               ),
               KeepAliveWrapper(
-                child: Padding(
-                  padding: EdgeInsets.only(top: topPadding, left: leftPadding),
-                  child: const ArtistsTab(),
+                child: ArtistsTab(
+                  contentTopPadding: topPadding,
+                  contentLeftPadding: leftPadding,
                 ),
               ),
             ],
           ),
           Positioned(
-            top: safeTopPadding,
+            top: 0,
             left: leftPadding,
             right: 0,
-            height: kToolbarHeight,
+            height: topPadding,
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
               opacity: isCoverFlowImmersive ? 0.0 : 1.0,
               child: IgnorePointer(
                 ignoring: isCoverFlowImmersive,
-                child: AppBar(
-                  automaticallyImplyLeading: false,
-                  primary: false,
-                  scrolledUnderElevation: 0,
-                  surfaceTintColor: Colors.transparent,
-                  notificationPredicate: (_) => false,
-                  title: TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.center,
-                    tabs: [
-                      Tab(text: l10n.playlist),
-                      Tab(text: l10n.recentlyPlayed),
-                      Tab(text: l10n.mostPlayed),
-                      Tab(text: l10n.recentlyAdded),
-                      Tab(text: l10n.albums),
-                      Tab(text: l10n.artists),
-                    ],
+                child: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                    child: Container(
+                      padding: EdgeInsets.only(top: safeTopPadding),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface.withValues(
+                          alpha: isDark ? 0.66 : 0.80,
+                        ),
+                        border: Border(
+                          bottom: BorderSide(
+                            color: theme.dividerColor.withValues(alpha: 0.12),
+                            width: 0.8,
+                          ),
+                        ),
+                      ),
+                      child: TabBar(
+                        controller: _tabController,
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.center,
+                        dividerColor: Colors.transparent,
+                        tabs: [
+                          Tab(text: l10n.playlist),
+                          Tab(text: l10n.recentlyPlayed),
+                          Tab(text: l10n.mostPlayed),
+                          Tab(text: l10n.recentlyAdded),
+                          Tab(text: l10n.albums),
+                          Tab(text: l10n.artists),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

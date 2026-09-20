@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vynody/utils/folder_helpers.dart';
@@ -137,10 +138,11 @@ class _FolderNavBarScaffoldState extends State<FolderNavBarScaffold>
         final progress = _animation.value;
 
         final targetSurface = theme.colorScheme.surface;
+        final maxAlpha = isDark ? 0.70 : 0.82;
         final navBackgroundColor = widget.isOverlay
             ? Color.lerp(
                 targetSurface.withValues(alpha: 0.0),
-                targetSurface,
+                targetSurface.withValues(alpha: maxAlpha),
                 progress,
               )!
             : theme.scaffoldBackgroundColor;
@@ -240,7 +242,7 @@ class _FolderNavBarScaffoldState extends State<FolderNavBarScaffold>
             ? statusBarHeight + 8
             : (isDesktop ? 44.0 : 8.0);
 
-        return Container(
+        final Widget barContent = Container(
           width: double.infinity,
           decoration: BoxDecoration(
             color: navBackgroundColor,
@@ -251,16 +253,6 @@ class _FolderNavBarScaffoldState extends State<FolderNavBarScaffold>
                     : theme.dividerColor.withValues(alpha: 0.05),
               ),
             ),
-            boxShadow: widget.isOverlay && progress > 0.05
-                ? [
-                    BoxShadow(
-                      color: (isDark ? Colors.black : theme.colorScheme.shadow)
-                          .withValues(alpha: 0.1 * progress),
-                      blurRadius: 8 * progress,
-                      offset: Offset(0, 2 * progress),
-                    ),
-                  ]
-                : null,
           ),
           child: Center(
             child: ConstrainedBox(
@@ -307,6 +299,37 @@ class _FolderNavBarScaffoldState extends State<FolderNavBarScaffold>
             ),
           ),
         );
+
+        final blurSigma = 24.0 * progress;
+        final Widget filteredBar = (widget.isOverlay && progress > 0.01)
+            ? ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: blurSigma,
+                    sigmaY: blurSigma,
+                  ),
+                  child: barContent,
+                ),
+              )
+            : barContent;
+
+        if (widget.isOverlay && progress > 0.05) {
+          return DecoratedBox(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: (isDark ? Colors.black : theme.colorScheme.shadow)
+                      .withValues(alpha: 0.1 * progress),
+                  blurRadius: 8 * progress,
+                  offset: Offset(0, 2 * progress),
+                ),
+              ],
+            ),
+            child: filteredBar,
+          );
+        }
+
+        return filteredBar;
       },
     );
   }

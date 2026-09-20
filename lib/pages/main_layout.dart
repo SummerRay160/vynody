@@ -724,7 +724,7 @@ class _MainLayoutState extends ConsumerState<MainLayout>
         );
       case 3:
         return Padding(
-          padding: EdgeInsets.only(top: isDesktop ? 32 : 0, left: leftPadding),
+          padding: EdgeInsets.only(top: 0, left: leftPadding),
           child: const QueuePage(),
         );
       case 4:

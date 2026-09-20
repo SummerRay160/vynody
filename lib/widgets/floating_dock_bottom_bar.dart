@@ -81,7 +81,7 @@ class _FloatingDockBottomBarState extends ConsumerState<FloatingDockBottomBar> {
                     : [
                         BoxShadow(
                           color: Colors.black.withValues(
-                            alpha: isDark ? 0.40 : 0.12,
+                            alpha: isDark ? 0.22 : 0.10,
                           ),
                           blurRadius: 28,
                           offset: const Offset(0, 8),
@@ -89,7 +89,7 @@ class _FloatingDockBottomBarState extends ConsumerState<FloatingDockBottomBar> {
                         ),
                         BoxShadow(
                           color: Colors.black.withValues(
-                            alpha: isDark ? 0.20 : 0.06,
+                            alpha: isDark ? 0.12 : 0.05,
                           ),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
@@ -111,7 +111,7 @@ class _FloatingDockBottomBarState extends ConsumerState<FloatingDockBottomBar> {
                       color: widget.isPlayback
                           ? Colors.transparent
                           : theme.colorScheme.surface.withValues(
-                              alpha: isDark ? 0.82 : 0.88,
+                              alpha: isDark ? 0.66 : 0.80,
                             ),
                       borderRadius: BorderRadius.circular(28),
                       border: widget.isPlayback
@@ -119,7 +119,7 @@ class _FloatingDockBottomBarState extends ConsumerState<FloatingDockBottomBar> {
                           : Border.all(
                               color: (isDark ? Colors.white : Colors.black)
                                   .withValues(
-                                    alpha: isDark ? 0.12 : 0.08,
+                                    alpha: isDark ? 0.15 : 0.08,
                                   ),
                               width: 0.8,
                             ),

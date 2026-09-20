@@ -25,6 +25,8 @@ class LibraryRankedSongList extends ConsumerStatefulWidget {
     required this.onRangeChanged,
     required this.emptyText,
     required this.trailingBuilder,
+    this.contentTopPadding = 0.0,
+    this.contentLeftPadding = 0.0,
   });
 
   final String title;
@@ -34,6 +36,8 @@ class LibraryRankedSongList extends ConsumerStatefulWidget {
   final ValueChanged<LibraryTimeRange> onRangeChanged;
   final String emptyText;
   final Widget Function(BuildContext, LibraryInsightSongEntry) trailingBuilder;
+  final double contentTopPadding;
+  final double contentLeftPadding;
 
   @override
   ConsumerState<LibraryRankedSongList> createState() => _LibraryRankedSongListState();
@@ -142,11 +146,17 @@ class _LibraryRankedSongListState extends ConsumerState<LibraryRankedSongList>
         }
         return false;
       },
-      child: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          SliverToBoxAdapter(
-            child: Container(
+      child: Padding(
+        padding: EdgeInsets.only(left: widget.contentLeftPadding),
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            if (widget.contentTopPadding > 0)
+              SliverToBoxAdapter(
+                child: SizedBox(height: widget.contentTopPadding),
+              ),
+            SliverToBoxAdapter(
+              child: Container(
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
                 border: Border(
@@ -446,7 +456,8 @@ class _LibraryRankedSongListState extends ConsumerState<LibraryRankedSongList>
             ),
         ],
       ),
-    );
+    ),
+  );
 
     return Stack(
       children: [

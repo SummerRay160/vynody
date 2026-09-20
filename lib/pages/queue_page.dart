@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -497,25 +499,34 @@ class _QueuePageState extends ConsumerState<QueuePage>
       ],
     );
 
+    final bool isDesktop =
+        Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+    final double safeTopPadding =
+        isDesktop ? 32.0 : MediaQuery.of(context).padding.top;
+    final double topBarHeight = safeTopPadding + 70.0;
+
     final Widget listOrEmpty;
     if (displayQueue.isEmpty) {
-      listOrEmpty = Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: kSingleColumnContentMaxWidth),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.queue_music,
-                size: 64,
-                color: Colors.grey.withValues(alpha: 0.5),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                l10n.queueEmpty,
-                style: const TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-            ],
+      listOrEmpty = Padding(
+        padding: EdgeInsets.only(top: topBarHeight),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: kSingleColumnContentMaxWidth),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.queue_music,
+                  size: 64,
+                  color: Colors.grey.withValues(alpha: 0.5),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.queueEmpty,
+                  style: const TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -530,7 +541,10 @@ class _QueuePageState extends ConsumerState<QueuePage>
                           scrollController: _scrollController,
                           buildDefaultDragHandles: false,
                           cacheExtent: 1000,
-                          padding: EdgeInsets.only(bottom: bottomOffset),
+                          padding: EdgeInsets.only(
+                            top: topBarHeight,
+                            bottom: bottomOffset,
+                          ),
                           itemCount: displayQueue.length,
                           onReorder: (oldIndex, newIndex) {
                             if (_viewIndex != 0) return;
@@ -708,51 +722,6 @@ class _QueuePageState extends ConsumerState<QueuePage>
     }
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        notificationPredicate: (_) => false,
-        toolbarHeight: 70.0,
-        titleSpacing: 0,
-        centerTitle: false,
-        title: Align(
-          alignment: Alignment.center,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: kSingleColumnContentMaxWidth),
-            child: SizedBox(
-              height: 70.0,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: headerHorizontalPadding,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.queue,
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          subtitleWidget,
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    headerActionButtons,
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
       body: QueueFileDropTarget(
         enabled: true,
         displayQueue: displayQueue,
@@ -760,8 +729,75 @@ class _QueuePageState extends ConsumerState<QueuePage>
         itemKeyBuilder: _songTileKeyFor,
         showPreview: showPreview,
         child: Stack(
+          fit: StackFit.expand,
           children: [
             listOrEmpty,
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: topBarHeight,
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                  child: Container(
+                    padding: EdgeInsets.only(top: safeTopPadding),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface.withValues(
+                        alpha: isDark ? 0.66 : 0.80,
+                      ),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: theme.dividerColor.withValues(alpha: 0.12),
+                          width: 0.8,
+                        ),
+                      ),
+                    ),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: kSingleColumnContentMaxWidth,
+                        ),
+                        child: SizedBox(
+                          height: 70.0,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: headerHorizontalPadding,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.queue,
+                                        style: theme.textTheme.headlineSmall
+                                            ?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      subtitleWidget,
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                headerActionButtons,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             AnimatedSelectionPanel(
               isVisible: isSelectionMode,
               child: LibrarySelectionPanel(

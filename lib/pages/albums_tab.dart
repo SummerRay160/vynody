@@ -399,7 +399,6 @@ class _AlbumsTabState extends ConsumerState<AlbumsTab>
                         )
                       : Padding(
                           padding: EdgeInsets.only(
-                            top: widget.contentTopPadding,
                             left: widget.contentLeftPadding,
                           ),
                           child: ScrollToTopWrapper(
@@ -410,6 +409,12 @@ class _AlbumsTabState extends ConsumerState<AlbumsTab>
                               controller: _scrollController,
                               cacheExtent: 1000,
                               slivers: [
+                                if (widget.contentTopPadding > 0)
+                                  SliverToBoxAdapter(
+                                    child: SizedBox(
+                                      height: widget.contentTopPadding,
+                                    ),
+                                  ),
                                 SliverToBoxAdapter(child: toolbar),
                                 if (visibleAlbums.isEmpty)
                                   SliverFillRemaining(

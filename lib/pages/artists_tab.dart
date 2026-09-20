@@ -17,7 +17,14 @@ import '../dialogs/sort_options_dialog.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 
 class ArtistsTab extends ConsumerStatefulWidget {
-  const ArtistsTab({super.key});
+  final double contentTopPadding;
+  final double contentLeftPadding;
+
+  const ArtistsTab({
+    super.key,
+    this.contentTopPadding = 0.0,
+    this.contentLeftPadding = 0.0,
+  });
 
   @override
   ConsumerState<ArtistsTab> createState() => _ArtistsTabState();
@@ -145,9 +152,14 @@ class _ArtistsTabState extends ConsumerState<ArtistsTab>
             if (isLandscape) {
               _syncSelectedArtist(visibleArtists);
               final showBottomPanel = isSelectionMode || (isLandscape && isSongSelectionMode);
-              mainContent = Column(
-                children: [
-                  _ArtistsToolbar(
+              mainContent = Padding(
+                padding: EdgeInsets.only(
+                  top: widget.contentTopPadding,
+                  left: widget.contentLeftPadding,
+                ),
+                child: Column(
+                  children: [
+                    _ArtistsToolbar(
                     searchController: _searchController,
                     searchQuery: _searchQuery,
                     sortField: _sortField,
@@ -231,17 +243,26 @@ class _ArtistsTabState extends ConsumerState<ArtistsTab>
                     ),
                   ),
                 ],
-              );
-            } else {
+              ),
+            );
+          } else {
               final bottomOffset = (currentMusic != null ? 140.0 : 40.0) + (isSelectionMode ? 220.0 : 0.0);
-              mainContent = ScrollToTopWrapper(
-                scrollController: _scrollController,
-                bottomOffset: bottomOffset,
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: _ArtistsToolbar(
+              mainContent = Padding(
+                padding: EdgeInsets.only(
+                  left: widget.contentLeftPadding,
+                ),
+                child: ScrollToTopWrapper(
+                  scrollController: _scrollController,
+                  bottomOffset: bottomOffset,
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      if (widget.contentTopPadding > 0)
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: widget.contentTopPadding),
+                        ),
+                      SliverToBoxAdapter(
+                        child: _ArtistsToolbar(
                         searchController: _searchController,
                         searchQuery: _searchQuery,
                         sortField: _sortField,
@@ -330,8 +351,9 @@ class _ArtistsTabState extends ConsumerState<ArtistsTab>
                       ),
                   ],
                 ),
-              );
-            }
+              ),
+            );
+          }
 
             return Stack(
               children: [

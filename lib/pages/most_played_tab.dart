@@ -6,7 +6,14 @@ import 'package:vynody/player/library/library_insights_service.dart';
 import '../widgets/library_ranked_song_list.dart';
 
 class MostPlayedTab extends ConsumerStatefulWidget {
-  const MostPlayedTab({super.key});
+  final double contentTopPadding;
+  final double contentLeftPadding;
+
+  const MostPlayedTab({
+    super.key,
+    this.contentTopPadding = 0.0,
+    this.contentLeftPadding = 0.0,
+  });
 
   @override
   ConsumerState<MostPlayedTab> createState() => _MostPlayedTabState();
@@ -24,6 +31,8 @@ class _MostPlayedTabState extends ConsumerState<MostPlayedTab> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(child: Text(error.toString())),
       data: (items) => LibraryRankedSongList(
+        contentTopPadding: widget.contentTopPadding,
+        contentLeftPadding: widget.contentLeftPadding,
         title: l10n.mostPlayed,
         subtitle: l10n.mostPlayedDescription,
         items: items,

@@ -22,7 +22,14 @@ import 'package:vynody/utils/layout_constants.dart';
 import '../utils/app_snack_bar.dart';
 
 class PlaylistTab extends ConsumerStatefulWidget {
-  const PlaylistTab({super.key});
+  final double contentTopPadding;
+  final double contentLeftPadding;
+
+  const PlaylistTab({
+    super.key,
+    this.contentTopPadding = 0.0,
+    this.contentLeftPadding = 0.0,
+  });
 
   @override
   ConsumerState<PlaylistTab> createState() => _PlaylistTabState();
@@ -637,11 +644,17 @@ class _PlaylistTabState extends ConsumerState<PlaylistTab>
     final currentPlaylist = playlistService.currentPlaylist;
 
     if (currentPlaylist == null || currentPlaylist.songs.isEmpty) {
-      return Column(
-        children: [
-          _buildHeader(context, currentPlaylist),
-          Expanded(child: _buildEmptyState(context)),
-        ],
+      return Padding(
+        padding: EdgeInsets.only(
+          top: widget.contentTopPadding,
+          left: widget.contentLeftPadding,
+        ),
+        child: Column(
+          children: [
+            _buildHeader(context, currentPlaylist),
+            Expanded(child: _buildEmptyState(context)),
+          ],
+        ),
       );
     }
 
@@ -650,13 +663,19 @@ class _PlaylistTabState extends ConsumerState<PlaylistTab>
         .map((i) => activePlaylist.songs[i])
         .toList();
 
-    return Stack(
-      children: [
-        CustomScrollView(
-            controller: _scrollController,
-            cacheExtent: 1000,
-            slivers: [
-              SliverToBoxAdapter(child: _buildHeader(context, activePlaylist)),
+    return Padding(
+      padding: EdgeInsets.only(left: widget.contentLeftPadding),
+      child: Stack(
+        children: [
+          CustomScrollView(
+              controller: _scrollController,
+              cacheExtent: 1000,
+              slivers: [
+                if (widget.contentTopPadding > 0)
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: widget.contentTopPadding),
+                  ),
+                SliverToBoxAdapter(child: _buildHeader(context, activePlaylist)),
               SliverPadding(
                 padding: EdgeInsets.only(
                   bottom:
@@ -826,7 +845,8 @@ class _PlaylistTabState extends ConsumerState<PlaylistTab>
             ),
           ),
         ],
-      );
+      ),
+    );
   }
 }
 
