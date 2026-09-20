@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 import 'package:path/path.dart' as p;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:oktoast/oktoast.dart';
@@ -553,17 +554,24 @@ class _MyAppState extends ConsumerState<MyApp>
       colorScheme: colorScheme,
       scaffoldBackgroundColor: isDark ? Colors.black : null,
       useMaterial3: true,
-      fontFamily: 'Segoe UI',
-      fontFamilyFallback: const [
-        'Microsoft YaHei UI',
-        'Microsoft YaHei',
-        'PingFang SC',
-        'Heiti SC',
-        'Noto Sans CJK SC',
-        'Noto Sans SC',
-        'Source Han Sans SC',
-        'sans-serif',
-      ],
+      fontFamily: (!kIsWeb && Platform.isWindows) ? 'Segoe UI' : null,
+      fontFamilyFallback: (!kIsWeb && (Platform.isMacOS || Platform.isIOS))
+          ? const [
+              'PingFang SC',
+              'PingFang TC',
+              'Heiti SC',
+              'sans-serif',
+            ]
+          : const [
+              'Microsoft YaHei UI',
+              'Microsoft YaHei',
+              'PingFang SC',
+              'Heiti SC',
+              'Noto Sans CJK SC',
+              'Noto Sans SC',
+              'Source Han Sans SC',
+              'sans-serif',
+            ],
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: snackBarBackground,

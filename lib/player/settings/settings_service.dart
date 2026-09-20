@@ -1109,16 +1109,6 @@ class SettingsService extends ChangeNotifier {
   late final _lyricsFontFamilyProperty = SettingProperty<String>(
     key: _keyLyricsFontFamily,
     defaultValue: '',
-    customRead: (prefs, key, def) {
-      if (prefs.containsKey(key)) {
-        return prefs.getString(key) ?? def;
-      }
-      final oldCjk = prefs.getString(_keyLyricsCjkFontFamily);
-      if (oldCjk != null && oldCjk.isNotEmpty) return oldCjk;
-      final oldLatin = prefs.getString(_keyLyricsLatinFontFamily);
-      if (oldLatin != null && oldLatin.isNotEmpty) return oldLatin;
-      return def;
-    },
     prefs: _prefs,
     onChanged: notifyListeners,
   );
@@ -2193,7 +2183,10 @@ class SettingsService extends ChangeNotifier {
 
   String get lyricsFontFamily => _lyricsFontFamilyProperty.value;
   set lyricsFontFamily(String value) {
-    _lyricsFontFamilyProperty.value = value.trim();
+    final trimmed = value.trim();
+    _lyricsFontFamilyProperty.value = trimmed;
+    _lyricsLatinFontFamilyProperty.value = '';
+    _lyricsCjkFontFamilyProperty.value = '';
   }
 
   String get lyricsLatinFontFamily => _lyricsLatinFontFamilyProperty.value;

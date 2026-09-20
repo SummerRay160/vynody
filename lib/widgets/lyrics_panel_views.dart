@@ -401,31 +401,38 @@ class _LyricsPanelTimedLyricsViewState
                                   basePadding * widget.lyricsFontScale;
                               final translatedSpacing =
                                   3 * widget.lyricsFontScale;
-                              final fontToUse = widget.lyricsFontFamily.trim().isNotEmpty
-                                  ? widget.lyricsFontFamily.trim()
-                                  : (widget.latinFontFamily.trim().isNotEmpty
-                                      ? widget.latinFontFamily.trim()
-                                      : widget.cjkFontFamily.trim());
+                              final fontToUse = widget.lyricsFontFamily.trim();
                               final effectiveFontFamily =
                                   fontToUse.isNotEmpty ? fontToUse : null;
-                              const defaultFallback = [
-                                'Microsoft YaHei UI',
-                                'Microsoft YaHei',
-                                'PingFang SC',
-                                'Heiti SC',
-                                'Noto Sans CJK SC',
-                                'Noto Sans SC',
-                                'Source Han Sans SC',
-                                'sans-serif',
-                              ];
-                              final effectiveFontFamilyFallback = [
-                                if (effectiveFontFamily != null)
-                                  ...defaultFallback.where(
-                                    (f) => f != effectiveFontFamily,
-                                  )
-                                else
-                                  ...defaultFallback,
-                              ];
+                              final defaultFallback = (!kIsWeb &&
+                                       (defaultTargetPlatform ==
+                                               TargetPlatform.macOS ||
+                                           defaultTargetPlatform ==
+                                               TargetPlatform.iOS))
+                                   ? const [
+                                       'PingFang SC',
+                                       'PingFang TC',
+                                       'Heiti SC',
+                                       'sans-serif',
+                                     ]
+                                   : const [
+                                       'Microsoft YaHei UI',
+                                       'Microsoft YaHei',
+                                       'PingFang SC',
+                                       'Heiti SC',
+                                       'Noto Sans CJK SC',
+                                       'Noto Sans SC',
+                                       'Source Han Sans SC',
+                                       'sans-serif',
+                                     ];
+                              final effectiveFontFamilyFallback =
+                                  effectiveFontFamily != null
+                                      ? [
+                                          ...defaultFallback.where(
+                                            (f) => f != effectiveFontFamily,
+                                          ),
+                                        ]
+                                      : null;
 
                               final lineStyle = widget.hasTimedLyrics
                                   ? Theme.of(

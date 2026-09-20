@@ -277,26 +277,32 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     final verticalItemPadding = basePadding * lyricsFontScale;
     final translatedSpacing = 3 * lyricsFontScale;
 
-    final fontToUse = lyricsFont.trim().isNotEmpty
-        ? lyricsFont.trim()
-        : (latinFont.trim().isNotEmpty ? latinFont.trim() : cjkFont.trim());
+    final fontToUse = lyricsFont.trim();
     final effectiveFontFamily = fontToUse.isNotEmpty ? fontToUse : null;
-    const defaultFallback = [
-      'Microsoft YaHei UI',
-      'Microsoft YaHei',
-      'PingFang SC',
-      'Heiti SC',
-      'Noto Sans CJK SC',
-      'Noto Sans SC',
-      'Source Han Sans SC',
-      'sans-serif',
-    ];
-    final effectiveFontFamilyFallback = [
-      if (effectiveFontFamily != null)
-        ...defaultFallback.where((f) => f != effectiveFontFamily)
-      else
-        ...defaultFallback,
-    ];
+    final defaultFallback = (!kIsWeb &&
+            (defaultTargetPlatform == TargetPlatform.macOS ||
+                defaultTargetPlatform == TargetPlatform.iOS))
+        ? const [
+            'PingFang SC',
+            'PingFang TC',
+            'Heiti SC',
+            'sans-serif',
+          ]
+        : const [
+            'Microsoft YaHei UI',
+            'Microsoft YaHei',
+            'PingFang SC',
+            'Heiti SC',
+            'Noto Sans CJK SC',
+            'Noto Sans SC',
+            'Source Han Sans SC',
+            'sans-serif',
+          ];
+    final effectiveFontFamilyFallback = effectiveFontFamily != null
+        ? [
+            ...defaultFallback.where((f) => f != effectiveFontFamily),
+          ]
+        : null;
 
     final lineStyle = hasTimedLyrics
         ? Theme.of(context).textTheme.bodyLarge!.copyWith(

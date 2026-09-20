@@ -116,35 +116,36 @@ class DesktopLyricsManager {
   }
 
   DesktopLyricsStyle _buildStyle(SettingsService settings) {
-    final lyricsFont = settings.lyricsFontFamily.trim();
-    final latinFont = settings.lyricsLatinFontFamily.trim();
-    final cjkFont = settings.lyricsCjkFontFamily.trim();
-    final fontToUse = lyricsFont.isNotEmpty
-        ? lyricsFont
-        : (latinFont.isNotEmpty ? latinFont : cjkFont);
+    final fontToUse = settings.lyricsFontFamily.trim();
 
-    const defaultFallback = [
-      'Microsoft YaHei UI',
-      'Microsoft YaHei',
-      'PingFang SC',
-      'Heiti SC',
-      'Noto Sans CJK SC',
-      'Noto Sans SC',
-      'Source Han Sans SC',
-      'sans-serif',
-    ];
-    final fallback = [
-      if (fontToUse.isNotEmpty)
-        ...defaultFallback.where((f) => f != fontToUse)
-      else
-        ...defaultFallback,
-    ];
+    final defaultFallback = (Platform.isMacOS || Platform.isIOS)
+        ? const [
+            'PingFang SC',
+            'PingFang TC',
+            'Heiti SC',
+            'sans-serif',
+          ]
+        : const [
+            'Microsoft YaHei UI',
+            'Microsoft YaHei',
+            'PingFang SC',
+            'Heiti SC',
+            'Noto Sans CJK SC',
+            'Noto Sans SC',
+            'Source Han Sans SC',
+            'sans-serif',
+          ];
+    final fallback = fontToUse.isNotEmpty
+        ? [
+            ...defaultFallback.where((f) => f != fontToUse),
+          ]
+        : null;
 
     return DesktopLyricsStyle(
       fontSize: settings.desktopLyricsFontSize,
       translationFontSize: (settings.desktopLyricsFontSize * 0.68).clamp(14.0, 38.0),
       showBackground: settings.desktopLyricsShowBackground,
-      fontFamily: fontToUse.isNotEmpty ? fontToUse : 'Segoe UI',
+      fontFamily: fontToUse.isNotEmpty ? fontToUse : (Platform.isWindows ? 'Segoe UI' : null),
       fontFamilyFallback: fallback,
     );
   }

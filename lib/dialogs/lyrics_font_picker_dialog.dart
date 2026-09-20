@@ -531,6 +531,7 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
   ) {
     final effectiveFont = _selectedFont.isNotEmpty ? _selectedFont : null;
     final fontLabel = _selectedFont.isEmpty ? l10n.followSystemLanguage : _selectedFont;
+    final baseStyle = theme.textTheme.bodyMedium ?? const TextStyle();
 
     return Container(
       width: double.infinity,
@@ -565,7 +566,7 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
           const SizedBox(height: 8),
           Text(
             '落霞与孤鹜齐飞，秋水共长天一色。',
-            style: TextStyle(
+            style: baseStyle.copyWith(
               fontFamily: effectiveFont,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -577,7 +578,7 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
           const SizedBox(height: 4),
           Text(
             'The quick brown fox jumps over the lazy dog. 0123456789',
-            style: TextStyle(
+            style: baseStyle.copyWith(
               fontFamily: effectiveFont,
               fontSize: 13,
               color: colorScheme.onSurfaceVariant,
@@ -674,7 +675,7 @@ class _LyricsFontPickerDialogState extends State<_LyricsFontPickerDialog> {
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(
+          style: (theme.textTheme.bodyMedium ?? const TextStyle()).copyWith(
             fontFamily: fontFamily.isNotEmpty ? fontFamily : null,
             fontSize: 13,
             color: isSelected
