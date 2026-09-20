@@ -65,7 +65,6 @@ dependencies:
       url: https://github.com/axel10/window_manager
       path: packages/window_manager
       ref: main
-  desktop_multi_window: ^0.3.1
   desktop_drop: ^0.7.0
   collection: ^1.19.1
   image: ^4.8.0
@@ -291,10 +290,10 @@ dependency_overrides:
   #   path: ./Bonsoir/packages/bonsoir_windows
   audio_core:
     path: ./audio_core
-  flutter_desktop_lyrics:
-    path: ./flutter_desktop_lyrics
-  desktop_multi_window:
-    path: ./flutter-plugins/packages/desktop_multi_window
+  # flutter_desktop_lyrics:
+    # path: ./flutter_desktop_lyrics
+  # desktop_multi_window:
+  #   path: ./flutter-plugins/packages/desktop_multi_window
   # flutter_taglib:
   #   path: ./audio_core/flutter_taglib
   # windows_taskbar:
