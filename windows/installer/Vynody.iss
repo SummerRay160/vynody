@@ -132,13 +132,13 @@ begin
       mbConfirmation, MB_YESNO) = IDYES then
     begin
       DeleteUserDataIfExists(ExpandConstant('{userappdata}\{#MyAppDataDirName}'));
-      DeleteUserDataIfExists(ExpandConstant('{userlocalappdata}\{#MyAppDataDirName}'));
+      DeleteUserDataIfExists(ExpandConstant('{localappdata}\{#MyAppDataDirName}'));
       DeleteUserDataIfExists(ExpandConstant('{userappdata}\{#MyAppLegacyDataDirName}'));
-      DeleteUserDataIfExists(ExpandConstant('{userlocalappdata}\{#MyAppLegacyDataDirName}'));
+      DeleteUserDataIfExists(ExpandConstant('{localappdata}\{#MyAppLegacyDataDirName}'));
       DeleteUserDataIfExists(ExpandConstant('{userappdata}\{#MyAppPublisher}\{#MyAppDataDirName}'));
-      DeleteUserDataIfExists(ExpandConstant('{userlocalappdata}\{#MyAppPublisher}\{#MyAppDataDirName}'));
+      DeleteUserDataIfExists(ExpandConstant('{localappdata}\{#MyAppPublisher}\{#MyAppDataDirName}'));
       DeleteUserDataIfExists(ExpandConstant('{userappdata}\{#MyAppId}'));
-      DeleteUserDataIfExists(ExpandConstant('{userlocalappdata}\{#MyAppId}'));
+      DeleteUserDataIfExists(ExpandConstant('{localappdata}\{#MyAppId}'));
     end;
 
     // Clean up legacy custom registry settings written by older app versions to HKCU
