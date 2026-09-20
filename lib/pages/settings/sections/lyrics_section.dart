@@ -173,13 +173,19 @@ class LyricsSection extends ConsumerWidget {
           ),
         ),
         onPressed: () async {
+          final originalFont = settings.lyricsFontFamily;
           final selected = await showLyricsFontPickerDialog(
             context,
-            initialFont: currentFont,
+            initialFont: originalFont,
             title: l10n.selectLyricsFont,
+            onFontPreview: (previewFont) {
+              settings.lyricsFontFamily = previewFont;
+            },
           );
           if (selected != null) {
             settings.lyricsFontFamily = selected;
+          } else {
+            settings.lyricsFontFamily = originalFont;
           }
         },
       ),

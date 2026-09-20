@@ -1052,14 +1052,22 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   Future<void> _showSelectLyricsFontDialog() async {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.read(settingsServiceProvider);
+    final originalFont = settings.lyricsFontFamily;
 
     final selected = await showLyricsFontPickerDialog(
       context,
-      initialFont: settings.lyricsFontFamily,
+      initialFont: originalFont,
       title: l10n.selectLyricsFont,
+      onFontPreview: (previewFont) {
+        settings.lyricsFontFamily = previewFont;
+      },
     );
-    if (selected != null && mounted) {
-      settings.lyricsFontFamily = selected;
+    if (selected != null) {
+      if (mounted) {
+        settings.lyricsFontFamily = selected;
+      }
+    } else {
+      settings.lyricsFontFamily = originalFont;
     }
   }
 
