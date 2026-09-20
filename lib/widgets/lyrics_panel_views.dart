@@ -1334,22 +1334,22 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
       return Text(
         widget.words.map((w) => w.text).join().trim(),
         style: widget.lineStyle,
+        textAlign: widget.isLeftAligned ? TextAlign.left : TextAlign.center,
       );
     }
 
     if (!widget.isActive) {
       return ExcludeSemantics(
-        child: Wrap(
-          alignment: widget.isLeftAligned
-              ? WrapAlignment.start
-              : WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: validWords.map((word) {
-            return Text(
-              word.text,
-              style: widget.lineStyle.copyWith(color: widget.inactiveColor),
-            );
-          }).toList(),
+        child: Text.rich(
+          TextSpan(
+            children: validWords.map((word) {
+              return TextSpan(
+                text: word.text,
+                style: widget.lineStyle.copyWith(color: widget.inactiveColor),
+              );
+            }).toList(growable: false),
+          ),
+          textAlign: widget.isLeftAligned ? TextAlign.left : TextAlign.center,
         ),
       );
     }
@@ -1381,43 +1381,47 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
     if (now.difference(_lastLogTime).inMilliseconds >= 250 &&
         validWords.isNotEmpty) {
       _lastLogTime = now;
-      // final lastWord = validWords.last;
-      // final lastStart = lastWord.timestamp.inMilliseconds;
-      // final lastDur = lastWord.durationMs;
-      // final lastProg = (lastDur > 0) ? ((currentMs - lastStart) / lastDur).clamp(0.0, 1.0) : 0.0;
-      // AppLog.log(
-      //   '[LyricsDebug] ActiveLine currentMs=$currentMs | lastWord="${lastWord.text.trim()}" '
-      //   'range=[$lastStart..${lastStart + lastDur}] dur=${lastDur}ms progress=${(lastProg * 100).toStringAsFixed(1)}% '
-      //   'allWords=[${validWords.map((w) => "${w.text.trim()}(${w.timestamp.inMilliseconds}+${w.durationMs}ms)").join(", ")}]',
-      //   mirrorToConsole: true,
-      // );
     }
 
     return ExcludeSemantics(
-      child: Wrap(
-        alignment: widget.isLeftAligned
-            ? WrapAlignment.start
-            : WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: validWords.map((word) {
-          final startMs = word.timestamp.inMilliseconds;
-          final durationMs = word.durationMs;
+      child: Text.rich(
+        TextSpan(
+          children: validWords.map((word) {
+            final startMs = word.timestamp.inMilliseconds;
+            final durationMs = word.durationMs;
 
-          double progress = 0.0;
-          if (currentMs >= startMs + durationMs) {
-            progress = 1.0;
-          } else if (currentMs >= startMs && durationMs > 0) {
-            progress = (currentMs - startMs) / durationMs;
-          }
+            double progress = 0.0;
+            if (currentMs >= startMs + durationMs) {
+              progress = 1.0;
+            } else if (currentMs >= startMs && durationMs > 0) {
+              progress = (currentMs - startMs) / durationMs;
+            }
 
-          return WordHighlightText(
-            text: word.text,
-            progress: progress,
-            style: widget.lineStyle,
-            activeColor: widget.activeColor,
-            inactiveColor: widget.inactiveColor,
-          );
-        }).toList(),
+            if (progress <= 0.0) {
+              return TextSpan(
+                text: word.text,
+                style: widget.lineStyle.copyWith(color: widget.inactiveColor),
+              );
+            } else if (progress >= 1.0) {
+              return TextSpan(
+                text: word.text,
+                style: widget.lineStyle.copyWith(color: widget.activeColor),
+              );
+            } else {
+              return WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: WordHighlightText(
+                  text: word.text,
+                  progress: progress,
+                  style: widget.lineStyle,
+                  activeColor: widget.activeColor,
+                  inactiveColor: widget.inactiveColor,
+                ),
+              );
+            }
+          }).toList(growable: false),
+        ),
+        textAlign: widget.isLeftAligned ? TextAlign.left : TextAlign.center,
       ),
     );
   }
