@@ -339,11 +339,13 @@ packages:
     source: hosted
     version: "0.7.1"
   desktop_multi_window:
-    dependency: "direct main"
+    dependency: transitive
     description:
-      path: "flutter-plugins/packages/desktop_multi_window"
-      relative: true
-    source: path
+      path: "packages/desktop_multi_window"
+      ref: main
+      resolved-ref: "38dfe33c85da6a5b155e2fe39d9c29f9a432bf06"
+      url: "https://github.com/axel10/flutter-plugins"
+    source: git
     version: "0.3.1"
   device_info_plus:
     dependency: "direct main"
@@ -529,9 +531,11 @@ packages:
   flutter_desktop_lyrics:
     dependency: "direct main"
     description:
-      path: flutter_desktop_lyrics
-      relative: true
-    source: path
+      path: "."
+      ref: master
+      resolved-ref: cbaf3458e79efd34016ca1cc3f76e53c890960a0
+      url: "https://github.com/axel10/flutter_desktop_lyrics"
+    source: git
     version: "0.0.1"
   flutter_desktop_tray:
     dependency: "direct main"
