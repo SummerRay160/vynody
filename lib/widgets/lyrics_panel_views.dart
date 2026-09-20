@@ -547,6 +547,8 @@ class _LyricsPanelTimedLyricsViewState
                                                       isActive: isActive,
                                                       isLeftAligned:
                                                           isLeftAligned,
+                                                      layoutMaxWidth:
+                                                          layoutMaxWidth,
                                                     )
                                                   : Text(line.text),
                                             ),
@@ -1226,6 +1228,7 @@ class WordWordLyricsWidget extends ConsumerStatefulWidget {
     required this.inactiveColor,
     required this.isLeftAligned,
     this.isActive = true,
+    this.layoutMaxWidth,
   });
 
   final List<LyricWord> words;
@@ -1234,6 +1237,7 @@ class WordWordLyricsWidget extends ConsumerStatefulWidget {
   final Color inactiveColor;
   final bool isLeftAligned;
   final bool isActive;
+  final double? layoutMaxWidth;
 
   @override
   ConsumerState<WordWordLyricsWidget> createState() =>
@@ -1247,6 +1251,36 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
   DateTime _lastObservedAt = DateTime.now();
   bool _isPlaying = false;
   bool _isBackgroundSuspended = false;
+
+  TextStyle _styleWithForeground(TextStyle base, Paint foreground) {
+    return TextStyle(
+      inherit: base.inherit,
+      color: null,
+      backgroundColor: base.backgroundColor,
+      fontSize: base.fontSize,
+      fontWeight: base.fontWeight,
+      fontStyle: base.fontStyle,
+      letterSpacing: base.letterSpacing,
+      wordSpacing: base.wordSpacing,
+      textBaseline: base.textBaseline,
+      height: base.height,
+      leadingDistribution: base.leadingDistribution,
+      locale: base.locale,
+      foreground: foreground,
+      background: base.background,
+      shadows: base.shadows,
+      fontFeatures: base.fontFeatures,
+      fontVariations: base.fontVariations,
+      decoration: base.decoration,
+      decorationColor: base.decorationColor,
+      decorationStyle: base.decorationStyle,
+      decorationThickness: base.decorationThickness,
+      debugLabel: base.debugLabel,
+      fontFamily: base.fontFamily,
+      fontFamilyFallback: base.fontFamilyFallback,
+      overflow: base.overflow,
+    );
+  }
 
   @override
   void initState() {
@@ -1383,44 +1417,101 @@ class _WordWordLyricsWidgetState extends ConsumerState<WordWordLyricsWidget>
       _lastLogTime = now;
     }
 
+    // Check if any word is in active transition (0.0 < progress < 1.0)
+    bool hasTransitioningWord = false;
+    for (final word in validWords) {
+      final startMs = word.timestamp.inMilliseconds;
+      final durationMs = word.durationMs;
+      if (currentMs > startMs && currentMs < startMs + durationMs && durationMs > 0) {
+        hasTransitioningWord = true;
+        break;
+      }
+    }
+
+    final fullText = validWords.map((w) => w.text).join();
+    TextPainter? textPainter;
+    if (hasTransitioningWord) {
+      final maxWidth = widget.layoutMaxWidth ?? double.infinity;
+      textPainter = TextPainter(
+        text: TextSpan(text: fullText, style: widget.lineStyle),
+        textDirection: Directionality.of(context),
+        textAlign: widget.isLeftAligned ? TextAlign.left : TextAlign.center,
+        textScaler: MediaQuery.textScalerOf(context),
+        locale: Localizations.maybeLocaleOf(context),
+      )..layout(maxWidth: maxWidth.isFinite && maxWidth > 0 ? maxWidth : double.infinity);
+    }
+
+    int charOffset = 0;
+    final spans = <InlineSpan>[];
+    for (final word in validWords) {
+      final wordLen = word.text.length;
+      final startMs = word.timestamp.inMilliseconds;
+      final durationMs = word.durationMs;
+
+      double progress = 0.0;
+      if (currentMs >= startMs + durationMs) {
+        progress = 1.0;
+      } else if (currentMs >= startMs && durationMs > 0) {
+        progress = (currentMs - startMs) / durationMs;
+      }
+
+      if (progress <= 0.0) {
+        spans.add(TextSpan(
+          text: word.text,
+          style: widget.lineStyle.copyWith(color: widget.inactiveColor),
+        ));
+      } else if (progress >= 1.0) {
+        spans.add(TextSpan(
+          text: word.text,
+          style: widget.lineStyle.copyWith(color: widget.activeColor),
+        ));
+      } else {
+        const double softEdge = 0.15;
+        final double center = -softEdge + progress * (1.0 + 2 * softEdge);
+        final double start = (center - softEdge / 2).clamp(0.0, 1.0);
+        final double end = (center + softEdge / 2).clamp(0.0, 1.0);
+
+        final boxes = textPainter?.getBoxesForSelection(
+          TextSelection(
+            baseOffset: charOffset,
+            extentOffset: charOffset + wordLen,
+          ),
+        );
+
+        if (boxes != null && boxes.isNotEmpty) {
+          final box = boxes.first;
+          final shader = ui.Gradient.linear(
+            Offset(box.left, 0),
+            Offset(box.right, 0),
+            [
+              widget.activeColor,
+              widget.activeColor,
+              widget.inactiveColor,
+              widget.inactiveColor,
+            ],
+            [0.0, start, end, 1.0],
+          );
+          spans.add(TextSpan(
+            text: word.text,
+            style: _styleWithForeground(
+              widget.lineStyle,
+              Paint()..shader = shader,
+            ),
+          ));
+        } else {
+          spans.add(TextSpan(
+            text: word.text,
+            style: widget.lineStyle.copyWith(color: widget.activeColor),
+          ));
+        }
+      }
+
+      charOffset += wordLen;
+    }
+
     return ExcludeSemantics(
       child: Text.rich(
-        TextSpan(
-          children: validWords.map((word) {
-            final startMs = word.timestamp.inMilliseconds;
-            final durationMs = word.durationMs;
-
-            double progress = 0.0;
-            if (currentMs >= startMs + durationMs) {
-              progress = 1.0;
-            } else if (currentMs >= startMs && durationMs > 0) {
-              progress = (currentMs - startMs) / durationMs;
-            }
-
-            if (progress <= 0.0) {
-              return TextSpan(
-                text: word.text,
-                style: widget.lineStyle.copyWith(color: widget.inactiveColor),
-              );
-            } else if (progress >= 1.0) {
-              return TextSpan(
-                text: word.text,
-                style: widget.lineStyle.copyWith(color: widget.activeColor),
-              );
-            } else {
-              return WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: WordHighlightText(
-                  text: word.text,
-                  progress: progress,
-                  style: widget.lineStyle,
-                  activeColor: widget.activeColor,
-                  inactiveColor: widget.inactiveColor,
-                ),
-              );
-            }
-          }).toList(growable: false),
-        ),
+        TextSpan(children: spans),
         textAlign: widget.isLeftAligned ? TextAlign.left : TextAlign.center,
       ),
     );
