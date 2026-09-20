@@ -1477,51 +1477,52 @@ class AppLocalizationsKo extends AppLocalizations {
   String get customFontDialogHint => '예: Pretendard / Inter / Fira Code';
 
   @override
-  String get selectLyricsFont => '选择歌词字体';
+  String get selectLyricsFont => '가사 글꼴 선택';
 
   @override
-  String get systemFonts => '系统字体';
+  String get systemFonts => '시스템 글꼴';
 
   @override
-  String get recommendedFonts => '推荐预设';
+  String get recommendedFonts => '추천 프리셋';
 
   @override
-  String get cjkFonts => '中文字体';
+  String get cjkFonts => '한글/CJK 글꼴';
 
   @override
-  String get latinFonts => '西文字体';
+  String get latinFonts => '영문/라틴 글꼴';
 
   @override
-  String get allFonts => '全部字体';
+  String get allFonts => '모든 글꼴';
 
   @override
-  String get searchFontHint => '搜索字体名称或别名...';
+  String get searchFontHint => '글꼴 이름 또는 별칭 검색...';
 
   @override
-  String get lyricsFontPreview => '字体效果预览';
+  String get lyricsFontPreview => '글꼴 미리보기';
 
   @override
-  String get defaultFontOption => '默认（跟随系统）';
+  String get defaultFontOption => '기본값 (시스템 설정)';
 
   @override
-  String get importFontFile => '导入字体文件';
+  String get importFontFile => '글꼴 파일 가져오기';
 
   @override
-  String get importedFonts => '已导入字体';
+  String get importedFonts => '가져온 글꼴';
 
   @override
-  String get noImportedFontsHint => '暂无导入字体，点击下方按钮导入本地 .ttf / .otf 字体文件';
+  String get noImportedFontsHint =>
+      '가져온 글꼴이 없습니다. 아래 버튼을 눌러 로컬 .ttf / .otf 글꼴 파일을 가져오세요.';
 
   @override
   String deleteFontConfirm(String name) {
-    return '确定删除字体 \"$name\" 吗？';
+    return '\"$name\" 글꼴을 삭제하시겠습니까?';
   }
 
   @override
-  String get fontImportSuccess => '字体导入成功';
+  String get fontImportSuccess => '글꼴 가져오기 성공';
 
   @override
-  String get fontImportFailed => '字体导入失败';
+  String get fontImportFailed => '글꼴 가져오기 실패';
 
   @override
   String get resumeLyricsSync => '가사 동기화 재개';
@@ -2597,10 +2598,11 @@ class AppLocalizationsKo extends AppLocalizations {
       'AI 가사 생성 및 타임라인 생성/수정에 사용됩니다.';
 
   @override
-  String get lyricsKaraokeModel => '逐字歌词模型';
+  String get lyricsKaraokeModel => '노래방 가사 모델';
 
   @override
-  String get lyricsKaraokeModelDescription => '用于将歌词转换为逐字卡拉OK时间轴的高精度音频对齐模型。';
+  String get lyricsKaraokeModelDescription =>
+      '가사를 단어별 노래방 타임라인으로 변환하기 위한 고정밀 오디오 정렬 모델입니다。';
 
   @override
   String get lyricsTranslationModel => '가사 번역 모델';

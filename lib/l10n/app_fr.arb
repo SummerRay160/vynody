@@ -550,6 +550,28 @@
   "customFontOption": "Police personnalisée...",
   "customFontDialogTitle": "Entrer le nom de la police",
   "customFontDialogHint": "ex. LXGW WenKai, Inter, Fira Code",
+  "selectLyricsFont": "Sélectionner la police des paroles",
+  "systemFonts": "Polices du système",
+  "recommendedFonts": "Recommandé",
+  "cjkFonts": "Polices CJK",
+  "latinFonts": "Polices latines",
+  "allFonts": "Toutes les polices",
+  "searchFontHint": "Rechercher une police...",
+  "lyricsFontPreview": "Aperçu de la police",
+  "defaultFontOption": "Par défaut (système)",
+  "importFontFile": "Importer un fichier de police",
+  "importedFonts": "Polices importées",
+  "noImportedFontsHint": "Aucune police importée. Appuyez ci-dessous pour importer un fichier .ttf / .otf.",
+  "deleteFontConfirm": "Voulez-vous vraiment supprimer la police \"{name}\" ?",
+  "@deleteFontConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fontImportSuccess": "Police importée avec succès",
+  "fontImportFailed": "Échec de l'importation de la police",
   "resumeLyricsSync": "Reprendre la synchronisation",
   "followSystemLanguage": "Suivre le système",
   "autoSwitchLyricsProvider": "Changement automatique de fournisseur",
@@ -951,6 +973,8 @@
   "openAppStore": "Ouvrir l'App Store",
   "lyricsGenerationModel": "Modèle de génération de paroles",
   "lyricsGenerationModelDescription": "Pour la génération de paroles par IA et la correction de chronologie.",
+  "lyricsKaraokeModel": "Modèle de paroles karaoké",
+  "lyricsKaraokeModelDescription": "Modèle d'alignement audio haute précision pour convertir les paroles en chronologie karaoké mot à mot.",
   "lyricsTranslationModel": "Modèle de traduction de paroles",
   "lyricsTranslationModelDescription": "Pour traduire les paroles dans la langue cible.",
   "onlyForLyricTranslation": "Traduction uniquement",

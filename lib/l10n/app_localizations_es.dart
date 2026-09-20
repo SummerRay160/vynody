@@ -1532,51 +1532,52 @@ class AppLocalizationsEs extends AppLocalizations {
   String get customFontDialogHint => 'p. ej. LXGW WenKai, Inter, Fira Code';
 
   @override
-  String get selectLyricsFont => '选择歌词字体';
+  String get selectLyricsFont => 'Seleccionar fuente de letras';
 
   @override
-  String get systemFonts => '系统字体';
+  String get systemFonts => 'Fuentes del sistema';
 
   @override
-  String get recommendedFonts => '推荐预设';
+  String get recommendedFonts => 'Recomendadas';
 
   @override
-  String get cjkFonts => '中文字体';
+  String get cjkFonts => 'Fuentes CJK';
 
   @override
-  String get latinFonts => '西文字体';
+  String get latinFonts => 'Fuentes latinas';
 
   @override
-  String get allFonts => '全部字体';
+  String get allFonts => 'Todas las fuentes';
 
   @override
-  String get searchFontHint => '搜索字体名称或别名...';
+  String get searchFontHint => 'Buscar nombre de fuente...';
 
   @override
-  String get lyricsFontPreview => '字体效果预览';
+  String get lyricsFontPreview => 'Vista previa de la fuente';
 
   @override
-  String get defaultFontOption => '默认（跟随系统）';
+  String get defaultFontOption => 'Predeterminado (sistema)';
 
   @override
-  String get importFontFile => '导入字体文件';
+  String get importFontFile => 'Importar archivo de fuente';
 
   @override
-  String get importedFonts => '已导入字体';
+  String get importedFonts => 'Fuentes importadas';
 
   @override
-  String get noImportedFontsHint => '暂无导入字体，点击下方按钮导入本地 .ttf / .otf 字体文件';
+  String get noImportedFontsHint =>
+      'No hay fuentes importadas. Toque abajo para importar archivos .ttf / .otf.';
 
   @override
   String deleteFontConfirm(String name) {
-    return '确定删除字体 \"$name\" 吗？';
+    return '¿Está seguro de que desea eliminar la fuente \"$name\"?';
   }
 
   @override
-  String get fontImportSuccess => '字体导入成功';
+  String get fontImportSuccess => 'Fuente importada con éxito';
 
   @override
-  String get fontImportFailed => '字体导入失败';
+  String get fontImportFailed => 'Error al importar la fuente';
 
   @override
   String get resumeLyricsSync => 'Reanudar sincronización';
@@ -2712,10 +2713,11 @@ class AppLocalizationsEs extends AppLocalizations {
       'Para que la IA genere letras a partir de la canción y genere/corrija la línea de tiempo de letras existentes.';
 
   @override
-  String get lyricsKaraokeModel => '逐字歌词模型';
+  String get lyricsKaraokeModel => 'Modelo de letras karaoke';
 
   @override
-  String get lyricsKaraokeModelDescription => '用于将歌词转换为逐字卡拉OK时间轴的高精度音频对齐模型。';
+  String get lyricsKaraokeModelDescription =>
+      'Modelo de alineación de audio de alta precisión para convertir letras en una línea de tiempo de karaoke palabra por palabra.';
 
   @override
   String get lyricsTranslationModel => 'Modelo de traducción de letras';

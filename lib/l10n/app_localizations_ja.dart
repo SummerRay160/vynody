@@ -1474,51 +1474,52 @@ class AppLocalizationsJa extends AppLocalizations {
   String get customFontDialogHint => '例: 游ゴシック / Inter / Fira Code';
 
   @override
-  String get selectLyricsFont => '选择歌词字体';
+  String get selectLyricsFont => '歌詞フォントを選択';
 
   @override
-  String get systemFonts => '系统字体';
+  String get systemFonts => 'システムフォント';
 
   @override
-  String get recommendedFonts => '推荐预设';
+  String get recommendedFonts => 'おすすめプリセット';
 
   @override
-  String get cjkFonts => '中文字体';
+  String get cjkFonts => 'CJK/日本語フォント';
 
   @override
-  String get latinFonts => '西文字体';
+  String get latinFonts => '欧文フォント';
 
   @override
-  String get allFonts => '全部字体';
+  String get allFonts => 'すべてのフォント';
 
   @override
-  String get searchFontHint => '搜索字体名称或别名...';
+  String get searchFontHint => 'フォント名またはエイリアスを検索...';
 
   @override
-  String get lyricsFontPreview => '字体效果预览';
+  String get lyricsFontPreview => 'フォントプレビュー';
 
   @override
-  String get defaultFontOption => '默认（跟随系统）';
+  String get defaultFontOption => 'デフォルト（システムに従う）';
 
   @override
-  String get importFontFile => '导入字体文件';
+  String get importFontFile => 'フォントファイルをインポート';
 
   @override
-  String get importedFonts => '已导入字体';
+  String get importedFonts => 'インポート済みフォント';
 
   @override
-  String get noImportedFontsHint => '暂无导入字体，点击下方按钮导入本地 .ttf / .otf 字体文件';
+  String get noImportedFontsHint =>
+      'インポートされたフォントはありません。下のボタンからローカルの .ttf / .otf フォントをインポートしてください';
 
   @override
   String deleteFontConfirm(String name) {
-    return '确定删除字体 \"$name\" 吗？';
+    return 'フォント \"$name\" を削除してもよろしいですか？';
   }
 
   @override
-  String get fontImportSuccess => '字体导入成功';
+  String get fontImportSuccess => 'フォントをインポートしました';
 
   @override
-  String get fontImportFailed => '字体导入失败';
+  String get fontImportFailed => 'フォントのインポートに失敗しました';
 
   @override
   String get resumeLyricsSync => '歌詞の同期を再開';
@@ -2594,10 +2595,11 @@ class AppLocalizationsJa extends AppLocalizations {
       'AIによる歌詞生成とタイムライン生成/修正に使用されます。';
 
   @override
-  String get lyricsKaraokeModel => '逐字歌词模型';
+  String get lyricsKaraokeModel => 'カラオケ歌詞モデル';
 
   @override
-  String get lyricsKaraokeModelDescription => '用于将歌词转换为逐字卡拉OK时间轴的高精度音频对齐模型。';
+  String get lyricsKaraokeModelDescription =>
+      '歌詞を単語ごとのカラオケタイムラインに変換するための高精度音声アライメントモデル。';
 
   @override
   String get lyricsTranslationModel => '歌詞翻訳モデル';

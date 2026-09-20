@@ -614,6 +614,28 @@
   "customFontOption": "Özel yazı tipi...",
   "customFontDialogTitle": "Yazı Tipi Adını Girin",
   "customFontDialogHint": "örn. LXGW WenKai, Inter, Fira Code",
+  "selectLyricsFont": "Şarkı Sözü Yazı Tipini Seç",
+  "systemFonts": "Sistem Yazı Tipleri",
+  "recommendedFonts": "Önerilenler",
+  "cjkFonts": "CJK Yazı Tipleri",
+  "latinFonts": "Latin Yazı Tipleri",
+  "allFonts": "Tüm Yazı Tipleri",
+  "searchFontHint": "Yazı tipi adı ara...",
+  "lyricsFontPreview": "Yazı Tipi Önizlemesi",
+  "defaultFontOption": "Varsayılan (Sistemi Takip Et)",
+  "importFontFile": "Yazı Tipi Dosyası İçe Aktar",
+  "importedFonts": "İçe Aktarılan Yazı Tipleri",
+  "noImportedFontsHint": "İçe aktarılmış yazı tipi yok. Yerel .ttf / .otf dosyasını içe aktarmak için aşağıya dokunun.",
+  "deleteFontConfirm": "\"{name}\" yazı tipini silmek istediğinizden emin misiniz?",
+  "@deleteFontConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fontImportSuccess": "Yazı tipi başarıyla içe aktarıldı",
+  "fontImportFailed": "Yazı tipi içe aktarılamadı",
   "resumeLyricsSync": "Eşitlemeyi Sürdür",
   "followSystemLanguage": "Sistem Dilini Takip Et",
   "autoSwitchLyricsProvider": "Şarkı sözü sağlayıcısını otomatik değiştir",
@@ -1029,6 +1051,8 @@
   "openAppStore": "App Store'a Git",
   "lyricsGenerationModel": "Şarkı Sözü Oluşturma Modeli",
   "lyricsGenerationModelDescription": "AI ile söz oluşturma ve zaman çizelgesi hizalama için kullanılır.",
+  "lyricsKaraokeModel": "Karaoke Şarkı Sözü Modeli",
+  "lyricsKaraokeModelDescription": "Şarkı sözlerini kelime kelime karaoke zaman çizelgesine dönüştürmek için kullanılan yüksek hassasiyetli ses hizalama modeli.",
   "lyricsTranslationModel": "Şarkı Sözü Çeviri Modeli",
   "lyricsTranslationModelDescription": "Şarkı sözlerini hedef dile çevirmek için kullanılır.",
   "onlyForLyricTranslation": "Yalnızca şarkı sözü çevirisi için",

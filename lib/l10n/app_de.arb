@@ -550,6 +550,28 @@
   "customFontOption": "Benutzerdefinierte Schriftart...",
   "customFontDialogTitle": "Schriftartnamen eingeben",
   "customFontDialogHint": "z. B. LXGW WenKai, Inter, Fira Code",
+  "selectLyricsFont": "Songtext-Schriftart auswählen",
+  "systemFonts": "Systemschriftarten",
+  "recommendedFonts": "Empfohlen",
+  "cjkFonts": "CJK-Schriftarten",
+  "latinFonts": "Lateinische Schriftarten",
+  "allFonts": "Alle Schriftarten",
+  "searchFontHint": "Schriftart suchen...",
+  "lyricsFontPreview": "Schriftart-Vorschau",
+  "defaultFontOption": "Standard (Systemstandard)",
+  "importFontFile": "Schriftartdatei importieren",
+  "importedFonts": "Importierte Schriftarten",
+  "noImportedFontsHint": "Keine Schriftarten importiert. Tippen Sie unten, um .ttf / .otf Dateien zu importieren.",
+  "deleteFontConfirm": "Möchten Sie die Schriftart \"{name}\" wirklich löschen?",
+  "@deleteFontConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fontImportSuccess": "Schriftart erfolgreich importiert",
+  "fontImportFailed": "Fehler beim Importieren der Schriftart",
   "resumeLyricsSync": "Synchronisierung fortsetzen",
   "followSystemLanguage": "System folgen",
   "autoSwitchLyricsProvider": "Automatischer Anbieterwechsel",
@@ -951,6 +973,8 @@
   "openAppStore": "Zum App Store",
   "lyricsGenerationModel": "Songtext-Generierungsmodell",
   "lyricsGenerationModelDescription": "Für KI-generierte Songtexte und Zeitachsen-Korrektur.",
+  "lyricsKaraokeModel": "Karaoke-Songtext-Modell",
+  "lyricsKaraokeModelDescription": "Hochpräzises Audio-Alignment-Modell zur Umwandlung von Songtexten in wortsynchrone Karaoke-Zeitachsen.",
   "lyricsTranslationModel": "Songtext-Übersetzungsmodell",
   "lyricsTranslationModelDescription": "Zum Übersetzen von Songtexten in die Zielsprache.",
   "onlyForLyricTranslation": "Nur für Übersetzung",

@@ -1515,51 +1515,52 @@ class AppLocalizationsTr extends AppLocalizations {
   String get customFontDialogHint => 'örn. LXGW WenKai, Inter, Fira Code';
 
   @override
-  String get selectLyricsFont => '选择歌词字体';
+  String get selectLyricsFont => 'Şarkı Sözü Yazı Tipini Seç';
 
   @override
-  String get systemFonts => '系统字体';
+  String get systemFonts => 'Sistem Yazı Tipleri';
 
   @override
-  String get recommendedFonts => '推荐预设';
+  String get recommendedFonts => 'Önerilenler';
 
   @override
-  String get cjkFonts => '中文字体';
+  String get cjkFonts => 'CJK Yazı Tipleri';
 
   @override
-  String get latinFonts => '西文字体';
+  String get latinFonts => 'Latin Yazı Tipleri';
 
   @override
-  String get allFonts => '全部字体';
+  String get allFonts => 'Tüm Yazı Tipleri';
 
   @override
-  String get searchFontHint => '搜索字体名称或别名...';
+  String get searchFontHint => 'Yazı tipi adı ara...';
 
   @override
-  String get lyricsFontPreview => '字体效果预览';
+  String get lyricsFontPreview => 'Yazı Tipi Önizlemesi';
 
   @override
-  String get defaultFontOption => '默认（跟随系统）';
+  String get defaultFontOption => 'Varsayılan (Sistemi Takip Et)';
 
   @override
-  String get importFontFile => '导入字体文件';
+  String get importFontFile => 'Yazı Tipi Dosyası İçe Aktar';
 
   @override
-  String get importedFonts => '已导入字体';
+  String get importedFonts => 'İçe Aktarılan Yazı Tipleri';
 
   @override
-  String get noImportedFontsHint => '暂无导入字体，点击下方按钮导入本地 .ttf / .otf 字体文件';
+  String get noImportedFontsHint =>
+      'İçe aktarılmış yazı tipi yok. Yerel .ttf / .otf dosyasını içe aktarmak için aşağıya dokunun.';
 
   @override
   String deleteFontConfirm(String name) {
-    return '确定删除字体 \"$name\" 吗？';
+    return '\"$name\" yazı tipini silmek istediğinizden emin misiniz?';
   }
 
   @override
-  String get fontImportSuccess => '字体导入成功';
+  String get fontImportSuccess => 'Yazı tipi başarıyla içe aktarıldı';
 
   @override
-  String get fontImportFailed => '字体导入失败';
+  String get fontImportFailed => 'Yazı tipi içe aktarılamadı';
 
   @override
   String get resumeLyricsSync => 'Eşitlemeyi Sürdür';
@@ -2687,10 +2688,11 @@ class AppLocalizationsTr extends AppLocalizations {
       'AI ile söz oluşturma ve zaman çizelgesi hizalama için kullanılır.';
 
   @override
-  String get lyricsKaraokeModel => '逐字歌词模型';
+  String get lyricsKaraokeModel => 'Karaoke Şarkı Sözü Modeli';
 
   @override
-  String get lyricsKaraokeModelDescription => '用于将歌词转换为逐字卡拉OK时间轴的高精度音频对齐模型。';
+  String get lyricsKaraokeModelDescription =>
+      'Şarkı sözlerini kelime kelime karaoke zaman çizelgesine dönüştürmek için kullanılan yüksek hassasiyetli ses hizalama modeli.';
 
   @override
   String get lyricsTranslationModel => 'Şarkı Sözü Çeviri Modeli';

@@ -550,6 +550,28 @@
   "customFontOption": "사용자 지정 글꼴...",
   "customFontDialogTitle": "글꼴 이름 입력",
   "customFontDialogHint": "예: Pretendard / Inter / Fira Code",
+  "selectLyricsFont": "가사 글꼴 선택",
+  "systemFonts": "시스템 글꼴",
+  "recommendedFonts": "추천 프리셋",
+  "cjkFonts": "한글/CJK 글꼴",
+  "latinFonts": "영문/라틴 글꼴",
+  "allFonts": "모든 글꼴",
+  "searchFontHint": "글꼴 이름 또는 별칭 검색...",
+  "lyricsFontPreview": "글꼴 미리보기",
+  "defaultFontOption": "기본값 (시스템 설정)",
+  "importFontFile": "글꼴 파일 가져오기",
+  "importedFonts": "가져온 글꼴",
+  "noImportedFontsHint": "가져온 글꼴이 없습니다. 아래 버튼을 눌러 로컬 .ttf / .otf 글꼴 파일을 가져오세요.",
+  "deleteFontConfirm": "\"{name}\" 글꼴을 삭제하시겠습니까?",
+  "@deleteFontConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fontImportSuccess": "글꼴 가져오기 성공",
+  "fontImportFailed": "글꼴 가져오기 실패",
   "resumeLyricsSync": "가사 동기화 재개",
   "followSystemLanguage": "시스템 언어 따르기",
   "autoSwitchLyricsProvider": "자동 가사 제공자 전환",
@@ -951,6 +973,8 @@
   "openAppStore": "App Store로 이동",
   "lyricsGenerationModel": "가사 생성 모델",
   "lyricsGenerationModelDescription": "AI 가사 생성 및 타임라인 생성/수정에 사용됩니다.",
+  "lyricsKaraokeModel": "노래방 가사 모델",
+  "lyricsKaraokeModelDescription": "가사를 단어별 노래방 타임라인으로 변환하기 위한 고정밀 오디오 정렬 모델입니다。",
   "lyricsTranslationModel": "가사 번역 모델",
   "lyricsTranslationModelDescription": "대상 언어로 가사를 번역하는 데 사용됩니다.",
   "onlyForLyricTranslation": "가사 번역 전용",

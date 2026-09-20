@@ -550,6 +550,28 @@
   "customFontOption": "カスタムフォント...",
   "customFontDialogTitle": "フォント名を入力",
   "customFontDialogHint": "例: 游ゴシック / Inter / Fira Code",
+  "selectLyricsFont": "歌詞フォントを選択",
+  "systemFonts": "システムフォント",
+  "recommendedFonts": "おすすめプリセット",
+  "cjkFonts": "CJK/日本語フォント",
+  "latinFonts": "欧文フォント",
+  "allFonts": "すべてのフォント",
+  "searchFontHint": "フォント名またはエイリアスを検索...",
+  "lyricsFontPreview": "フォントプレビュー",
+  "defaultFontOption": "デフォルト（システムに従う）",
+  "importFontFile": "フォントファイルをインポート",
+  "importedFonts": "インポート済みフォント",
+  "noImportedFontsHint": "インポートされたフォントはありません。下のボタンからローカルの .ttf / .otf フォントをインポートしてください",
+  "deleteFontConfirm": "フォント \"{name}\" を削除してもよろしいですか？",
+  "@deleteFontConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fontImportSuccess": "フォントをインポートしました",
+  "fontImportFailed": "フォントのインポートに失敗しました",
   "resumeLyricsSync": "歌詞の同期を再開",
   "followSystemLanguage": "システムに従う",
   "autoSwitchLyricsProvider": "歌詞プロバイダを自動切替",
@@ -1004,6 +1026,8 @@
   "openAppStore": "App Store へ",
   "lyricsGenerationModel": "歌詞生成モデル",
   "lyricsGenerationModelDescription": "AIによる歌詞生成とタイムライン生成/修正に使用されます。",
+  "lyricsKaraokeModel": "カラオケ歌詞モデル",
+  "lyricsKaraokeModelDescription": "歌詞を単語ごとのカラオケタイムラインに変換するための高精度音声アライメントモデル。",
   "lyricsTranslationModel": "歌詞翻訳モデル",
   "lyricsTranslationModelDescription": "歌詞を対象言語に翻訳するために使用されます。",
   "onlyForLyricTranslation": "歌詞翻訳のみ",

@@ -550,6 +550,28 @@
   "customFontOption": "Fuente personalizada...",
   "customFontDialogTitle": "Ingresar nombre de la fuente",
   "customFontDialogHint": "p. ej. LXGW WenKai, Inter, Fira Code",
+  "selectLyricsFont": "Seleccionar fuente de letras",
+  "systemFonts": "Fuentes del sistema",
+  "recommendedFonts": "Recomendadas",
+  "cjkFonts": "Fuentes CJK",
+  "latinFonts": "Fuentes latinas",
+  "allFonts": "Todas las fuentes",
+  "searchFontHint": "Buscar nombre de fuente...",
+  "lyricsFontPreview": "Vista previa de la fuente",
+  "defaultFontOption": "Predeterminado (sistema)",
+  "importFontFile": "Importar archivo de fuente",
+  "importedFonts": "Fuentes importadas",
+  "noImportedFontsHint": "No hay fuentes importadas. Toque abajo para importar archivos .ttf / .otf.",
+  "deleteFontConfirm": "¿Está seguro de que desea eliminar la fuente \"{name}\"?",
+  "@deleteFontConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fontImportSuccess": "Fuente importada con éxito",
+  "fontImportFailed": "Error al importar la fuente",
   "resumeLyricsSync": "Reanudar sincronización",
   "followSystemLanguage": "Seguir sistema",
   "autoSwitchLyricsProvider": "Cambio automático de proveedor de letras",
@@ -951,6 +973,8 @@
   "openAppStore": "Ir a App Store",
   "lyricsGenerationModel": "Modelo de generación de letras",
   "lyricsGenerationModelDescription": "Para que la IA genere letras a partir de la canción y genere/corrija la línea de tiempo de letras existentes.",
+  "lyricsKaraokeModel": "Modelo de letras karaoke",
+  "lyricsKaraokeModelDescription": "Modelo de alineación de audio de alta precisión para convertir letras en una línea de tiempo de karaoke palabra por palabra.",
   "lyricsTranslationModel": "Modelo de traducción de letras",
   "lyricsTranslationModelDescription": "Para traducir letras al idioma de destino.",
   "onlyForLyricTranslation": "Solo para traducción de letras",

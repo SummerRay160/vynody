@@ -460,6 +460,28 @@
   "customFontOption": "自訂字體...",
   "customFontDialogTitle": "輸入字體名稱",
   "customFontDialogHint": "例如: 霞鶩文楷 / Inter / Fira Code",
+  "selectLyricsFont": "選擇歌詞字體",
+  "systemFonts": "系統字體",
+  "recommendedFonts": "推薦預設",
+  "cjkFonts": "中文字體",
+  "latinFonts": "西文字體",
+  "allFonts": "全部字體",
+  "searchFontHint": "搜尋字體名稱或別名...",
+  "lyricsFontPreview": "字體效果預覽",
+  "defaultFontOption": "預設（跟隨系統）",
+  "importFontFile": "匯入字體檔案",
+  "importedFonts": "已匯入字體",
+  "noImportedFontsHint": "暫無匯入字體，點擊下方按鈕匯入本地 .ttf / .otf 字體檔案",
+  "deleteFontConfirm": "確定刪除字體 \"{name}\" 嗎？",
+  "@deleteFontConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fontImportSuccess": "字體匯入成功",
+  "fontImportFailed": "字體匯入失敗",
   "resumeLyricsSync": "恢復歌詞同步",
   "followSystemLanguage": "跟隨系統",
   "autoSwitchLyricsProvider": "自動切換歌詞供應商",
@@ -785,6 +807,8 @@
   "openAppStore": "前往 App Store",
   "lyricsGenerationModel": "歌詞生成模型",
   "lyricsGenerationModelDescription": "用於 AI 聽歌生成歌詞，以及為現有歌詞生成／修正時間軸。",
+  "lyricsKaraokeModel": "逐字歌詞模型",
+  "lyricsKaraokeModelDescription": "用於將歌詞轉換為逐字卡拉OK時間軸的高精度音訊對齊模型。",
   "lyricsTranslationModel": "歌詞翻譯模型",
   "lyricsTranslationModelDescription": "用於將歌詞翻譯到目標語言。",
   "onlyForLyricTranslation": "僅用於歌詞翻譯",

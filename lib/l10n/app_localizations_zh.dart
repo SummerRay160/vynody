@@ -6125,6 +6125,53 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get customFontDialogHint => '例如: 霞鶩文楷 / Inter / Fira Code';
 
   @override
+  String get selectLyricsFont => '選擇歌詞字體';
+
+  @override
+  String get systemFonts => '系統字體';
+
+  @override
+  String get recommendedFonts => '推薦預設';
+
+  @override
+  String get cjkFonts => '中文字體';
+
+  @override
+  String get latinFonts => '西文字體';
+
+  @override
+  String get allFonts => '全部字體';
+
+  @override
+  String get searchFontHint => '搜尋字體名稱或別名...';
+
+  @override
+  String get lyricsFontPreview => '字體效果預覽';
+
+  @override
+  String get defaultFontOption => '預設（跟隨系統）';
+
+  @override
+  String get importFontFile => '匯入字體檔案';
+
+  @override
+  String get importedFonts => '已匯入字體';
+
+  @override
+  String get noImportedFontsHint => '暫無匯入字體，點擊下方按鈕匯入本地 .ttf / .otf 字體檔案';
+
+  @override
+  String deleteFontConfirm(String name) {
+    return '確定刪除字體 \"$name\" 嗎？';
+  }
+
+  @override
+  String get fontImportSuccess => '字體匯入成功';
+
+  @override
+  String get fontImportFailed => '字體匯入失敗';
+
+  @override
   String get resumeLyricsSync => '恢復歌詞同步';
 
   @override
@@ -7175,6 +7222,12 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   @override
   String get lyricsGenerationModelDescription =>
       '用於 AI 聽歌生成歌詞，以及為現有歌詞生成／修正時間軸。';
+
+  @override
+  String get lyricsKaraokeModel => '逐字歌詞模型';
+
+  @override
+  String get lyricsKaraokeModelDescription => '用於將歌詞轉換為逐字卡拉OK時間軸的高精度音訊對齊模型。';
 
   @override
   String get lyricsTranslationModel => '歌詞翻譯模型';
