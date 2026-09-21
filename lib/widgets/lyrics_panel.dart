@@ -174,6 +174,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   String? _lastBuiltLyricsFont;
   String? _lastBuiltLatinFont;
   String? _lastBuiltCjkFont;
+  double? _lastBuiltBottomSpacerHeight;
+  double? _lastBuiltBottomTabBarHeight;
 
   LyricsController get _lyricsControllerActions =>
       ref.read(lyricsControllerProvider.notifier);
@@ -2145,7 +2147,9 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
             isLowMidEnd != _lastBuiltIsLowMidEnd ||
             lyricsFont != _lastBuiltLyricsFont ||
             lyricsLatinFont != _lastBuiltLatinFont ||
-            lyricsCjkFont != _lastBuiltCjkFont;
+            lyricsCjkFont != _lastBuiltCjkFont ||
+            widget.bottomSpacerHeight != _lastBuiltBottomSpacerHeight ||
+            widget.bottomTabBarHeight != _lastBuiltBottomTabBarHeight;
 
         if (needsRebuild) {
           _lastBuiltActiveIndex = focusedIndex;
@@ -2171,6 +2175,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
           _lastBuiltLyricsFont = lyricsFont;
           _lastBuiltLatinFont = lyricsLatinFont;
           _lastBuiltCjkFont = lyricsCjkFont;
+          _lastBuiltBottomSpacerHeight = widget.bottomSpacerHeight;
+          _lastBuiltBottomTabBarHeight = widget.bottomTabBarHeight;
 
           _cachedLyricsView = LyricsPanelTimedLyricsView(
             lyrics: lyrics,

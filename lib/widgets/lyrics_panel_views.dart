@@ -991,8 +991,9 @@ class _LyricsFadeShaderMask extends StatelessWidget {
             final double bottomFadeStartHeight;
 
             if (isPortrait) {
-              bottomFadeEndHeight = 20.0;
-              bottomFadeStartHeight = 60.0;
+              final effectiveBottomReserve = math.max(20.0, bottomSpacerHeight);
+              bottomFadeEndHeight = effectiveBottomReserve;
+              bottomFadeStartHeight = effectiveBottomReserve + 50.0;
             } else {
               bottomFadeEndHeight = 0.0;
               bottomFadeStartHeight = math.max(30.0, bottomSpacerHeight);

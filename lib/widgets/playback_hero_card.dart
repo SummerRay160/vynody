@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:ui' show lerpDouble;
 import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:vynody/player/audio/audio_riverpod.dart';
@@ -60,7 +62,7 @@ class _PlaybackCardLayout {
   final double leftAreaTotalHeight;
 }
 
-class PlaybackHeroCard extends ConsumerWidget {
+class PlaybackHeroCard extends ConsumerStatefulWidget {
   const PlaybackHeroCard({
     super.key,
     required this.isMini,
@@ -137,6 +139,47 @@ class PlaybackHeroCard extends ConsumerWidget {
   final GlobalKey? coverKey;
   final GlobalKey? lyricsKey;
 
+  @override
+  ConsumerState<PlaybackHeroCard> createState() => _PlaybackHeroCardState();
+}
+
+class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
+  bool _isPortraitLyricsControlsExpanded = false;
+
+  @override
+  void didUpdateWidget(PlaybackHeroCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isLyricsMode && !widget.isLyricsMode) {
+      Future.delayed(PlaybackHeroCardUiTuning.transitionDuration, () {
+        if (mounted && !widget.isLyricsMode) {
+          setState(() {
+            _isPortraitLyricsControlsExpanded = false;
+          });
+        }
+      });
+    } else if (!oldWidget.isLyricsMode && widget.isLyricsMode) {
+      _isPortraitLyricsControlsExpanded = false;
+    }
+  }
+
+  void _expandPortraitLyricsControls() {
+    if (!mounted) return;
+    if (!_isPortraitLyricsControlsExpanded) {
+      setState(() {
+        _isPortraitLyricsControlsExpanded = true;
+      });
+    }
+  }
+
+  void _collapsePortraitLyricsControls() {
+    if (!mounted) return;
+    if (_isPortraitLyricsControlsExpanded) {
+      setState(() {
+        _isPortraitLyricsControlsExpanded = false;
+      });
+    }
+  }
+
   double _lerp2D(
     BuildContext context,
     double pN,
@@ -202,30 +245,30 @@ class PlaybackHeroCard extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final card = Material(
       type: MaterialType.transparency,
-      child: isMini
+      child: widget.isMini
           ? MiniPlayerCard(
-              showMiniVolumeSlider: showMiniVolumeSlider,
-              onMiniTap: onMiniTap,
-              onPrevious: onPrevious,
-              onPlayPause: onPlayPause,
-              onNext: onNext,
-              onScrubbing: onScrubbing,
-              onSeek: onSeek,
-              onVolumeTap: onVolumeTap,
-              onVolumeChanged: onVolumeChanged,
-              onVolumeScroll: onVolumeScroll,
-              onMiniMouseExit: onMiniMouseExit,
+              showMiniVolumeSlider: widget.showMiniVolumeSlider,
+              onMiniTap: widget.onMiniTap,
+              onPrevious: widget.onPrevious,
+              onPlayPause: widget.onPlayPause,
+              onNext: widget.onNext,
+              onScrubbing: widget.onScrubbing,
+              onSeek: widget.onSeek,
+              onVolumeTap: widget.onVolumeTap,
+              onVolumeChanged: widget.onVolumeChanged,
+              onVolumeScroll: widget.onVolumeScroll,
+              onMiniMouseExit: widget.onMiniMouseExit,
             )
-          : _buildFullCard(context, ref),
+          : _buildFullCard(context),
     );
 
     return card;
   }
 
-  Widget _buildFullCard(BuildContext context, WidgetRef ref) {
+  Widget _buildFullCard(BuildContext context) {
     const animDuration = PlaybackHeroCardUiTuning.transitionDuration;
     const animCurve = Curves.fastOutSlowIn;
     final currentMusic = ref.watch(audioCurrentMusicProvider);
@@ -241,364 +284,479 @@ class PlaybackHeroCard extends ConsumerWidget {
       isWaveformEnabled: isEffectiveWaveform,
       isSmallWindowMode: settings.isSmallWindowMode,
     );
-    final bool effectiveIsLandscape = isLandscape && !isSmallWindow;
-    final bool effectiveIsLyricsMode = isLyricsMode && !isSmallWindow;
-
+    final bool effectiveIsLandscape = widget.isLandscape && !isSmallWindow;
+    final bool effectiveIsLyricsMode = widget.isLyricsMode && !isSmallWindow;
 
     final isTransitioningNotifier = ValueNotifier<bool>(false);
-    final lyricsPanelWidget = _LyricsPanelTransitionWrapper(
-      isTransitioning: isTransitioningNotifier,
-      lyricsBottomSpacerHeight: lyricsBottomSpacerHeight,
-      lyricsBottomTabBarHeight: lyricsBottomTabBarHeight,
-    );
+
+    final bool shouldExpandControls =
+        _isPortraitLyricsControlsExpanded &&
+        !effectiveIsLandscape;
 
     return TweenAnimationBuilder<double>(
-      duration: animDuration,
-      curve: animCurve,
-      tween: Tween<double>(end: effectiveIsLandscape ? 1.0 : 0.0),
-      child: lyricsPanelWidget,
-      builder: (context, tLand, child) {
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+      tween: Tween<double>(end: shouldExpandControls ? 1.0 : 0.0),
+      builder: (context, portraitControlsExpandProgress, _) {
+        final double pNormalScale =
+            (size.width / PlaybackHeroCardUiTuning.pControlsScaleBase)
+                .clamp(0.9, 1.15) *
+            (isSmallWindow ? 0.82 : 1.0);
+        final double pNormalTopButtonsTotalHeight =
+            (PlaybackHeroCardUiTuning.controlsTopButtonsHeight +
+                    PlaybackHeroCardUiTuning.controlsRowPortraitGap) *
+                pNormalScale;
+        final double pNormalControlsBaseIdealHeight =
+            PlaybackHeroCardUiTuning.controlsTopButtonsHeight +
+            PlaybackHeroCardUiTuning.controlsRowPortraitGap +
+            48.0 +
+            (8.0 +
+                PlaybackHeroCardUiTuning.controlsTimeRowHeight +
+                PlaybackHeroCardUiTuning.controlsRowPortraitGap +
+                PlaybackHeroCardUiTuning.controlsMainButtonsHeight);
+        final double expandedControlsHeight = math.max(
+          110.0,
+          pNormalControlsBaseIdealHeight * pNormalScale -
+              pNormalTopButtonsTotalHeight,
+        );
+        final double effectiveLyricsBottomSpacer =
+            widget.lyricsBottomSpacerHeight +
+            (portraitControlsExpandProgress * (expandedControlsHeight + 16.0));
+
+        final lyricsPanelWidget = _LyricsPanelTransitionWrapper(
+          isTransitioning: isTransitioningNotifier,
+          lyricsBottomSpacerHeight: effectiveLyricsBottomSpacer,
+          lyricsBottomTabBarHeight: widget.lyricsBottomTabBarHeight,
+        );
+
         return TweenAnimationBuilder<double>(
           duration: animDuration,
           curve: animCurve,
-          tween: Tween<double>(
-            begin: 0.0,
-            end: effectiveIsLyricsMode ? 1.0 : 0.0,
-          ),
-          child: child,
-          builder: (context, tLyrics, child) {
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final width = constraints.maxWidth.roundToDouble();
-                final height = constraints.maxHeight.roundToDouble();
-                final progressBarStyle =
-                    ref.watch(effectiveProgressBarStyleProvider);
-                final collapseButtonsInLandscapeLyrics = ref.watch(
-                  settingsServiceProvider.select(
-                    (s) => s.collapseButtonsInLandscapeLyrics,
-                  ),
-                );
+          tween: Tween<double>(end: effectiveIsLandscape ? 1.0 : 0.0),
+          child: lyricsPanelWidget,
+          builder: (context, tLand, child) {
+            return TweenAnimationBuilder<double>(
+              duration: animDuration,
+              curve: animCurve,
+              tween: Tween<double>(
+                begin: 0.0,
+                end: effectiveIsLyricsMode ? 1.0 : 0.0,
+              ),
+              child: child,
+              builder: (context, tLyrics, child) {
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width = constraints.maxWidth.roundToDouble();
+                    final height = constraints.maxHeight.roundToDouble();
+                    final progressBarStyle =
+                        ref.watch(effectiveProgressBarStyleProvider);
+                    final collapseButtonsInLandscapeLyrics = ref.watch(
+                      settingsServiceProvider.select(
+                        (s) => s.collapseButtonsInLandscapeLyrics,
+                      ),
+                    );
 
-                final bool isTransitioning =
-                    (tLyrics > 0.0 && tLyrics < 1.0) ||
-                    (tLand > 0.0 && tLand < 1.0);
-                final bool isEnteringLyricsMode =
-                    effectiveIsLyricsMode && (tLyrics > 0.0 && tLyrics < 1.0);
-                final bool optimize = isTransitioning && isLowMidEnd;
+                    final bool isTransitioning =
+                        (tLyrics > 0.0 && tLyrics < 1.0) ||
+                        (tLand > 0.0 && tLand < 1.0);
+                    final bool isEnteringLyricsMode =
+                        effectiveIsLyricsMode && (tLyrics > 0.0 && tLyrics < 1.0);
+                    final bool optimize = isTransitioning && isLowMidEnd;
 
-                final double targetTLyrics = effectiveIsLyricsMode ? 1.0 : 0.0;
+                    final double targetTLyrics =
+                        effectiveIsLyricsMode ? 1.0 : 0.0;
 
-                final coverNormalLayout = _buildPlaybackCardLayout(
-                  context,
-                  width: width,
-                  height: height,
-                  tLyrics: 0.0,
-                  tLand: tLand,
-                  progressBarStyle: progressBarStyle,
-                  isSmallWindow: isSmallWindow,
-                  lyricsStyle: settings.lyricsStyle,
-                  collapseButtonsInLandscapeLyrics:
-                      collapseButtonsInLandscapeLyrics,
-                  uiScale: settings.uiScale,
-                );
+                    final coverNormalLayout = _buildPlaybackCardLayout(
+                      context,
+                      width: width,
+                      height: height,
+                      tLyrics: 0.0,
+                      tLand: tLand,
+                      progressBarStyle: progressBarStyle,
+                      isSmallWindow: isSmallWindow,
+                      lyricsStyle: settings.lyricsStyle,
+                      collapseButtonsInLandscapeLyrics:
+                          collapseButtonsInLandscapeLyrics,
+                      uiScale: settings.uiScale,
+                      portraitControlsExpandProgress:
+                          portraitControlsExpandProgress,
+                    );
 
-                final endLayout = _buildPlaybackCardLayout(
-                  context,
-                  width: width,
-                  height: height,
-                  tLyrics: 1.0,
-                  tLand: tLand,
-                  progressBarStyle: progressBarStyle,
-                  isSmallWindow: isSmallWindow,
-                  lyricsStyle: settings.lyricsStyle,
-                  collapseButtonsInLandscapeLyrics:
-                      collapseButtonsInLandscapeLyrics,
-                  uiScale: settings.uiScale,
-                );
+                    final endLayout = _buildPlaybackCardLayout(
+                      context,
+                      width: width,
+                      height: height,
+                      tLyrics: 1.0,
+                      tLand: tLand,
+                      progressBarStyle: progressBarStyle,
+                      isSmallWindow: isSmallWindow,
+                      lyricsStyle: settings.lyricsStyle,
+                      collapseButtonsInLandscapeLyrics:
+                          collapseButtonsInLandscapeLyrics,
+                      uiScale: settings.uiScale,
+                      portraitControlsExpandProgress:
+                          portraitControlsExpandProgress,
+                    );
 
-                final layout = _lerpPlaybackCardLayout(
-                  coverNormalLayout,
-                  endLayout,
-                  tLyrics,
-                );
+                    final layout = _lerpPlaybackCardLayout(
+                      coverNormalLayout,
+                      endLayout,
+                      tLyrics,
+                    );
 
-                final targetLayout =
-                    targetTLyrics == 1.0 ? endLayout : coverNormalLayout;
+                    final targetLayout =
+                        targetTLyrics == 1.0 ? endLayout : coverNormalLayout;
 
-                final double translationX =
-                    layout.lyrics.left - endLayout.lyrics.left;
-                final double translationY =
-                    layout.lyrics.top - endLayout.lyrics.top;
+                    final double translationX =
+                        layout.lyrics.left - endLayout.lyrics.left;
+                    final double translationY =
+                        layout.lyrics.top - endLayout.lyrics.top;
 
-                final double infoTranslationX =
-                    layout.info.left - targetLayout.info.left;
-                final double infoTranslationY =
-                    layout.info.top - targetLayout.info.top;
+                    final double infoTranslationX =
+                        layout.info.left - targetLayout.info.left;
+                    final double infoTranslationY =
+                        layout.info.top - targetLayout.info.top;
 
-                return SizedBox(
-                  width: width,
-                  height: height,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Positioned(
-                        top: endLayout.lyrics.top,
-                        left: endLayout.lyrics.left,
-                        width: endLayout.lyrics.width,
-                        height: endLayout.lyrics.height,
-                        child: ExcludeSemantics(
-                          excluding: isTransitioning,
-                          child: RepaintBoundary(
-                            child: Transform.translate(
-                              offset: Offset(translationX, translationY),
-                              child: IgnorePointer(
-                                ignoring: layout.lyrics.opacity < 0.5,
+                    final double topButtonsCollapseT = effectiveIsLandscape
+                        ? 0.0
+                        : (tLyrics * portraitControlsExpandProgress);
+
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (!effectiveIsLandscape &&
+                            effectiveIsLyricsMode &&
+                            settings.lyricsStyle == LyricsStyle.apple) {
+                          if (notification is ScrollUpdateNotification) {
+                            if (notification.dragDetails != null &&
+                                notification.scrollDelta != null) {
+                              if (notification.scrollDelta! > 1.0) {
+                                _expandPortraitLyricsControls();
+                              } else if (notification.scrollDelta! < -1.0) {
+                                _collapsePortraitLyricsControls();
+                              }
+                            }
+                          } else if (notification is UserScrollNotification) {
+                            if (notification.direction ==
+                                ScrollDirection.reverse) {
+                              _expandPortraitLyricsControls();
+                            } else if (notification.direction ==
+                                ScrollDirection.forward) {
+                              _collapsePortraitLyricsControls();
+                            }
+                          }
+                        }
+                        return false;
+                      },
+                      child: SizedBox(
+                        width: width,
+                        height: height,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              top: endLayout.lyrics.top,
+                              left: endLayout.lyrics.left,
+                              width: endLayout.lyrics.width,
+                              height: endLayout.lyrics.height,
+                              child: ExcludeSemantics(
+                                excluding: isTransitioning,
                                 child: RepaintBoundary(
+                                  child: Transform.translate(
+                                    offset: Offset(translationX, translationY),
+                                    child: IgnorePointer(
+                                      ignoring: layout.lyrics.opacity < 0.5,
+                                      child: RepaintBoundary(
+                                        child: Consumer(
+                                          builder: (context, ref, childWidget) {
+                                            if (tLyrics == 0.0 &&
+                                                !effectiveIsLyricsMode) {
+                                              return const SizedBox.shrink();
+                                            }
+                                            if (isTransitioningNotifier.value !=
+                                                optimize) {
+                                              Future.microtask(() {
+                                                isTransitioningNotifier.value =
+                                                    optimize;
+                                              });
+                                            }
+                                            if (widget.lyricsKey != null) {
+                                              return KeyedSubtree(
+                                                key: widget.lyricsKey,
+                                                child: child!,
+                                              );
+                                            }
+                                            return child!;
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (isSmallWindow)
+                              Positioned(
+                                top: layout.info.top - 48.0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final containerHeight =
+                                        constraints.maxHeight;
+                                    final fadeStop = containerHeight > 0
+                                        ? (48.0 / containerHeight).clamp(
+                                            0.0,
+                                            1.0,
+                                          )
+                                        : 0.2;
+                                    return ShaderMask(
+                                      shaderCallback: (rect) {
+                                        return LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: const [
+                                            Colors.transparent,
+                                            Colors.black,
+                                          ],
+                                          stops: [0.0, fadeStop],
+                                        ).createShader(rect);
+                                      },
+                                      blendMode: BlendMode.dstIn,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.35,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            Positioned(
+                              top: layout.controls.top,
+                              left: layout.controls.left,
+                              width: layout.controls.width,
+                              height: layout.controls.height +
+                                  (effectiveIsLandscape ? 36.0 : 0.0),
+                              child: IgnorePointer(
+                                ignoring: layout.controls.opacity < 0.05,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: effectiveIsLandscape
+                                      ? Alignment.center
+                                      : Alignment.topCenter,
                                   child: Consumer(
-                                    builder: (context, ref, childWidget) {
-                                      if (tLyrics == 0.0 &&
-                                          !effectiveIsLyricsMode) {
-                                        return const SizedBox.shrink();
-                                      }
-                                      if (isTransitioningNotifier.value !=
-                                          optimize) {
-                                        Future.microtask(() {
-                                          isTransitioningNotifier.value =
-                                              optimize;
-                                        });
-                                      }
-                                      if (lyricsKey != null) {
-                                        return KeyedSubtree(
-                                          key: lyricsKey,
-                                          child: child!,
-                                        );
-                                      }
-                                      return child!;
+                                    builder: (context, ref, child) {
+                                      final double layoutWidth = optimize
+                                          ? targetLayout.controls.width
+                                          : layout.controls.width;
+                                      return SizedBox(
+                                        key: const ValueKey(
+                                          'controls_sizing_box',
+                                        ),
+                                        width: (effectiveIsLandscape
+                                            ? layoutWidth
+                                            : width *
+                                                  PlaybackHeroCardUiTuning
+                                                      .portraitControlsWidthFactor),
+                                        child: SizeLogger(
+                                          name: 'Controls',
+                                          child: PlaybackControls(
+                                            width: width,
+                                            layoutWidth: layoutWidth,
+                                            controlsScale: optimize
+                                                ? targetLayout.controlsScale
+                                                : layout.controlsScale,
+                                            tLyrics: optimize
+                                                ? targetTLyrics
+                                                : tLyrics,
+                                            topButtonsCollapseT:
+                                                topButtonsCollapseT,
+                                            isLandscape: effectiveIsLandscape,
+                                            isTransitioning:
+                                                isEnteringLyricsMode,
+                                            showVisualizerToggle:
+                                                widget.showVisualizerToggle,
+                                            overrideProgress:
+                                                widget.overrideProgress,
+                                            overridePosition:
+                                                widget.overridePosition,
+                                            overrideWaveform:
+                                                widget.overrideWaveform,
+                                            onShowMoreMenu:
+                                                widget.onShowMoreMenu,
+                                            onCyclePlaylistMode:
+                                                widget.onCyclePlaylistMode,
+                                            onShowPlaylistModeSelector:
+                                                widget.onShowPlaylistModeSelector,
+                                            onScrubbing: widget.onScrubbing,
+                                            onSeek: widget.onSeek,
+                                            onToggleVisualizer:
+                                                widget.onToggleVisualizer,
+                                            onTagCompletionTap:
+                                                widget.onTagCompletionTap,
+                                            onTagCompletionLongPress:
+                                                widget.onTagCompletionLongPress,
+                                            onSleepTimerTap:
+                                                widget.onSleepTimerTap,
+                                            onEqualizerTap:
+                                                widget.onEqualizerTap,
+                                            onPrevious: widget.onPrevious,
+                                            onPlayPause: widget.onPlayPause,
+                                            onNext: widget.onNext,
+                                            onVolumeTap: widget.onVolumeTap,
+                                            onVolumeDrag: widget.onVolumeDrag,
+                                            onVolumeScroll:
+                                                widget.onVolumeScroll,
+                                          ),
+                                        ),
+                                      );
                                     },
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                      if (isSmallWindow)
-                        Positioned(
-                          top: layout.info.top - 48.0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              final containerHeight = constraints.maxHeight;
-                              final fadeStop = containerHeight > 0
-                                  ? (48.0 / containerHeight).clamp(0.0, 1.0)
-                                  : 0.2;
-                              return ShaderMask(
-                                shaderCallback: (rect) {
-                                  return LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: const [
-                                      Colors.transparent,
-                                      Colors.black,
-                                    ],
-                                    stops: [0.0, fadeStop],
-                                  ).createShader(rect);
-                                },
-                                blendMode: BlendMode.dstIn,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.35),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      Positioned(
-                        top: layout.controls.top,
-                        left: layout.controls.left,
-                        width: layout.controls.width,
-                        height: layout.controls.height +
-                            (effectiveIsLandscape ? 36.0 : 0.0),
-                        child: IgnorePointer(
-                          ignoring: layout.controls.opacity < 0.5,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.center,
-                            child: Consumer(
-                              builder: (context, ref, child) {
-                                final double layoutWidth = optimize
-                                    ? targetLayout.controls.width
-                                    : layout.controls.width;
-                                return SizedBox(
-                                  key: const ValueKey('controls_sizing_box'),
-                                  width: (effectiveIsLandscape
-                                      ? layoutWidth
-                                      : width *
-                                            PlaybackHeroCardUiTuning
-                                                .portraitControlsWidthFactor),
-                                  child: SizeLogger(
-                                    name: 'Controls',
-                                    child: PlaybackControls(
-                                      width: width,
-                                      layoutWidth: layoutWidth,
-                                      controlsScale: optimize
-                                          ? targetLayout.controlsScale
-                                          : layout.controlsScale,
-                                      tLyrics: optimize ? targetTLyrics : tLyrics,
-                                      isLandscape: effectiveIsLandscape,
-                                      isTransitioning: isEnteringLyricsMode,
-                                      showVisualizerToggle: showVisualizerToggle,
-                                      overrideProgress: overrideProgress,
-                                      overridePosition: overridePosition,
-                                      overrideWaveform: overrideWaveform,
-                                      onShowMoreMenu: onShowMoreMenu,
-                                      onCyclePlaylistMode: onCyclePlaylistMode,
-                                      onShowPlaylistModeSelector:
-                                          onShowPlaylistModeSelector,
-                                      onScrubbing: onScrubbing,
-                                      onSeek: onSeek,
-                                      onToggleVisualizer: onToggleVisualizer,
-                                      onTagCompletionTap: onTagCompletionTap,
-                                      onTagCompletionLongPress:
-                                          onTagCompletionLongPress,
-                                      onSleepTimerTap: onSleepTimerTap,
-                                      onEqualizerTap: onEqualizerTap,
-                                      onPrevious: onPrevious,
-                                      onPlayPause: onPlayPause,
-                                      onNext: onNext,
-                                      onVolumeTap: onVolumeTap,
-                                      onVolumeDrag: onVolumeDrag,
-                                      onVolumeScroll: onVolumeScroll,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (layout.cover.width > 0 && layout.cover.height > 0)
-                        Positioned(
-                          top: layout.cover.top,
-                          left: layout.cover.left,
-                          width: layout.cover.width,
-                          height: layout.cover.height,
-                          child: Consumer(
-                            builder: (context, ref, child) {
-                              final double currentSize = optimize
-                                  ? coverNormalLayout.cover.width
-                                  : layout.cover.width;
-                              final Widget coverWidget = SizeLogger(
-                                name: 'Cover',
-                                child: PlaybackAlbumArt(
-                                  currentSize: currentSize,
-                                  cacheWidthSize: coverNormalLayout.cover.width,
-                                  isNext: isNext,
-                                  onCoverTap: onCoverTap,
-                                  onCarouselAnimationComplete:
-                                      onCarouselAnimationComplete,
-                                ),
-                              );
-                              if (optimize) {
-                                return KeyedSubtree(
-                                  key: coverKey,
-                                  child: FittedBox(
-                                    fit: BoxFit.fill,
-                                    child: SizedBox(
-                                      width: coverNormalLayout.cover.width,
-                                      height: coverNormalLayout.cover.height,
+                            if (layout.cover.width > 0 && layout.cover.height > 0)
+                              Positioned(
+                                top: layout.cover.top,
+                                left: layout.cover.left,
+                                width: layout.cover.width,
+                                height: layout.cover.height,
+                                child: Consumer(
+                                  builder: (context, ref, child) {
+                                    final double currentSize = optimize
+                                        ? coverNormalLayout.cover.width
+                                        : layout.cover.width;
+                                    final Widget coverWidget = SizeLogger(
+                                      name: 'Cover',
+                                      child: PlaybackAlbumArt(
+                                        currentSize: currentSize,
+                                        cacheWidthSize:
+                                            coverNormalLayout.cover.width,
+                                        isNext: widget.isNext,
+                                        onCoverTap: widget.onCoverTap,
+                                        onCarouselAnimationComplete:
+                                            widget.onCarouselAnimationComplete,
+                                      ),
+                                    );
+                                    if (optimize) {
+                                      return KeyedSubtree(
+                                        key: widget.coverKey,
+                                        child: FittedBox(
+                                          fit: BoxFit.fill,
+                                          child: SizedBox(
+                                            width: coverNormalLayout.cover.width,
+                                            height:
+                                                coverNormalLayout.cover.height,
+                                            child: coverWidget,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    return KeyedSubtree(
+                                      key: widget.coverKey,
                                       child: coverWidget,
-                                    ),
-                                  ),
-                                );
-                              }
-                              return KeyedSubtree(
-                                key: coverKey,
-                                child: coverWidget,
-                              );
-                            },
-                          ),
-                        ),
-                      Positioned(
-                        top: optimize ? targetLayout.info.top : layout.info.top,
-                        left: optimize ? targetLayout.info.left : layout.info.left,
-                        width: optimize ? targetLayout.info.width : layout.info.width,
-                        height: (optimize
-                                ? targetLayout.info.height
-                                : layout.info.height) +
-                            (effectiveIsLandscape ? 24.0 : 0.0),
-                        child: Transform.translate(
-                          offset: optimize
-                              ? Offset(infoTranslationX, infoTranslationY)
-                              : Offset.zero,
-                          child: Builder(
-                            builder: (context) {
-                              final Alignment targetInfoAlignment =
-                                  (collapseButtonsInLandscapeLyrics ||
-                                          !effectiveIsLandscape)
-                                      ? Alignment.centerLeft
-                                      : Alignment.center;
-                              return FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: optimize
-                                    ? Alignment.lerp(
-                                        Alignment.center,
-                                        Alignment.lerp(
-                                          Alignment.center,
-                                          targetInfoAlignment,
-                                          targetTLyrics,
-                                        )!,
-                                        tLand,
-                                      )!
-                                    : Alignment.lerp(
-                                        Alignment.center,
-                                        Alignment.lerp(
-                                          Alignment.center,
-                                          targetInfoAlignment,
-                                          tLyrics,
-                                        )!,
-                                        tLand,
-                                      )!,
-                                child: SizedBox(
-                                  width: optimize
-                                      ? targetLayout.info.width
-                                      : layout.info.width,
-                                  child: SizeLogger(
-                                    name: 'TrackInfo',
-                                    child: PlaybackTrackInfo(
-                                      currentMusic: currentMusic,
-                                      align: optimize
-                                          ? targetLayout.trackInfoAlign
-                                          : layout.trackInfoAlign,
-                                      lyricsModeT:
-                                          optimize ? targetTLyrics : tLyrics,
-                                      landscapeT: tLand,
-                                      controlsScale: optimize
-                                          ? targetLayout.controlsScale
-                                          : layout.controlsScale,
-                                      showVisualizerToggle: showVisualizerToggle,
-                                      onShowMoreMenu: onShowMoreMenu,
-                                      onCyclePlaylistMode: onCyclePlaylistMode,
-                                      onToggleVisualizer: onToggleVisualizer,
-                                      onTagCompletionTap: onTagCompletionTap,
-                                      onSleepTimerTap: onSleepTimerTap,
-                                      onEqualizerTap: onEqualizerTap,
-                                      onVolumeTap: onVolumeTap,
-                                      onVolumeScroll: onVolumeScroll,
-                                      onVolumeDrag: onVolumeDrag,
-                                    ),
-                                  ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            Positioned(
+                              top: optimize
+                                  ? targetLayout.info.top
+                                  : layout.info.top,
+                              left: optimize
+                                  ? targetLayout.info.left
+                                  : layout.info.left,
+                              width: optimize
+                                  ? targetLayout.info.width
+                                  : layout.info.width,
+                              height: (optimize
+                                      ? targetLayout.info.height
+                                      : layout.info.height) +
+                                  (effectiveIsLandscape ? 24.0 : 0.0),
+                              child: Transform.translate(
+                                offset: optimize
+                                    ? Offset(infoTranslationX, infoTranslationY)
+                                    : Offset.zero,
+                                child: Builder(
+                                  builder: (context) {
+                                    final Alignment targetInfoAlignment =
+                                        (collapseButtonsInLandscapeLyrics ||
+                                                !effectiveIsLandscape)
+                                            ? Alignment.centerLeft
+                                            : Alignment.center;
+                                    return FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: optimize
+                                          ? Alignment.lerp(
+                                              Alignment.center,
+                                              Alignment.lerp(
+                                                Alignment.center,
+                                                targetInfoAlignment,
+                                                targetTLyrics,
+                                              )!,
+                                              tLand,
+                                            )!
+                                          : Alignment.lerp(
+                                              Alignment.center,
+                                              Alignment.lerp(
+                                                Alignment.center,
+                                                targetInfoAlignment,
+                                                tLyrics,
+                                              )!,
+                                              tLand,
+                                            )!,
+                                      child: SizedBox(
+                                        width: optimize
+                                            ? targetLayout.info.width
+                                            : layout.info.width,
+                                        child: SizeLogger(
+                                          name: 'TrackInfo',
+                                          child: PlaybackTrackInfo(
+                                            currentMusic: currentMusic,
+                                            align: optimize
+                                                ? targetLayout.trackInfoAlign
+                                                : layout.trackInfoAlign,
+                                            lyricsModeT: optimize
+                                                ? targetTLyrics
+                                                : tLyrics,
+                                            landscapeT: tLand,
+                                            controlsScale: optimize
+                                                ? targetLayout.controlsScale
+                                                : layout.controlsScale,
+                                            showVisualizerToggle:
+                                                widget.showVisualizerToggle,
+                                            onShowMoreMenu:
+                                                widget.onShowMoreMenu,
+                                            onCyclePlaylistMode:
+                                                widget.onCyclePlaylistMode,
+                                            onToggleVisualizer:
+                                                widget.onToggleVisualizer,
+                                            onTagCompletionTap:
+                                                widget.onTagCompletionTap,
+                                            onSleepTimerTap:
+                                                widget.onSleepTimerTap,
+                                            onEqualizerTap:
+                                                widget.onEqualizerTap,
+                                            onVolumeTap: widget.onVolumeTap,
+                                            onVolumeScroll:
+                                                widget.onVolumeScroll,
+                                            onVolumeDrag: widget.onVolumeDrag,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             );
@@ -619,6 +777,7 @@ class PlaybackHeroCard extends ConsumerWidget {
     required LyricsStyle lyricsStyle,
     bool collapseButtonsInLandscapeLyrics = true,
     double uiScale = 1.0,
+    double portraitControlsExpandProgress = 0.0,
   }) {
     final double scaleFactor = isSmallWindow ? 0.82 : 1.0;
     final bool isWaveformEnabled =
@@ -999,7 +1158,10 @@ class PlaybackHeroCard extends ConsumerWidget {
             0.9,
             1.15,
           ),
-          1.0,
+          (width / PlaybackHeroCardUiTuning.pControlsScaleBase).clamp(
+            0.9,
+            1.15,
+          ),
           lNormalControlsScale,
           lLyricsSpaceControlsScale,
           tLyrics,
@@ -1108,6 +1270,28 @@ class PlaybackHeroCard extends ConsumerWidget {
       tLand: tLand,
     );
 
+    final double pNormalSingleButtonWidth =
+        PlaybackHeroCardUiTuning.controlsTopButtonsHeight * pNormalScale;
+    final double pNormalGapWidth =
+        PlaybackHeroCardUiTuning.controlsRowPortraitGap * pNormalScale;
+    final double pNormalTopButtonsTotalHeight =
+        pNormalSingleButtonWidth + pNormalGapWidth;
+
+    final double pLyricsControlsExpandedTop =
+        pNormalControlsTop + pNormalTopButtonsTotalHeight;
+    final double pLyricsControlsCollapsedTop = height;
+
+    final double pLyricsControlsTop = lerpDouble(
+      pLyricsControlsCollapsedTop,
+      pLyricsControlsExpandedTop,
+      portraitControlsExpandProgress,
+    )!;
+    final double pLyricsControlsOpacity =
+        portraitControlsExpandProgress.clamp(0.0, 1.0);
+
+    final double pLyricsControlsHeight = pNormalControlsHeight -
+        pNormalTopButtonsTotalHeight * portraitControlsExpandProgress;
+
     final controls = _lerpPane(
       context,
       pNormal: _PlaybackPaneLayout(
@@ -1118,11 +1302,11 @@ class PlaybackHeroCard extends ConsumerWidget {
         opacity: 1.0,
       ),
       pLyrics: _PlaybackPaneLayout(
-        top: height,
-        left: 24.0,
-        width: math.max(0.0, width - 48.0),
-        height: pNormalControlsHeight,
-        opacity: 0.0,
+        top: pLyricsControlsTop,
+        left: (width - math.min(width, pNormalControlsWidth)) / 2,
+        width: math.min(width, pNormalControlsWidth),
+        height: pLyricsControlsHeight,
+        opacity: pLyricsControlsOpacity,
       ),
       lNormal: _PlaybackPaneLayout(
         top: lNormalControlsTop,
@@ -1182,9 +1366,9 @@ class PlaybackHeroCard extends ConsumerWidget {
       tLand: tLand,
     );
 
-    final trackInfoAlign = isLandscape
+    final trackInfoAlign = widget.isLandscape
         ? TextAlign.center
-        : (isLyricsMode ? TextAlign.left : TextAlign.center);
+        : (widget.isLyricsMode ? TextAlign.left : TextAlign.center);
 
     return _PlaybackCardLayout(
       cover: cover,

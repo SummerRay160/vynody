@@ -42,12 +42,15 @@ class PlaybackControls extends ConsumerWidget {
   final ValueChanged<double>? onVolumeDrag;
   final ValueChanged<double>? onVolumeScroll;
 
+  final double topButtonsCollapseT;
+
   const PlaybackControls({
     super.key,
     required this.width,
     required this.layoutWidth,
     this.controlsScale = 1.0,
     this.tLyrics = 0.0,
+    this.topButtonsCollapseT = 0.0,
     required this.isLandscape,
     this.isTransitioning = false,
     this.showVisualizerToggle = true,
@@ -761,15 +764,33 @@ class PlaybackControls extends ConsumerWidget {
       ),
     );
 
+    final double portraitCollapseT =
+        effectiveIsLandscape ? 0.0 : topButtonsCollapseT.clamp(0.0, 1.0);
+
     if (useOverlayStyle) {
       return Column(
         key: const ValueKey('overlay_controls_column'),
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          topButtonsRow,
-          const SizedBox(
-            height: PlaybackHeroCardUiTuning.waveformStandardTimeRowSpacing,
+          ClipRect(
+            child: Align(
+              heightFactor: 1.0 - portraitCollapseT,
+              alignment: Alignment.bottomCenter,
+              child: Opacity(
+                opacity: (1.0 - portraitCollapseT).clamp(0.0, 1.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    topButtonsRow,
+                    const SizedBox(
+                      height:
+                          PlaybackHeroCardUiTuning.waveformStandardTimeRowSpacing,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
           Stack(
             key: const ValueKey('overlay_controls_stack'),
@@ -861,13 +882,28 @@ class PlaybackControls extends ConsumerWidget {
     return Column(
       key: const ValueKey('default_controls_column_portrait'),
       mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        topButtonsRow,
-        SizedBox(
-          height:
-              PlaybackHeroCardUiTuning.controlsRowPortraitGap * controlsScale,
+        ClipRect(
+          child: Align(
+            heightFactor: 1.0 - portraitCollapseT,
+            alignment: Alignment.bottomCenter,
+            child: Opacity(
+              opacity: (1.0 - portraitCollapseT).clamp(0.0, 1.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  topButtonsRow,
+                  SizedBox(
+                    height:
+                        PlaybackHeroCardUiTuning.controlsRowPortraitGap *
+                        controlsScale,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
         PlaybackProgressSection(
           key: const ValueKey('playback_progress_section_portrait'),
