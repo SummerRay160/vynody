@@ -899,14 +899,15 @@ class _PlaylistManagerDialogState
     );
 
     if (widget.asBottomSheet) {
-      return SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(24),
-            ),
+      return Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(24),
           ),
+        ),
+        child: SafeArea(
+          top: false,
           child: ConstrainedBox(
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.8,
