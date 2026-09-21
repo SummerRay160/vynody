@@ -28,7 +28,7 @@ class PlaybackPageUiTuning {
   static const double lyricsPortraitRightPadding = 8.0;
   static const double landscapeTopPadding = 32.0;
   static const double landscapeBottomPadding = 32.0;
-  static const double portraitTopPadding = 12.0;
+  static const double portraitTopPadding = 8.0;
   static const double lyricsTopPadding = 8.0;
 
   static const double traditionalLyricsVerticalPadding = 20.0; // 传统歌词面板每行歌词之间的间距

@@ -583,6 +583,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Collapse the 7-button row, left-align title, and add action buttons in landscape lyrics mode';
 
   @override
+  String get expandPortraitLyricsControlsOnScroll =>
+      'Expand controls on portrait lyrics scroll';
+
+  @override
+  String get expandPortraitLyricsControlsOnScrollDescription =>
+      'Expand bottom playback controls and progress bar when scrolling lyrics in portrait mode';
+
+  @override
   String get sampleStride => 'Sample Stride';
 
   @override

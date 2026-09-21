@@ -590,6 +590,14 @@ class AppLocalizationsFr extends AppLocalizations {
       'Réduit les 7 boutons, aligne le titre à gauche et ajoute des boutons à droite en mode paroles paysage';
 
   @override
+  String get expandPortraitLyricsControlsOnScroll =>
+      'Développer les commandes lors du défilement des paroles en portrait';
+
+  @override
+  String get expandPortraitLyricsControlsOnScrollDescription =>
+      'Développer les commandes et la barre de progression lors du défilement des paroles en mode portrait';
+
+  @override
   String get sampleStride => 'Pas d\'échantillonnage';
 
   @override

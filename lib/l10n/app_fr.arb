@@ -198,6 +198,8 @@
   "immersiveTabBarDescription": "Affiche la barre au mouvement de la souris, la cache après 3 secondes d'inactivité",
   "collapseButtonsInLandscapeLyrics": "Réduire les boutons en mode paroles paysage",
   "collapseButtonsInLandscapeLyricsDescription": "Réduit les 7 boutons, aligne le titre à gauche et ajoute des boutons à droite en mode paroles paysage",
+  "expandPortraitLyricsControlsOnScroll": "Développer les commandes lors du défilement des paroles en portrait",
+  "expandPortraitLyricsControlsOnScrollDescription": "Développer les commandes et la barre de progression lors du défilement des paroles en mode portrait",
   "sampleStride": "Pas d'échantillonnage",
   "sampleStrideDescription": "Plus la valeur est grande, plus l'analyse est rapide mais moins précise (défaut: 4)",
   "waveformSegments": "Segments de forme d'onde",

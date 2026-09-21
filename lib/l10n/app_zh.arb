@@ -716,6 +716,14 @@
   "@collapseButtonsInLandscapeLyricsDescription": {
     "description": "Collapse buttons in landscape lyrics mode description"
   },
+  "expandPortraitLyricsControlsOnScroll": "竖屏歌词滚动展开播放控件",
+  "@expandPortraitLyricsControlsOnScroll": {
+    "description": "Expand controls on portrait lyrics scroll label"
+  },
+  "expandPortraitLyricsControlsOnScrollDescription": "在竖屏歌词模式下滚动歌词时自动展开底部播放控件与进度条",
+  "@expandPortraitLyricsControlsOnScrollDescription": {
+    "description": "Expand controls on portrait lyrics scroll description"
+  },
   "sampleStride": "采样步长",
   "@sampleStride": {
     "description": "Sample Stride label"

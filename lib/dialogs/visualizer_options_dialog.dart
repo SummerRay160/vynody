@@ -675,6 +675,50 @@ class VisualizerOptionsDialog extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(height: 16),
+          _buildSectionHeader(
+            context,
+            l10n.lyricsSectionTitle,
+          ),
+          const SizedBox(height: 12),
+          _buildSectionCard(
+            context: context,
+            child: SwitchListTile(
+              contentPadding: isPortrait
+                  ? EdgeInsets.zero
+                  : const EdgeInsets.symmetric(horizontal: 12),
+              shape: isPortrait
+                  ? null
+                  : RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+              title: Text(
+                l10n.expandPortraitLyricsControlsOnScroll,
+                style: TextStyle(
+                  color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                l10n.expandPortraitLyricsControlsOnScrollDescription,
+                style: TextStyle(
+                  color: isDark
+                      ? Colors.white70
+                      : theme.colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
+              ),
+              value: settings.expandPortraitLyricsControlsOnScroll,
+              activeThumbColor: theme.colorScheme.primary,
+              activeTrackColor:
+                  theme.colorScheme.primary.withValues(alpha: 0.5),
+              onChanged: (val) {
+                settings.expandPortraitLyricsControlsOnScroll = val;
+                setDialogState(() {});
+              },
+            ),
+          ),
         ],
       ),
     );

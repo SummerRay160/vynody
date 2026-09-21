@@ -1185,6 +1185,18 @@ abstract class AppLocalizations {
   /// **'进入横屏歌词模式时收起 7 按钮行、标题左对齐并在右侧显示快捷按钮'**
   String get collapseButtonsInLandscapeLyricsDescription;
 
+  /// Expand controls on portrait lyrics scroll label
+  ///
+  /// In zh, this message translates to:
+  /// **'竖屏歌词滚动展开播放控件'**
+  String get expandPortraitLyricsControlsOnScroll;
+
+  /// Expand controls on portrait lyrics scroll description
+  ///
+  /// In zh, this message translates to:
+  /// **'在竖屏歌词模式下滚动歌词时自动展开底部播放控件与进度条'**
+  String get expandPortraitLyricsControlsOnScrollDescription;
+
   /// Sample Stride label
   ///
   /// In zh, this message translates to:

@@ -71,6 +71,13 @@ final List<SettingSearchItem> settingsSearchRegistry = [
     description: (l10n) => l10n.collapseButtonsInLandscapeLyricsDescription,
   ),
   SettingSearchItem(
+    id: 'general.expand_portrait_lyrics_controls_on_scroll',
+    section: SettingsSection.general,
+    icon: Icons.unfold_more_rounded,
+    title: (l10n) => l10n.expandPortraitLyricsControlsOnScroll,
+    description: (l10n) => l10n.expandPortraitLyricsControlsOnScrollDescription,
+  ),
+  SettingSearchItem(
     id: 'general.playback_button_layout',
     section: SettingsSection.general,
     icon: Icons.tune_rounded,

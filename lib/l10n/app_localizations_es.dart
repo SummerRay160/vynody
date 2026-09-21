@@ -591,6 +591,14 @@ class AppLocalizationsEs extends AppLocalizations {
       'Colapsa la fila de 7 botones, alinea el título a la izquierda y añade botones de acción a la derecha en modo letras horizontal';
 
   @override
+  String get expandPortraitLyricsControlsOnScroll =>
+      'Expandir controles al desplazar la letra en vertical';
+
+  @override
+  String get expandPortraitLyricsControlsOnScrollDescription =>
+      'Expandir los controles y la barra de progreso al desplazarse por las letras en modo vertical';
+
+  @override
   String get sampleStride => 'Paso de muestreo';
 
   @override

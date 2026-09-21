@@ -416,6 +416,8 @@ class SettingsService extends ChangeNotifier {
 
   static const String _keyCollapseButtonsInLandscapeLyrics =
       'collapse_buttons_in_landscape_lyrics';
+  static const String _keyExpandPortraitLyricsControlsOnScroll =
+      'expand_portrait_lyrics_controls_on_scroll';
   static const String _keyShowScanProgressToast = 'show_scan_progress_toast';
   static const String _keyOpenPlaybackOnDirectorySongTap =
       'open_playback_on_directory_song_tap';
@@ -442,6 +444,8 @@ class SettingsService extends ChangeNotifier {
   static String _lastKnownCustomProviderName = '';
   static const String _keyLyricsTranslationTargetLanguage =
       'lyrics_translation_target_language';
+  static const String _keyShowLyricsTranslation = 'show_lyrics_translation';
+  static const String _keyShowLyricsWordByWord = 'show_lyrics_word_by_word';
   static const String _keyLyricsSaveMethod = 'lyrics_save_method';
   static const String _keyLyricsStyle = 'lyrics_style';
   static const String _keyLyricsFontFamily = 'lyrics_font_family';
@@ -932,6 +936,14 @@ class SettingsService extends ChangeNotifier {
 
   late final _collapseButtonsInLandscapeLyricsProperty = SettingProperty<bool>(
     key: _keyCollapseButtonsInLandscapeLyrics,
+    defaultValue: true,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
+  late final _expandPortraitLyricsControlsOnScrollProperty =
+      SettingProperty<bool>(
+    key: _keyExpandPortraitLyricsControlsOnScroll,
     defaultValue: true,
     prefs: _prefs,
     onChanged: notifyListeners,
@@ -1900,6 +1912,20 @@ class SettingsService extends ChangeNotifier {
     onChanged: notifyListeners,
   );
 
+  late final _showLyricsTranslationProperty = SettingProperty<bool>(
+    key: _keyShowLyricsTranslation,
+    defaultValue: true,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
+  late final _showLyricsWordByWordProperty = SettingProperty<bool>(
+    key: _keyShowLyricsWordByWord,
+    defaultValue: true,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
   late final _desktopLyricsShowBackgroundProperty = SettingProperty<bool>(
     key: _keyDesktopLyricsShowBackground,
     defaultValue: false,
@@ -2086,6 +2112,11 @@ class SettingsService extends ChangeNotifier {
       _collapseButtonsInLandscapeLyricsProperty.value;
   set collapseButtonsInLandscapeLyrics(bool value) =>
       _collapseButtonsInLandscapeLyricsProperty.value = value;
+
+  bool get expandPortraitLyricsControlsOnScroll =>
+      _expandPortraitLyricsControlsOnScrollProperty.value;
+  set expandPortraitLyricsControlsOnScroll(bool value) =>
+      _expandPortraitLyricsControlsOnScrollProperty.value = value;
 
   List<String> get topButtonsOrder => _topButtonsOrderProperty.value;
   set topButtonsOrder(List<String> value) {
@@ -3384,6 +3415,16 @@ class SettingsService extends ChangeNotifier {
   bool get desktopLyricsShowTranslation => _desktopLyricsShowTranslationProperty.value;
   set desktopLyricsShowTranslation(bool value) {
     _desktopLyricsShowTranslationProperty.value = value;
+  }
+
+  bool get showLyricsTranslation => _showLyricsTranslationProperty.value;
+  set showLyricsTranslation(bool value) {
+    _showLyricsTranslationProperty.value = value;
+  }
+
+  bool get showLyricsWordByWord => _showLyricsWordByWordProperty.value;
+  set showLyricsWordByWord(bool value) {
+    _showLyricsWordByWordProperty.value = value;
   }
 
   bool get desktopLyricsShowBackground => _desktopLyricsShowBackgroundProperty.value;

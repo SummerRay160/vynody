@@ -157,6 +157,8 @@ class LyricsPanelTimedLyricsView extends StatefulWidget {
     this.lyricsFontFamily = '',
     this.latinFontFamily = '',
     this.cjkFontFamily = '',
+    this.showTranslation = true,
+    this.showWordByWord = true,
   });
 
   final MusicLyric? lyrics;
@@ -194,6 +196,8 @@ class LyricsPanelTimedLyricsView extends StatefulWidget {
   final String lyricsFontFamily;
   final String latinFontFamily;
   final String cjkFontFamily;
+  final bool showTranslation;
+  final bool showWordByWord;
 
   @override
   State<LyricsPanelTimedLyricsView> createState() =>
@@ -530,7 +534,8 @@ class _LyricsPanelTimedLyricsViewState
                                                   (line.words != null &&
                                                       line.words!.isNotEmpty &&
                                                       widget.lyricsStyle ==
-                                                          LyricsStyle.apple)
+                                                          LyricsStyle.apple &&
+                                                      widget.showWordByWord)
                                                   ? WordWordLyricsWidget(
                                                       words: line.words!,
                                                       lineStyle: lineStyle,
@@ -556,7 +561,8 @@ class _LyricsPanelTimedLyricsViewState
                                         ],
                                       ),
                                       if (widget.hasTimedLyrics &&
-                                          translated.isNotEmpty) ...[
+                                          translated.isNotEmpty &&
+                                          widget.showTranslation) ...[
                                         widget.lyricsStyle == LyricsStyle.apple
                                             ? AppleLyricTranslationFadeIn(
                                                 key: ValueKey(
@@ -622,14 +628,16 @@ class _LyricsPanelTimedLyricsViewState
                                                                                         LyricsStyle.apple &&
                                                                                     line.words !=
                                                                                         null &&
-                                                                                    line.words!.isNotEmpty
+                                                                                    line.words!.isNotEmpty &&
+                                                                                    widget.showWordByWord
                                                                                 ? widget.secondaryTextColor.withValues(
                                                                                     alpha: PlaybackPageUiTuning.appleLyricsActiveTranslationOpacity,
                                                                                   )
                                                                                 : widget.secondaryTextColor.withValues(
                                                                                     alpha: 1.0,
                                                                                   ))
-                                                                          : widget.secondaryTextColor),
+                                                                          : widget
+                                                                                .secondaryTextColor),
                                                                 fontSize:
                                                                     translationFontSize,
                                                                 fontWeight:
@@ -715,7 +723,8 @@ class _LyricsPanelTimedLyricsViewState
                                                                                       LyricsStyle.apple &&
                                                                                   line.words !=
                                                                                       null &&
-                                                                                  line.words!.isNotEmpty
+                                                                                  line.words!.isNotEmpty &&
+                                                                                  widget.showWordByWord
                                                                               ? widget.secondaryTextColor.withValues(
                                                                                   alpha: PlaybackPageUiTuning.appleLyricsActiveTranslationOpacity,
                                                                                 )

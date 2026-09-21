@@ -3,9 +3,16 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oktoast/oktoast.dart';
+import 'package:vynody/dialogs/ai_guide_dialog.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
+import 'package:vynody/player/lyrics/lyrics_riverpod.dart';
+import 'package:vynody/player/lyrics/lyrics_song_task_state.dart';
+import 'package:vynody/player/pro/pro_models.dart';
 import 'package:vynody/utils/playback_utils.dart';
+import 'package:vynody/dialogs/lyrics_model_recommendation_dialog.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 import 'package:vynody/widgets/animated_play_pause_button.dart';
 import 'package:vynody/widgets/app_tooltip.dart';
 import 'package:vynody/widgets/playback_ui_tuning.dart';
@@ -84,6 +91,145 @@ class PlaybackControls extends ConsumerWidget {
       return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
     }
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _handleTranslationTap(
+    BuildContext context,
+    WidgetRef ref,
+    MusicFile? currentMusic,
+    AppLocalizations l10n,
+  ) async {
+    if (currentMusic == null) return;
+    final lyricsController = ref.read(lyricsControllerProvider.notifier);
+    final taskState = lyricsController.taskStateForSong(currentMusic.path);
+    if (taskState.isTranslationBusy) {
+      showToast(l10n.songAlreadyQueuedForTranslation);
+      return;
+    }
+
+    final lyricsState = ref.read(lyricsControllerProvider);
+    final displayLyrics = lyricsController.currentLyricsForCurrentSong();
+    final targetLang = lyricsState.lyricsTranslationLanguageCode;
+    final effectiveLang =
+        displayLyrics?.getEffectiveTranslationLanguage(targetLang) ?? targetLang;
+    final translation = displayLyrics?.translationFor(effectiveLang);
+    final hasTranslation = translation != null && translation.hasContent;
+
+    if (hasTranslation) {
+      final settings = ref.read(settingsServiceProvider);
+      final nextState = !settings.showLyricsTranslation;
+      settings.showLyricsTranslation = nextState;
+      showToast(nextState ? '已开启歌词翻译' : '已关闭歌词翻译');
+      return;
+    }
+
+    if (!lyricsState.hasLyrics &&
+        (displayLyrics == null || displayLyrics.plainText.trim().isEmpty)) {
+      showToast(l10n.noLyricsAvailableForTranslation);
+      return;
+    }
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.translateLyrics),
+        content: const Text('当前歌曲暂无翻译，是否使用 AI 生成翻译？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l10n.confirm),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true || !context.mounted) return;
+
+    if (!await checkProGate(context, ref, feature: ProFeature.aiTranslation)) {
+      return;
+    }
+    if (!context.mounted) return;
+    if (await ensureGeminiApiKey(context, ref)) {
+      if (!context.mounted) return;
+      ref.read(settingsServiceProvider).showLyricsTranslation = true;
+      final errorMessage =
+          await lyricsController.translateLyricsForCurrentSong();
+      if (errorMessage != null && context.mounted) {
+        AppSnackBar.show(context, ref, SnackBar(content: Text(errorMessage)));
+      }
+    }
+  }
+
+  Future<void> _handleWordByWordTap(
+    BuildContext context,
+    WidgetRef ref,
+    MusicFile? currentMusic,
+    AppLocalizations l10n,
+  ) async {
+    if (currentMusic == null) return;
+    final lyricsController = ref.read(lyricsControllerProvider.notifier);
+    final taskState = lyricsController.taskStateForSong(currentMusic.path);
+    if (taskState.isGenerationBusy) {
+      showToast(l10n.convertingToKaraoke);
+      return;
+    }
+
+    final displayLyrics = lyricsController.currentLyricsForCurrentSong();
+    final syncedLines = displayLyrics?.syncedLines ?? const [];
+    final hasWordByWord = syncedLines
+        .any((line) => line.words != null && line.words!.isNotEmpty);
+    final hasTimedLyrics = syncedLines.any((line) => line.isTimed);
+
+    if (hasWordByWord) {
+      final settings = ref.read(settingsServiceProvider);
+      final nextState = !settings.showLyricsWordByWord;
+      settings.showLyricsWordByWord = nextState;
+      showToast(nextState ? '已开启逐字歌词' : '已关闭逐字歌词');
+      return;
+    }
+
+    if (!hasTimedLyrics) {
+      showToast(l10n.karaokeRequiresSyncedLyrics);
+      return;
+    }
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.convertToKaraoke),
+        content: const Text('当前歌曲暂无逐字歌词，是否使用 AI 转换为逐字/卡拉OK歌词？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l10n.confirm),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true || !context.mounted) return;
+
+    if (!await checkProGate(context, ref, feature: ProFeature.aiLyrics)) return;
+    if (!context.mounted) return;
+    if (await ensureLyricsGenerationApiKey(context, ref)) {
+      if (!context.mounted) return;
+      if (!await ensureLyricsKaraokeModelRecommendation(context, ref)) return;
+      if (!context.mounted) return;
+      ref.read(settingsServiceProvider).showLyricsWordByWord = true;
+      final errorMessage =
+          await lyricsController.convertToKaraokeLyricsForCurrentSong();
+      if (errorMessage != null && context.mounted) {
+        AppSnackBar.show(context, ref, SnackBar(content: Text(errorMessage)));
+      }
+    }
   }
 
   @override
@@ -444,11 +590,176 @@ class PlaybackControls extends ConsumerWidget {
         ),
       ),
     );
+    final showLyricsTranslation = ref.watch(
+      settingsServiceProvider.select((s) => s.showLyricsTranslation),
+    );
+    final showLyricsWordByWord = ref.watch(
+      settingsServiceProvider.select((s) => s.showLyricsWordByWord),
+    );
+
+    final lyricsState = ref.watch(lyricsControllerProvider);
+    final currentSongTaskState = currentMusic != null
+        ? ref
+            .watch(lyricsControllerProvider.notifier)
+            .taskStateForSong(currentMusic.path)
+        : const LyricsSongTaskState();
+    final isTranslating = currentSongTaskState.isTranslationBusy;
+    final isGeneratingKaraoke = currentSongTaskState.isGenerationBusy;
+
+    final displayLyrics =
+        ref.read(lyricsControllerProvider.notifier).currentLyricsForCurrentSong();
+    final targetLang = lyricsState.lyricsTranslationLanguageCode;
+    final effectiveLang =
+        displayLyrics?.getEffectiveTranslationLanguage(targetLang) ?? targetLang;
+    final translation = displayLyrics?.translationFor(effectiveLang);
+    final hasTranslation = translation != null && translation.hasContent;
+    final syncedLines = displayLyrics?.syncedLines ?? const [];
+    final hasWordByWord =
+        syncedLines.any((line) => line.words != null && line.words!.isNotEmpty);
 
     final controlIconColor =
         currentThemeColorsMap['darkVibrant'] ??
         currentThemeColorsMap['darkMuted'] ??
         Colors.black;
+
+    final double mainControlsOverflowOffset = useOverlayStyle
+        ? 12.0 * controlsScale
+        : 10.0 * controlsScale;
+    final double minMainRowWidth =
+        (useOverlayStyle ? 268.0 : 260.0) * controlsScale;
+
+    final double lyricsTopButtonTouchWidth = 44.0 * controlsScale;
+    final double lyricsTopButtonTouchHeight = topRowHeight;
+    final double lyricsTopButtonIconSize = 20.0 * controlsScale;
+
+    Widget buildLyricsTopButton({
+      required IconData icon,
+      required bool isActive,
+      required bool isLoading,
+      required bool hasData,
+      required String tooltip,
+      required VoidCallback onTap,
+    }) {
+      final Color iconColor = isActive
+          ? Colors.white
+          : (hasData ? Colors.white70 : Colors.white.withValues(alpha: 0.38));
+
+      final Widget buttonWidget = IconButton(
+        padding: EdgeInsets.zero,
+        constraints: BoxConstraints.tightFor(
+          width: lyricsTopButtonTouchWidth,
+          height: lyricsTopButtonTouchHeight,
+        ),
+        style: IconButton.styleFrom(
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          enableFeedback: false,
+        ),
+        icon: isLoading
+            ? SizedBox(
+                width: 14 * controlsScale,
+                height: 14 * controlsScale,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isActive ? Colors.white : Colors.white70,
+                  ),
+                ),
+              )
+            : Icon(
+                icon,
+                size: lyricsTopButtonIconSize,
+                color: iconColor,
+              ),
+        onPressed: onTap,
+      );
+
+      return AppTooltip(
+        message: tooltip,
+        child: buttonWidget,
+      );
+    }
+
+    final Widget lyricsTopButtonsRowInner = Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        buildLyricsTopButton(
+          icon: Icons.translate_rounded,
+          isActive: showLyricsTranslation,
+          isLoading: isTranslating,
+          hasData: hasTranslation,
+          tooltip: hasTranslation
+              ? (showLyricsTranslation ? '关闭歌词翻译' : '开启歌词翻译')
+              : '生成歌词翻译',
+          onTap: () => _handleTranslationTap(context, ref, currentMusic, l10n),
+        ),
+        buildLyricsTopButton(
+          icon: Icons.mic_external_on_rounded,
+          isActive: showLyricsWordByWord,
+          isLoading: isGeneratingKaraoke,
+          hasData: hasWordByWord,
+          tooltip: hasWordByWord
+              ? (showLyricsWordByWord ? '关闭逐字歌词' : '开启逐字歌词')
+              : '生成逐字歌词',
+          onTap: () => _handleWordByWordTap(context, ref, currentMusic, l10n),
+        ),
+      ],
+    );
+
+    final Widget lyricsTopButtonsRow = Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PlaybackHeroCardUiTuning.topButtonsHorizontalPadding,
+      ),
+      child: SizedBox(
+        width: unifiedWidth,
+        height: topRowHeight,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: SizedBox(
+            width: math.max(unifiedWidth, minMainRowWidth),
+            height: topRowHeight,
+            child: OverflowBox(
+              minWidth: math.max(unifiedWidth, minMainRowWidth) +
+                  mainControlsOverflowOffset * 2,
+              maxWidth: math.max(unifiedWidth, minMainRowWidth) +
+                  mainControlsOverflowOffset * 2,
+              minHeight: topRowHeight,
+              maxHeight: topRowHeight,
+              child: lyricsTopButtonsRowInner,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final double portraitCollapseT =
+        effectiveIsLandscape ? 0.0 : topButtonsCollapseT.clamp(0.0, 1.0);
+
+    final double lyricsTopOpacity =
+        (tLyrics * (effectiveIsLandscape ? 1.0 : portraitCollapseT))
+            .clamp(0.0, 1.0);
+    final double normalTopOpacity =
+        ((1.0 - tLyrics) * (1.0 - portraitCollapseT)).clamp(0.0, 1.0);
+
+    final Widget combinedTopButtonsRow = Stack(
+      alignment: Alignment.center,
+      children: [
+        Opacity(
+          opacity: normalTopOpacity,
+          child: IgnorePointer(
+            ignoring: normalTopOpacity < 0.5,
+            child: topButtonsRow,
+          ),
+        ),
+        Opacity(
+          opacity: lyricsTopOpacity,
+          child: IgnorePointer(
+            ignoring: lyricsTopOpacity < 0.5,
+            child: lyricsTopButtonsRow,
+          ),
+        ),
+      ],
+    );
 
     Widget buildSecondaryControl({
       required Widget Function(Color color, bool isWhiteBg) iconBuilder,
@@ -740,11 +1051,8 @@ class PlaybackControls extends ConsumerWidget {
       ],
     );
 
-    final double mainControlsOverflowOffset = useOverlayStyle
-        ? 12.0 * controlsScale
-        : 10.0 * controlsScale;
-    final double mainRowHeight = (useOverlayStyle ? 72.0 : 60.0) * controlsScale;
-    final double minMainRowWidth = (useOverlayStyle ? 268.0 : 260.0) * controlsScale;
+    final double mainRowHeight =
+        (useOverlayStyle ? 72.0 : 60.0) * controlsScale;
     final Widget mainControlsRow = SizedBox(
       width: unifiedWidth,
       height: mainRowHeight,
@@ -764,8 +1072,6 @@ class PlaybackControls extends ConsumerWidget {
       ),
     );
 
-    final double portraitCollapseT =
-        effectiveIsLandscape ? 0.0 : topButtonsCollapseT.clamp(0.0, 1.0);
 
     if (useOverlayStyle) {
       return Column(
@@ -773,24 +1079,10 @@ class PlaybackControls extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          ClipRect(
-            child: Align(
-              heightFactor: 1.0 - portraitCollapseT,
-              alignment: Alignment.bottomCenter,
-              child: Opacity(
-                opacity: (1.0 - portraitCollapseT).clamp(0.0, 1.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    topButtonsRow,
-                    const SizedBox(
-                      height:
-                          PlaybackHeroCardUiTuning.waveformStandardTimeRowSpacing,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          combinedTopButtonsRow,
+          const SizedBox(
+            height:
+                PlaybackHeroCardUiTuning.waveformStandardTimeRowSpacing,
           ),
           Stack(
             key: const ValueKey('overlay_controls_stack'),
@@ -840,7 +1132,7 @@ class PlaybackControls extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    topButtonsRow,
+                    combinedTopButtonsRow,
                     SizedBox(
                       height:
                           PlaybackHeroCardUiTuning.controlsRowLandscapeGap *
@@ -885,25 +1177,16 @@ class PlaybackControls extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ClipRect(
-          child: Align(
-            heightFactor: 1.0 - portraitCollapseT,
-            alignment: Alignment.bottomCenter,
-            child: Opacity(
-              opacity: (1.0 - portraitCollapseT).clamp(0.0, 1.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  topButtonsRow,
-                  SizedBox(
-                    height:
-                        PlaybackHeroCardUiTuning.controlsRowPortraitGap *
-                        controlsScale,
-                  ),
-                ],
-              ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            combinedTopButtonsRow,
+            SizedBox(
+              height:
+                  PlaybackHeroCardUiTuning.controlsRowPortraitGap *
+                  controlsScale,
             ),
-          ),
+          ],
         ),
         PlaybackProgressSection(
           key: const ValueKey('playback_progress_section_portrait'),

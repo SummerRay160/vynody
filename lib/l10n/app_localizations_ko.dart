@@ -577,6 +577,13 @@ class AppLocalizationsKo extends AppLocalizations {
       '가로 가사 모드에서 7개 버튼 행을 접고 제목을 왼쪽으로 정렬하며 오른쪽에 작업 버튼을 추가합니다';
 
   @override
+  String get expandPortraitLyricsControlsOnScroll => '세로 가사 스크롤 시 재생 컨트롤 확장';
+
+  @override
+  String get expandPortraitLyricsControlsOnScrollDescription =>
+      '세로 가사 모드에서 스크롤할 때 하단 재생 컨트롤과 진행률 표시줄을 확장합니다';
+
+  @override
   String get sampleStride => '샘플 간격';
 
   @override

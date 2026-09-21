@@ -215,6 +215,20 @@ void main() {
       }
       debugDefaultTargetPlatformOverride = null;
     });
+
+    test('expandPortraitLyricsControlsOnScroll defaults to true and can be toggled', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final settings = SettingsService(prefs);
+
+      expect(settings.expandPortraitLyricsControlsOnScroll, isTrue);
+
+      settings.expandPortraitLyricsControlsOnScroll = false;
+      expect(settings.expandPortraitLyricsControlsOnScroll, isFalse);
+
+      final restored = SettingsService(prefs);
+      expect(restored.expandPortraitLyricsControlsOnScroll, isFalse);
+    });
   });
 
   group('SettingsService - Secure API Key Storage & Migration', () {

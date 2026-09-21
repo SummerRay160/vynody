@@ -588,6 +588,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Klappt die 7-Schaltflächen-Zeile ein, richtet den Titel links aus und fügt rechte Aktionstasten im Querformat-Songtext-Modus hinzu';
 
   @override
+  String get expandPortraitLyricsControlsOnScroll =>
+      'Bedienelemente beim Scrollen im Hochformat-Songtextmodus erweitern';
+
+  @override
+  String get expandPortraitLyricsControlsOnScrollDescription =>
+      'Bedienelemente und Fortschrittsbalken beim Scrollen von Songtexten im Hochformat erweitern';
+
+  @override
   String get sampleStride => 'Abtastschritt';
 
   @override

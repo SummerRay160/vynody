@@ -644,6 +644,15 @@ class GeneralSection extends ConsumerWidget {
                 settings.collapseButtonsInLandscapeLyrics = value;
               },
             ),
+            SwitchListTile(
+              title: Text(l10n.expandPortraitLyricsControlsOnScroll),
+              subtitle:
+                  Text(l10n.expandPortraitLyricsControlsOnScrollDescription),
+              value: settings.expandPortraitLyricsControlsOnScroll,
+              onChanged: (value) {
+                settings.expandPortraitLyricsControlsOnScroll = value;
+              },
+            ),
             ListTile(
               title: Text(l10n.playbackButtonLayoutTitle),
               subtitle: Text(l10n.playbackButtonLayoutDescription),

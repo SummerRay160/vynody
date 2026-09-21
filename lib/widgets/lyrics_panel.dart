@@ -158,6 +158,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   String? _lastMeasuredLyricsFont;
   String? _lastMeasuredLatinFont;
   String? _lastMeasuredCjkFont;
+  bool? _lastMeasuredShowTranslation;
   ({List<double> heights, List<double> itemCenters, List<double> anchorCenters})? _cachedLineMetrics;
 
   Widget? _cachedLyricsView;
@@ -176,6 +177,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
   String? _lastBuiltCjkFont;
   double? _lastBuiltBottomSpacerHeight;
   double? _lastBuiltBottomTabBarHeight;
+  bool? _lastBuiltShowTranslation;
+  bool? _lastBuiltShowWordByWord;
 
   LyricsController get _lyricsControllerActions =>
       ref.read(lyricsControllerProvider.notifier);
@@ -248,6 +251,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     final lyricsFont = settings.lyricsFontFamily;
     final latinFont = settings.lyricsLatinFontFamily;
     final cjkFont = settings.lyricsCjkFontFamily;
+    final showTranslation = settings.showLyricsTranslation;
 
     if (listEquals(_lastMeasuredLines, lines) &&
         _lastMeasuredLyrics == lyrics &&
@@ -259,6 +263,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
         _lastMeasuredLyricsFont == lyricsFont &&
         _lastMeasuredLatinFont == latinFont &&
         _lastMeasuredCjkFont == cjkFont &&
+        _lastMeasuredShowTranslation == showTranslation &&
         _cachedLineMetrics != null) {
       return _cachedLineMetrics!;
     }
@@ -378,7 +383,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
       double itemHeight = textPainter.height;
 
       // 2. Calculate translation height if present
-      if (hasTimedLyrics && translated.isNotEmpty) {
+      if (hasTimedLyrics && translated.isNotEmpty && showTranslation) {
         final transPainter = TextPainter(
           text: TextSpan(text: translated, style: translationStyle),
           textDirection: textDirection,
@@ -414,6 +419,7 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     _lastMeasuredLyricsFont = lyricsFont;
     _lastMeasuredLatinFont = latinFont;
     _lastMeasuredCjkFont = cjkFont;
+    _lastMeasuredShowTranslation = showTranslation;
     _cachedLineMetrics = result;
 
     return result;
@@ -1829,6 +1835,12 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
     final lyricsCjkFont = ref.watch(
       settingsServiceProvider.select((settings) => settings.lyricsCjkFontFamily),
     );
+    final showLyricsTranslation = ref.watch(
+      settingsServiceProvider.select((settings) => settings.showLyricsTranslation),
+    );
+    final showLyricsWordByWord = ref.watch(
+      settingsServiceProvider.select((settings) => settings.showLyricsWordByWord),
+    );
     final textColor = widget.textColor ?? Colors.white;
     final secondaryTextColor =
         widget.secondaryTextColor ?? textColor.withValues(alpha: PlaybackPageUiTuning.appleLyricsInactiveOpacity);
@@ -2149,7 +2161,9 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
             lyricsLatinFont != _lastBuiltLatinFont ||
             lyricsCjkFont != _lastBuiltCjkFont ||
             widget.bottomSpacerHeight != _lastBuiltBottomSpacerHeight ||
-            widget.bottomTabBarHeight != _lastBuiltBottomTabBarHeight;
+            widget.bottomTabBarHeight != _lastBuiltBottomTabBarHeight ||
+            showLyricsTranslation != _lastBuiltShowTranslation ||
+            showLyricsWordByWord != _lastBuiltShowWordByWord;
 
         if (needsRebuild) {
           _lastBuiltActiveIndex = focusedIndex;
@@ -2177,6 +2191,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
           _lastBuiltCjkFont = lyricsCjkFont;
           _lastBuiltBottomSpacerHeight = widget.bottomSpacerHeight;
           _lastBuiltBottomTabBarHeight = widget.bottomTabBarHeight;
+          _lastBuiltShowTranslation = showLyricsTranslation;
+          _lastBuiltShowWordByWord = showLyricsWordByWord;
 
           _cachedLyricsView = LyricsPanelTimedLyricsView(
             lyrics: lyrics,
@@ -2190,6 +2206,8 @@ class _LyricsPanelState extends rpod.ConsumerState<LyricsPanel> {
             lyricsFontFamily: lyricsFont,
             latinFontFamily: lyricsLatinFont,
             cjkFontFamily: lyricsCjkFont,
+            showTranslation: showLyricsTranslation,
+            showWordByWord: showLyricsWordByWord,
             textColor: textColor,
             secondaryTextColor: secondaryTextColor,
             scrollController: _scrollController,

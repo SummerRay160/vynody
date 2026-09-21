@@ -585,6 +585,14 @@ class AppLocalizationsTr extends AppLocalizations {
       'Yatay sözler modunda 7 düğmeli satırı daralt, başlığı sola hizala ve sağda işlem düğmelerini göster';
 
   @override
+  String get expandPortraitLyricsControlsOnScroll =>
+      'Dikey şarkı sözü kaydırmasında kontrolleri genişlet';
+
+  @override
+  String get expandPortraitLyricsControlsOnScrollDescription =>
+      'Dikey şarkı sözü modunda kaydırırken oynatma kontrollerini ve ilerleme çubuğunu otomatik genişlet';
+
+  @override
   String get sampleStride => 'Örnekleme Adımı';
 
   @override

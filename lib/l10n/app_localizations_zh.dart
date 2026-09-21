@@ -576,6 +576,13 @@ class AppLocalizationsZh extends AppLocalizations {
       '进入横屏歌词模式时收起 7 按钮行、标题左对齐并在右侧显示快捷按钮';
 
   @override
+  String get expandPortraitLyricsControlsOnScroll => '竖屏歌词滚动展开播放控件';
+
+  @override
+  String get expandPortraitLyricsControlsOnScrollDescription =>
+      '在竖屏歌词模式下滚动歌词时自动展开底部播放控件与进度条';
+
+  @override
   String get sampleStride => '采样步长';
 
   @override
@@ -5275,6 +5282,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   @override
   String get collapseButtonsInLandscapeLyricsDescription =>
       '進入橫屏歌詞模式時收起 7 按鈕列、標題左對齊並在右側顯示快捷按鈕';
+
+  @override
+  String get expandPortraitLyricsControlsOnScroll => '直向歌詞滾動展開播放控制元件';
+
+  @override
+  String get expandPortraitLyricsControlsOnScrollDescription =>
+      '在直向歌詞模式下滾動歌詞時自動展開底部播放控制元件與進度條';
 
   @override
   String get sampleStride => '取樣步長';

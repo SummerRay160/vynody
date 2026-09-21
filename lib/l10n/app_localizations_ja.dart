@@ -577,6 +577,13 @@ class AppLocalizationsJa extends AppLocalizations {
       '横画面歌詞モードで7つのボタン行を折りたたみ、タイトルを左揃えにして右側にアクションボタンを追加します';
 
   @override
+  String get expandPortraitLyricsControlsOnScroll => '縦画面歌詞スクロール時に操作パネルを展開';
+
+  @override
+  String get expandPortraitLyricsControlsOnScrollDescription =>
+      '縦画面の歌詞モードでスクロール時に下部の再生コントロールと進行バーを展開します';
+
+  @override
   String get sampleStride => 'サンプルストライド';
 
   @override

@@ -289,9 +289,23 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
 
     final isTransitioningNotifier = ValueNotifier<bool>(false);
 
+    final bool expandPortraitLyricsControlsOnScroll = ref.watch(
+      settingsServiceProvider.select(
+        (s) => s.expandPortraitLyricsControlsOnScroll,
+      ),
+    );
+
     final bool shouldExpandControls =
+        expandPortraitLyricsControlsOnScroll &&
         _isPortraitLyricsControlsExpanded &&
         !effectiveIsLandscape;
+
+    final progressBarStyle = ref.watch(effectiveProgressBarStyleProvider);
+    final bool isScrollingWaveform =
+        progressBarStyle == ProgressBarStyle.scrollingWaveform;
+    final bool isFullWaveform =
+        progressBarStyle == ProgressBarStyle.fullWaveform;
+    final bool isOverlayStyle = isScrollingWaveform && !effectiveIsLandscape;
 
     return TweenAnimationBuilder<double>(
       duration: const Duration(milliseconds: 300),
@@ -302,26 +316,39 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
             (size.width / PlaybackHeroCardUiTuning.pControlsScaleBase)
                 .clamp(0.9, 1.15) *
             (isSmallWindow ? 0.82 : 1.0);
-        final double pNormalTopButtonsTotalHeight =
-            (PlaybackHeroCardUiTuning.controlsTopButtonsHeight +
-                    PlaybackHeroCardUiTuning.controlsRowPortraitGap) *
-                pNormalScale;
         final double pNormalControlsBaseIdealHeight =
             PlaybackHeroCardUiTuning.controlsTopButtonsHeight +
-            PlaybackHeroCardUiTuning.controlsRowPortraitGap +
-            48.0 +
-            (8.0 +
-                PlaybackHeroCardUiTuning.controlsTimeRowHeight +
-                PlaybackHeroCardUiTuning.controlsRowPortraitGap +
-                PlaybackHeroCardUiTuning.controlsMainButtonsHeight);
+            (isOverlayStyle
+                ? PlaybackHeroCardUiTuning.waveformStandardTimeRowSpacing
+                : PlaybackHeroCardUiTuning.controlsRowPortraitGap) +
+            (isOverlayStyle
+                ? PlaybackHeroCardUiTuning.waveformOverlayHeight
+                : (isFullWaveform
+                    ? PlaybackHeroCardUiTuning.waveformStaticPortraitHeight
+                    : 48.0)) +
+            (isOverlayStyle
+                ? 0.0
+                : (8.0 +
+                      PlaybackHeroCardUiTuning.controlsTimeRowHeight +
+                      PlaybackHeroCardUiTuning.controlsRowPortraitGap +
+                      PlaybackHeroCardUiTuning.controlsMainButtonsHeight));
         final double expandedControlsHeight = math.max(
           110.0,
-          pNormalControlsBaseIdealHeight * pNormalScale -
-              pNormalTopButtonsTotalHeight,
+          pNormalControlsBaseIdealHeight * pNormalScale,
+        );
+        final double topButtonsAndGap =
+            (PlaybackHeroCardUiTuning.controlsTopButtonsHeight +
+                (isOverlayStyle
+                    ? PlaybackHeroCardUiTuning.waveformStandardTimeRowSpacing
+                    : PlaybackHeroCardUiTuning.controlsRowPortraitGap)) *
+            pNormalScale;
+        final double progressBarTopFromBottom = math.max(
+          0.0,
+          expandedControlsHeight - topButtonsAndGap,
         );
         final double effectiveLyricsBottomSpacer =
             widget.lyricsBottomSpacerHeight +
-            (portraitControlsExpandProgress * (expandedControlsHeight + 16.0));
+            (portraitControlsExpandProgress * (progressBarTopFromBottom + 16.0));
 
         final lyricsPanelWidget = _LyricsPanelTransitionWrapper(
           isTransitioning: isTransitioningNotifier,
@@ -429,23 +456,24 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
                       onNotification: (notification) {
                         if (!effectiveIsLandscape &&
                             effectiveIsLyricsMode &&
-                            settings.lyricsStyle == LyricsStyle.apple) {
+                            settings.lyricsStyle == LyricsStyle.apple &&
+                            expandPortraitLyricsControlsOnScroll) {
                           if (notification is ScrollUpdateNotification) {
                             if (notification.dragDetails != null &&
                                 notification.scrollDelta != null) {
                               if (notification.scrollDelta! > 1.0) {
-                                _expandPortraitLyricsControls();
-                              } else if (notification.scrollDelta! < -1.0) {
                                 _collapsePortraitLyricsControls();
+                              } else if (notification.scrollDelta! < -1.0) {
+                                _expandPortraitLyricsControls();
                               }
                             }
                           } else if (notification is UserScrollNotification) {
                             if (notification.direction ==
                                 ScrollDirection.reverse) {
-                              _expandPortraitLyricsControls();
+                              _collapsePortraitLyricsControls();
                             } else if (notification.direction ==
                                 ScrollDirection.forward) {
-                              _collapsePortraitLyricsControls();
+                              _expandPortraitLyricsControls();
                             }
                           }
                         }
@@ -828,8 +856,11 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
     final pNormalInfoHeight =
         PlaybackHeroCardUiTuning.pInfoHeight * pNormalScale;
 
-    final pNormalBottomLimit =
-        height - PlaybackHeroCardUiTuning.portraitBottomReservedSpace;
+    final pNormalBottomLimit = isSmallWindow
+        ? (height - PlaybackHeroCardUiTuning.portraitBottomReservedSpace)
+        : (height -
+            lyricsBottomTabBarHeight -
+            PlaybackHeroCardUiTuning.portraitBottomReservedSpace);
 
     const pNormalCoverTop = 0.0;
 
@@ -1276,17 +1307,9 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
       tLand: tLand,
     );
 
-    final double pNormalSingleButtonWidth =
-        PlaybackHeroCardUiTuning.controlsTopButtonsHeight * pNormalScale;
-    final double pNormalGapWidth =
-        PlaybackHeroCardUiTuning.controlsRowPortraitGap * pNormalScale;
-    final double pNormalTopButtonsTotalHeight =
-        pNormalSingleButtonWidth + pNormalGapWidth;
-
     final double expandedControlsHeight = math.max(
       110.0,
-      pNormalControlsBaseIdealHeight * pNormalScale -
-          pNormalTopButtonsTotalHeight,
+      pNormalControlsBaseIdealHeight * pNormalScale,
     );
     const double pLyricsControlsBottomMargin = 16.0;
     final double pLyricsControlsExpandedTop = height -
@@ -1304,8 +1327,7 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
     final double pLyricsControlsOpacity =
         portraitControlsExpandProgress.clamp(0.0, 1.0);
 
-    final double pLyricsControlsHeight = pNormalControlsHeight -
-        pNormalTopButtonsTotalHeight * portraitControlsExpandProgress;
+    final double pLyricsControlsHeight = pNormalControlsHeight;
 
     final controls = _lerpPane(
       context,

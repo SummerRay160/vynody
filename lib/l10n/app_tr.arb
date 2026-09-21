@@ -262,6 +262,8 @@
   "immersiveTabBarDescription": "Fare hareket ettiğinde gezinti çubuğunu göster, 3 saniye hareketsizlikten sonra gizle",
   "collapseButtonsInLandscapeLyrics": "Yatay şarkı sözü modunda düğmeleri daralt",
   "collapseButtonsInLandscapeLyricsDescription": "Yatay sözler modunda 7 düğmeli satırı daralt, başlığı sola hizala ve sağda işlem düğmelerini göster",
+  "expandPortraitLyricsControlsOnScroll": "Dikey şarkı sözü kaydırmasında kontrolleri genişlet",
+  "expandPortraitLyricsControlsOnScrollDescription": "Dikey şarkı sözü modunda kaydırırken oynatma kontrollerini ve ilerleme çubuğunu otomatik genişlet",
   "sampleStride": "Örnekleme Adımı",
   "sampleStrideDescription": "Daha büyük değerler daha hızlı tarar ancak dalga formu hassasiyetini düşürür (varsayılan: 4)",
   "waveformSegments": "Dalga Formu Dilimleri",

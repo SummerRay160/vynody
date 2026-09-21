@@ -883,25 +883,17 @@ class _PlaybackPageState extends ConsumerState<PlaybackPage> {
           }
           final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-          final shouldReserveBottomNavSpace =
-              !isLyricsMode && !isLandscape && !isSmallWin;
+          final shouldReserveBottomNavSpace = false;
 
           // In portrait mode, FloatingDockBottomBar is positioned in a Stack over the content with height (60 + bottomPadding).
+          // Both normal mode and lyrics mode are rendered full-height, and PlaybackHeroCard internally reserves space for the dock bar.
           double effectiveBottomPadding = bottomPadding;
           final lyricsBottomSpacerHeight = 0.0;
           double lyricsBottomTabBarHeight = 0.0;
 
           if (!isLandscape && !isSmallWin) {
-            // For lyrics mode, we want the background to be immersive (full screen),
-            // so we don't pad the whole page. Instead, we pass the tab bar height
-            // to the lyrics panel so it can add internal scrolling space.
-            lyricsBottomTabBarHeight = 60.0;
-
-            // For normal mode (controls visible), we pad the whole page to keep
-            // the layout stable and avoid overlap with the tab bar.
-            if (shouldReserveBottomNavSpace) {
-              effectiveBottomPadding = 60.0 + bottomPadding;
-            }
+            lyricsBottomTabBarHeight = 60.0 + bottomPadding;
+            effectiveBottomPadding = 0.0;
           }
 
           final smallWindowPanelMode = settings.smallWindowBottomPanelMode;
