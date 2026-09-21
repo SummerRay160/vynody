@@ -12,6 +12,7 @@ import 'package:vynody/transcode/transcode_models.dart';
 import 'package:vynody/utils/language_code_utils.dart';
 
 import 'package:vynody/player/scanner/scanner_sorting.dart';
+import 'package:vynody/player/library/playlist_service.dart';
 import 'package:vynody/utils/app_proxy_manager.dart';
 import 'package:vynody/utils/localized_text.dart';
 
@@ -612,6 +613,8 @@ class SettingsService extends ChangeNotifier {
   static const String _keyAlbumSortAscending = 'album_sort_ascending';
   static const String _keyArtistSortField = 'artist_sort_field';
   static const String _keyArtistSortAscending = 'artist_sort_ascending';
+  static const String _keyPlaylistSortField = 'playlist_sort_field';
+  static const String _keyPlaylistSortAscending = 'playlist_sort_ascending';
   static const String _keyNavidromeAlbumSortType = 'navidrome_album_sort_type';
   static const String _keyNavidromeArtistSortField =
       'navidrome_artist_sort_field';
@@ -800,6 +803,23 @@ class SettingsService extends ChangeNotifier {
 
   late final _artistSortAscendingProperty = SettingProperty<bool>(
     key: _keyArtistSortAscending,
+    defaultValue: true,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+  );
+
+  late final _playlistSortFieldProperty = SettingProperty<PlaylistSortField>(
+    key: _keyPlaylistSortField,
+    defaultValue: PlaylistSortField.custom,
+    prefs: _prefs,
+    onChanged: notifyListeners,
+    customRead: (prefs, key, def) =>
+        PlaylistSortFieldX.fromStorageValue(prefs.getString(key), def),
+    customWrite: (prefs, key, val) => prefs.setString(key, val.storageValue),
+  );
+
+  late final _playlistSortAscendingProperty = SettingProperty<bool>(
+    key: _keyPlaylistSortAscending,
     defaultValue: true,
     prefs: _prefs,
     onChanged: notifyListeners,
@@ -2912,6 +2932,14 @@ class SettingsService extends ChangeNotifier {
   bool get artistSortAscending => _artistSortAscendingProperty.value;
   set artistSortAscending(bool value) =>
       _artistSortAscendingProperty.value = value;
+
+  PlaylistSortField get playlistSortField => _playlistSortFieldProperty.value;
+  set playlistSortField(PlaylistSortField value) =>
+      _playlistSortFieldProperty.value = value;
+
+  bool get playlistSortAscending => _playlistSortAscendingProperty.value;
+  set playlistSortAscending(bool value) =>
+      _playlistSortAscendingProperty.value = value;
 
   String get navidromeAlbumSortType => _navidromeAlbumSortTypeProperty.value;
   set navidromeAlbumSortType(String value) =>

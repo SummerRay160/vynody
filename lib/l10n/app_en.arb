@@ -2231,5 +2231,9 @@
   "proxyTestConnection": "Test Connection",
   "proxyTestSuccess": "Proxy connection test succeeded",
   "proxyTestFailed": "Proxy connection test failed",
-  "proxyHostPortInvalid": "Please enter a valid proxy host and port"
+  "proxyHostPortInvalid": "Please enter a valid proxy host and port",
+  "sortPlaylists": "Sort Playlists",
+  "sortRecentlyUpdated": "Recently Updated",
+  "sortRecentlyCreated": "Recently Created",
+  "sortCustom": "Custom Order"
 }

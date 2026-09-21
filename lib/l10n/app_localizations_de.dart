@@ -4992,4 +4992,16 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get proxyHostPortInvalid =>
       'Bitte geben Sie eine gültige Proxy-Adresse und einen gültigen Port ein';
+
+  @override
+  String get sortPlaylists => '播放列表排序';
+
+  @override
+  String get sortRecentlyUpdated => '最近更新';
+
+  @override
+  String get sortRecentlyCreated => '最近创建';
+
+  @override
+  String get sortCustom => '自定义排序';
 }

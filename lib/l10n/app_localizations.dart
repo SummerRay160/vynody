@@ -8751,6 +8751,30 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'请输入有效的代理地址和端口'**
   String get proxyHostPortInvalid;
+
+  /// No description provided for @sortPlaylists.
+  ///
+  /// In zh, this message translates to:
+  /// **'播放列表排序'**
+  String get sortPlaylists;
+
+  /// No description provided for @sortRecentlyUpdated.
+  ///
+  /// In zh, this message translates to:
+  /// **'最近更新'**
+  String get sortRecentlyUpdated;
+
+  /// No description provided for @sortRecentlyCreated.
+  ///
+  /// In zh, this message translates to:
+  /// **'最近创建'**
+  String get sortRecentlyCreated;
+
+  /// No description provided for @sortCustom.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义排序'**
+  String get sortCustom;
 }
 
 class _AppLocalizationsDelegate

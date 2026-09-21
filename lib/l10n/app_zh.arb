@@ -2987,5 +2987,9 @@
   "proxyTestConnection": "测试连接",
   "proxyTestSuccess": "代理连接测试成功",
   "proxyTestFailed": "代理连接测试失败",
-  "proxyHostPortInvalid": "请输入有效的代理地址和端口"
+  "proxyHostPortInvalid": "请输入有效的代理地址和端口",
+  "sortPlaylists": "播放列表排序",
+  "sortRecentlyUpdated": "最近更新",
+  "sortRecentlyCreated": "最近创建",
+  "sortCustom": "自定义排序"
 }

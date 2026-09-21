@@ -4954,4 +4954,16 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get proxyHostPortInvalid =>
       'Lütfen geçerli bir proxy adresi ve bağlantı noktası girin';
+
+  @override
+  String get sortPlaylists => '播放列表排序';
+
+  @override
+  String get sortRecentlyUpdated => '最近更新';
+
+  @override
+  String get sortRecentlyCreated => '最近创建';
+
+  @override
+  String get sortCustom => '自定义排序';
 }

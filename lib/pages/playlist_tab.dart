@@ -10,6 +10,7 @@ import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/audio/playback_source.dart';
 import 'package:vynody/player/library/playlist_service.dart';
+import 'package:vynody/dialogs/sort_options_dialog.dart';
 import '../widgets/song_tile.dart';
 import 'package:vynody/utils/file_selector_helper.dart';
 import 'package:vynody/utils/song_context_menu_utils.dart';
@@ -877,6 +878,52 @@ class _PlaylistManagerSheetState extends ConsumerState<_PlaylistManagerSheet> {
     return playlist.id == PlaylistService.favoritePlaylistId;
   }
 
+  Future<void> _showSortDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final settings = ref.read(settingsServiceProvider);
+    final playlistService = ref.read(playlistServiceProvider);
+
+    final result = await showDialog<SortResult<PlaylistSortField>>(
+      context: context,
+      builder: (dialogContext) => SortOptionsDialog<PlaylistSortField>(
+        title: l10n.sortPlaylists,
+        currentField: settings.playlistSortField,
+        sortAscending: settings.playlistSortAscending,
+        options: [
+          SortOptionItem(
+            value: PlaylistSortField.updatedAt,
+            label: l10n.sortRecentlyUpdated,
+            icon: Icons.update_rounded,
+          ),
+          SortOptionItem(
+            value: PlaylistSortField.name,
+            label: l10n.playlistName,
+            icon: Icons.sort_by_alpha_rounded,
+          ),
+          SortOptionItem(
+            value: PlaylistSortField.trackCount,
+            label: l10n.sortTrackCount,
+            icon: Icons.numbers_rounded,
+          ),
+          SortOptionItem(
+            value: PlaylistSortField.createdAt,
+            label: l10n.sortRecentlyCreated,
+            icon: Icons.calendar_today_rounded,
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      settings.playlistSortField = result.field;
+      settings.playlistSortAscending = result.sortAscending;
+      await playlistService.sortPlaylists(
+        field: result.field,
+        ascending: result.sortAscending,
+      );
+    }
+  }
+
   void _showBatchDeleteConfirmDialog(
     BuildContext context,
     Set<String> playlistIds,
@@ -950,8 +997,16 @@ class _PlaylistManagerSheetState extends ConsumerState<_PlaylistManagerSheet> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                trailing: deletablePlaylists.isNotEmpty
-                    ? IconButton(
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      tooltip: l10n.sort,
+                      icon: const Icon(Icons.sort_rounded),
+                      onPressed: () => _showSortDialog(context),
+                    ),
+                    if (deletablePlaylists.isNotEmpty)
+                      IconButton(
                         tooltip: l10n.batchDelete,
                         icon: const Icon(Icons.checklist_rounded),
                         onPressed: () {
@@ -959,8 +1014,9 @@ class _PlaylistManagerSheetState extends ConsumerState<_PlaylistManagerSheet> {
                             _isSelectionMode = true;
                           });
                         },
-                      )
-                    : null,
+                      ),
+                  ],
+                ),
               ),
               const Divider(height: 1),
               ListTile(
@@ -973,13 +1029,22 @@ class _PlaylistManagerSheetState extends ConsumerState<_PlaylistManagerSheet> {
               ),
               const Divider(height: 1),
               Flexible(
-                child: ListView.builder(
+                child: ReorderableListView.builder(
                   shrinkWrap: true,
+                  buildDefaultDragHandles: false,
                   itemCount: playlists.length,
+                  onReorder: (oldIndex, newIndex) {
+                    ref.read(settingsServiceProvider).playlistSortField =
+                        PlaylistSortField.custom;
+                    ref
+                        .read(playlistServiceProvider)
+                        .reorderPlaylist(oldIndex, newIndex);
+                  },
                   itemBuilder: (context, index) {
                     final playlist = playlists[index];
                     final isFav = _isFavoritePlaylist(playlist);
                     return ListTile(
+                      key: ValueKey(playlist.id),
                       leading: Icon(
                         isFav
                             ? Icons.favorite_rounded
@@ -990,12 +1055,24 @@ class _PlaylistManagerSheetState extends ConsumerState<_PlaylistManagerSheet> {
                       subtitle: Text(
                         '${l10n.songCount(playlist.songs.length)} · ${_formatDate(playlist.updatedAt)}',
                       ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.more_vert),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          widget.onShowOptions(playlist);
-                        },
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.more_vert),
+                            onPressed: () {
+                              Navigator.pop(context);
+                              widget.onShowOptions(playlist);
+                            },
+                          ),
+                          ReorderableDragStartListener(
+                            index: index,
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 6.0),
+                              child: Icon(Icons.drag_handle),
+                            ),
+                          ),
+                        ],
                       ),
                       onTap: () {
                         SelectionActionHelper.handleItemTap(

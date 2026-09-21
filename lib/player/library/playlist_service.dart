@@ -1,11 +1,35 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/utils/m3u_utils.dart';
+
+/// 播放列表排序字段
+enum PlaylistSortField {
+  custom,
+  name,
+  trackCount,
+  updatedAt,
+  createdAt,
+}
+
+extension PlaylistSortFieldX on PlaylistSortField {
+  String get storageValue => name;
+  static PlaylistSortField fromStorageValue(
+    String? value,
+    PlaylistSortField defaultValue,
+  ) {
+    if (value == null) return defaultValue;
+    return PlaylistSortField.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => defaultValue,
+    );
+  }
+}
 
 /// 播放列表模型
 class Playlist {
@@ -413,6 +437,79 @@ class PlaylistService extends ChangeNotifier {
       await _savePlaylists();
       notifyListeners();
     }
+  }
+
+  /// 重新排序播放列表 (拖拽排序)
+  Future<void> reorderPlaylist(int oldIndex, int newIndex) async {
+    if (oldIndex < _playlists.length && newIndex <= _playlists.length) {
+      if (newIndex > oldIndex) newIndex--;
+      final item = _playlists.removeAt(oldIndex);
+      _playlists.insert(newIndex, item);
+      await _savePlaylists();
+      notifyListeners();
+    }
+  }
+
+  /// 按规则排序播放列表
+  Future<void> sortPlaylists({
+    required PlaylistSortField field,
+    required bool ascending,
+    bool pinFavoritesAndDefault = true,
+  }) async {
+    if (field == PlaylistSortField.custom) return;
+
+    final List<Playlist> pinned = [];
+    final List<Playlist> normal = [];
+
+    for (final p in _playlists) {
+      if (pinFavoritesAndDefault &&
+          (p.id == favoritePlaylistId || p.id == 'default')) {
+        pinned.add(p);
+      } else {
+        normal.add(p);
+      }
+    }
+
+    pinned.sort((a, b) {
+      if (a.id == 'default') return -1;
+      if (b.id == 'default') return 1;
+      return 0;
+    });
+
+    int Function(Playlist, Playlist) comparator;
+    switch (field) {
+      case PlaylistSortField.name:
+        comparator = (a, b) =>
+            compareNatural(a.name.toLowerCase(), b.name.toLowerCase());
+        break;
+      case PlaylistSortField.trackCount:
+        comparator = (a, b) => a.songs.length.compareTo(b.songs.length);
+        break;
+      case PlaylistSortField.updatedAt:
+        comparator = (a, b) => a.updatedAt.compareTo(b.updatedAt);
+        break;
+      case PlaylistSortField.createdAt:
+        comparator = (a, b) => a.createdAt.compareTo(b.createdAt);
+        break;
+      case PlaylistSortField.custom:
+        comparator = (a, b) => 0;
+        break;
+    }
+
+    if (!ascending) {
+      final base = comparator;
+      comparator = (a, b) => base(b, a);
+    }
+
+    normal.sort(comparator);
+
+    _playlists
+      ..clear()
+      ..addAll(pinned)
+      ..addAll(normal);
+
+    await _savePlaylists();
+    notifyListeners();
   }
 
   /// 重新排序播放列表中的歌曲

@@ -4933,4 +4933,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proxyHostPortInvalid => 'Please enter a valid proxy host and port';
+
+  @override
+  String get sortPlaylists => 'Sort Playlists';
+
+  @override
+  String get sortRecentlyUpdated => 'Recently Updated';
+
+  @override
+  String get sortRecentlyCreated => 'Recently Created';
+
+  @override
+  String get sortCustom => 'Custom Order';
 }

@@ -4691,6 +4691,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proxyHostPortInvalid => '请输入有效的代理地址和端口';
+
+  @override
+  String get sortPlaylists => '播放列表排序';
+
+  @override
+  String get sortRecentlyUpdated => '最近更新';
+
+  @override
+  String get sortRecentlyCreated => '最近创建';
+
+  @override
+  String get sortCustom => '自定义排序';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -9380,4 +9392,16 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get proxyHostPortInvalid => '請輸入有效的代理位址和連接埠';
+
+  @override
+  String get sortPlaylists => '播放清單排序';
+
+  @override
+  String get sortRecentlyUpdated => '最近更新';
+
+  @override
+  String get sortRecentlyCreated => '最近建立';
+
+  @override
+  String get sortCustom => '自訂排序';
 }
