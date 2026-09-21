@@ -279,9 +279,18 @@ class PlaybackControls extends ConsumerWidget {
           )!)
         : PlaybackHeroCardUiTuning.portraitProgressBarWidthFactor;
 
+    final pNormalWidth = math.max(
+      0.0,
+      math.min(width - 32.0, buttonsRowWidth * widthFactor),
+    );
+    final pLyricsWidth = math.max(0.0, layoutWidth);
+
     final unifiedWidth = effectiveIsLandscape
         ? math.max(0.0, lerpDouble(buttonsRowWidth, layoutWidth, tLyrics)!)
-        : math.max(0.0, math.min(width - 32.0, buttonsRowWidth * widthFactor));
+        : math.max(
+            0.0,
+            lerpDouble(pNormalWidth, pLyricsWidth, tLyrics)!,
+          );
 
     final double topButtonsIconSizeScaled =
         PlaybackHeroCardUiTuning.topButtonsIconSize * controlsScale;
@@ -706,6 +715,8 @@ class PlaybackControls extends ConsumerWidget {
       ],
     );
 
+    final double lyricsTopButtonsOpticalOffset =
+        ((lyricsTopButtonTouchWidth - lyricsTopButtonIconSize) / 2);
     final Widget lyricsTopButtonsRow = Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: PlaybackHeroCardUiTuning.topButtonsHorizontalPadding,
@@ -716,13 +727,11 @@ class PlaybackControls extends ConsumerWidget {
         child: FittedBox(
           fit: BoxFit.scaleDown,
           child: SizedBox(
-            width: math.max(unifiedWidth, minMainRowWidth),
+            width: unifiedWidth,
             height: topRowHeight,
             child: OverflowBox(
-              minWidth: math.max(unifiedWidth, minMainRowWidth) +
-                  mainControlsOverflowOffset * 2,
-              maxWidth: math.max(unifiedWidth, minMainRowWidth) +
-                  mainControlsOverflowOffset * 2,
+              minWidth: unifiedWidth + lyricsTopButtonsOpticalOffset * 2,
+              maxWidth: unifiedWidth + lyricsTopButtonsOpticalOffset * 2,
               minHeight: topRowHeight,
               maxHeight: topRowHeight,
               child: lyricsTopButtonsRowInner,
@@ -1053,6 +1062,17 @@ class PlaybackControls extends ConsumerWidget {
 
     final double mainRowHeight =
         (useOverlayStyle ? 72.0 : 60.0) * controlsScale;
+    final double mainControlsNormalOverflow = mainControlsOverflowOffset;
+    final double mainControlsLyricsOverflow = useOverlayStyle
+        ? 0.0
+        : ((40.0 - 24.0) / 2) * controlsScale;
+    final double effectiveMainControlsOverflow = effectiveIsLandscape
+        ? mainControlsOverflowOffset
+        : lerpDouble(
+            mainControlsNormalOverflow,
+            mainControlsLyricsOverflow,
+            tLyrics,
+          )!;
     final Widget mainControlsRow = SizedBox(
       width: unifiedWidth,
       height: mainRowHeight,
@@ -1062,8 +1082,10 @@ class PlaybackControls extends ConsumerWidget {
           width: math.max(unifiedWidth, minMainRowWidth),
           height: mainRowHeight,
           child: OverflowBox(
-            minWidth: math.max(unifiedWidth, minMainRowWidth) + mainControlsOverflowOffset * 2,
-            maxWidth: math.max(unifiedWidth, minMainRowWidth) + mainControlsOverflowOffset * 2,
+            minWidth: math.max(unifiedWidth, minMainRowWidth) +
+                effectiveMainControlsOverflow * 2,
+            maxWidth: math.max(unifiedWidth, minMainRowWidth) +
+                effectiveMainControlsOverflow * 2,
             minHeight: mainRowHeight,
             maxHeight: mainRowHeight,
             child: mainControlsRowInner,

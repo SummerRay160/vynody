@@ -588,11 +588,7 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
                                         key: const ValueKey(
                                           'controls_sizing_box',
                                         ),
-                                        width: (effectiveIsLandscape
-                                            ? layoutWidth
-                                            : width *
-                                                  PlaybackHeroCardUiTuning
-                                                      .portraitControlsWidthFactor),
+                                        width: layoutWidth,
                                         child: SizeLogger(
                                           name: 'Controls',
                                           child: PlaybackControls(
@@ -1340,8 +1336,8 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
       ),
       pLyrics: _PlaybackPaneLayout(
         top: pLyricsControlsTop,
-        left: (width - math.min(width, pNormalControlsWidth)) / 2,
-        width: math.min(width, pNormalControlsWidth),
+        left: 24.0,
+        width: math.max(0.0, width - 48.0),
         height: pLyricsControlsHeight,
         opacity: pLyricsControlsOpacity,
       ),
