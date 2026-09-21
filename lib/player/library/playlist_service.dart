@@ -376,8 +376,8 @@ class PlaylistService extends ChangeNotifier {
       if (_currentPlaylistId != null && toDelete.contains(_currentPlaylistId)) {
         _currentPlaylistId = _playlists.isNotEmpty ? _playlists.first.id : null;
       }
-      await _savePlaylists();
       notifyListeners();
+      await _savePlaylists();
     }
   }
 
@@ -390,8 +390,8 @@ class PlaylistService extends ChangeNotifier {
     if (index != -1) {
       _playlists[index].name = newName;
       _playlists[index].updatedAt = DateTime.now();
-      await _savePlaylists();
       notifyListeners();
+      await _savePlaylists();
     }
   }
 
@@ -399,8 +399,8 @@ class PlaylistService extends ChangeNotifier {
   void setCurrentPlaylist(String id) {
     if (_playlists.any((p) => p.id == id)) {
       _currentPlaylistId = id;
-      _savePlaylists();
       notifyListeners();
+      _savePlaylists();
     }
   }
 
@@ -413,8 +413,8 @@ class PlaylistService extends ChangeNotifier {
     if (index != -1) {
       _playlists[index].songs.addAll(songs);
       _playlists[index].updatedAt = DateTime.now();
-      await _savePlaylists();
       notifyListeners();
+      await _savePlaylists();
     }
   }
 
@@ -434,8 +434,8 @@ class PlaylistService extends ChangeNotifier {
         }
       }
       _playlists[index].updatedAt = DateTime.now();
-      await _savePlaylists();
       notifyListeners();
+      await _savePlaylists();
     }
   }
 
@@ -445,8 +445,8 @@ class PlaylistService extends ChangeNotifier {
       if (newIndex > oldIndex) newIndex--;
       final item = _playlists.removeAt(oldIndex);
       _playlists.insert(newIndex, item);
-      await _savePlaylists();
       notifyListeners();
+      await _savePlaylists();
     }
   }
 
@@ -508,8 +508,8 @@ class PlaylistService extends ChangeNotifier {
       ..addAll(pinned)
       ..addAll(normal);
 
-    await _savePlaylists();
     notifyListeners();
+    await _savePlaylists();
   }
 
   /// 重新排序播放列表中的歌曲
@@ -525,8 +525,8 @@ class PlaylistService extends ChangeNotifier {
         final song = songs.removeAt(oldIndex);
         songs.insert(newIndex, song);
         _playlists[index].updatedAt = DateTime.now();
-        await _savePlaylists();
         notifyListeners();
+        await _savePlaylists();
       }
     }
   }
@@ -537,8 +537,8 @@ class PlaylistService extends ChangeNotifier {
     if (index != -1) {
       _playlists[index].songs.clear();
       _playlists[index].updatedAt = DateTime.now();
-      await _savePlaylists();
       notifyListeners();
+      await _savePlaylists();
     }
   }
 

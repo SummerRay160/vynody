@@ -646,30 +646,16 @@ class _PlaylistManagerDialogState
                             size: 24,
                           ),
                         ),
-                  title: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          localizedPlaylistName(context, playlist),
-                          style: TextStyle(
-                            fontWeight:
-                                isCurrent ? FontWeight.bold : FontWeight.w500,
-                            color: isCurrent
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (isCurrent) ...[
-                        const SizedBox(width: 6),
-                        Icon(
-                          Icons.check_circle_rounded,
-                          size: 18,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ],
-                    ],
+                  title: Text(
+                    localizedPlaylistName(context, playlist),
+                    style: TextStyle(
+                      fontWeight:
+                          isCurrent ? FontWeight.bold : FontWeight.w500,
+                      color: isCurrent
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurface,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: Text(
                     '${l10n.songCount(playlist.songs.length)} · ${_formatDate(playlist.updatedAt)}',
