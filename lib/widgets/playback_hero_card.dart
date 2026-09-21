@@ -380,6 +380,8 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
                       uiScale: settings.uiScale,
                       portraitControlsExpandProgress:
                           portraitControlsExpandProgress,
+                      lyricsBottomTabBarHeight: widget.lyricsBottomTabBarHeight,
+                      lyricsBottomSpacerHeight: widget.lyricsBottomSpacerHeight,
                     );
 
                     final endLayout = _buildPlaybackCardLayout(
@@ -396,6 +398,8 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
                       uiScale: settings.uiScale,
                       portraitControlsExpandProgress:
                           portraitControlsExpandProgress,
+                      lyricsBottomTabBarHeight: widget.lyricsBottomTabBarHeight,
+                      lyricsBottomSpacerHeight: widget.lyricsBottomSpacerHeight,
                     );
 
                     final layout = _lerpPlaybackCardLayout(
@@ -778,6 +782,8 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
     bool collapseButtonsInLandscapeLyrics = true,
     double uiScale = 1.0,
     double portraitControlsExpandProgress = 0.0,
+    double lyricsBottomTabBarHeight = 0.0,
+    double lyricsBottomSpacerHeight = 0.0,
   }) {
     final double scaleFactor = isSmallWindow ? 0.82 : 1.0;
     final bool isWaveformEnabled =
@@ -1277,8 +1283,17 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
     final double pNormalTopButtonsTotalHeight =
         pNormalSingleButtonWidth + pNormalGapWidth;
 
-    final double pLyricsControlsExpandedTop =
-        pNormalControlsTop + pNormalTopButtonsTotalHeight;
+    final double expandedControlsHeight = math.max(
+      110.0,
+      pNormalControlsBaseIdealHeight * pNormalScale -
+          pNormalTopButtonsTotalHeight,
+    );
+    const double pLyricsControlsBottomMargin = 16.0;
+    final double pLyricsControlsExpandedTop = height -
+        lyricsBottomTabBarHeight -
+        lyricsBottomSpacerHeight -
+        pLyricsControlsBottomMargin -
+        expandedControlsHeight;
     final double pLyricsControlsCollapsedTop = height;
 
     final double pLyricsControlsTop = lerpDouble(

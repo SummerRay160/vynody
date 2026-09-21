@@ -993,10 +993,13 @@ class _LyricsFadeShaderMask extends StatelessWidget {
             if (isPortrait) {
               final effectiveBottomReserve = math.max(20.0, bottomSpacerHeight);
               bottomFadeEndHeight = effectiveBottomReserve;
-              bottomFadeStartHeight = effectiveBottomReserve + 50.0;
+              final fadeLength = lyricsStyle == LyricsStyle.apple
+                  ? PlaybackPageUiTuning.appleLyricsBottomFadeLength
+                  : PlaybackPageUiTuning.traditionalLyricsBottomFadeLength;
+              bottomFadeStartHeight = effectiveBottomReserve + fadeLength;
             } else {
               bottomFadeEndHeight = 0.0;
-              bottomFadeStartHeight = math.max(30.0, bottomSpacerHeight);
+              bottomFadeStartHeight = math.max(40.0, bottomSpacerHeight + 40.0);
             }
 
             final bottomFadeStart =

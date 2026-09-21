@@ -51,6 +51,8 @@ class PlaybackPageUiTuning {
   static const double appleLyricsTopPaddingFactor = 20.0; // 顶部内边距系数 (乘以 lyricsFontScale)
   static const double appleLyricsScrollOffsetFactor = 10.0; // 滚动对齐偏移系数 (乘以 lyricsFontScale)
   static const double appleLyricsTopFadeHeightFactor = 12.0; // 顶部渐变遮罩高度系数 (乘以 lyricsFontScale)
+  static const double appleLyricsBottomFadeLength = 120.0; // 苹果样式歌词底部渐变过渡区长度
+  static const double traditionalLyricsBottomFadeLength = 80.0; // 传统样式歌词底部渐变过渡区长度
 
   static double appleLyricsTopPadding(double lyricsFontScale, {bool isSmallWin = false}) {
     return appleLyricsTopPaddingFactor * lyricsFontScale;
