@@ -43,7 +43,12 @@ xcodebuild -resolvePackageDependencies \
   -clonedSourcePackagesDirPath build/macos/SourcePackages
 
 echo -e "${BLUE}==> 5. Building macOS Release application...${NC}"
-CXXFLAGS="-std=gnu++20" flutter build macos --release
+CODE_SIGN_STYLE="Manual" \
+CODE_SIGN_IDENTITY="-" \
+DEVELOPMENT_TEAM="" \
+PROVISIONING_PROFILE_SPECIFIER="" \
+CXXFLAGS="-std=gnu++20" \
+flutter build macos --release
 
 # Extract version from pubspec.yaml
 VERSION=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr '+' '-')
