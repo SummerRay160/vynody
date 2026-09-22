@@ -129,9 +129,18 @@ class RemoteScanRootsNotifier extends AsyncNotifier<List<RemoteScanRoot>> {
 
   /// Removes a remote root by ID.
   Future<void> removeRoot(String rootId) async {
-    final current = state.asData?.value ?? [];
+    final current = state.asData?.value ?? await future;
     final updated = current.where((r) => r.id != rootId).toList();
     await _persist(updated);
+  }
+
+  /// Removes all remote roots associated with [serverId].
+  Future<List<RemoteScanRoot>> removeRootsForServer(String serverId) async {
+    final current = state.asData?.value ?? await future;
+    final removed = current.where((r) => r.serverId == serverId).toList();
+    final updated = current.where((r) => r.serverId != serverId).toList();
+    await _persist(updated);
+    return removed;
   }
 
   /// Updates an existing root with scanned info (song count, last scanned time).

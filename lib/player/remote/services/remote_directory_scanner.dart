@@ -277,6 +277,23 @@ class RemoteDirectoryScanner {
     final currentRoots = _ref.read(remoteScanRootsProvider).asData?.value ?? [];
     _ref.read(scannerServiceProvider).setRemoteRoots(currentRoots);
   }
+
+  /// Removes all scan roots and song records belonging to [serverId] from the database and scanner.
+  Future<void> removeServerFromDatabase(String serverId) async {
+    cancel();
+
+    final schemes = const ['webdav', 'smb', 'subsonic', 'jellyfin'];
+    for (final scheme in schemes) {
+      final songs = await _db.getSongsUnderPath('$scheme://$serverId');
+      for (final song in songs) {
+        await _db.deleteSongByPath(song.path);
+      }
+    }
+
+    await _ref.read(remoteScanRootsProvider.notifier).removeRootsForServer(serverId);
+    final currentRoots = _ref.read(remoteScanRootsProvider).asData?.value ?? [];
+    _ref.read(scannerServiceProvider).setRemoteRoots(currentRoots);
+  }
 }
 
 final remoteDirectoryScannerProvider = Provider<RemoteDirectoryScanner>((ref) {

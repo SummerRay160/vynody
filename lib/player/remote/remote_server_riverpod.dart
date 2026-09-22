@@ -7,6 +7,7 @@ import 'clients/subsonic_client.dart';
 import 'clients/webdav_client.dart';
 import 'clients/smb_client.dart';
 import 'clients/jellyfin_client.dart';
+import 'services/remote_directory_scanner.dart';
 import '../metadata/metadata_database.dart';
 
 final remoteServerStorageProvider = FutureProvider<RemoteServerStorage>((ref) async {
@@ -46,6 +47,15 @@ class RemoteServersNotifier extends AsyncNotifier<List<RemoteServer>> {
   Future<void> deleteServer(String serverId) async {
     final storage = await ref.read(remoteServerStorageProvider.future);
     await storage.deleteServer(serverId);
+
+    try {
+      await ref.read(remoteDirectoryScannerProvider).removeServerFromDatabase(serverId);
+    } catch (_) {}
+
+    final activeSession = ref.read(activeRemoteSessionProvider);
+    if (activeSession?.server.id == serverId) {
+      ref.read(activeRemoteSessionProvider.notifier).clear();
+    }
 
     final currentList = state.asData?.value ?? [];
     final updatedList = currentList.where((s) => s.id != serverId).toList();
