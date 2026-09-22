@@ -707,6 +707,12 @@ class MetadataDatabase {
 
   Future<void> deleteSongByPath(String path) => _db.deleteSongByPath(path);
 
+  Future<void> softDeleteSongsUnderPath(
+    String rootPath, {
+    int? maxCreatedAt,
+  }) =>
+      _db.softDeleteSongsUnderPath(rootPath, maxCreatedAt: maxCreatedAt);
+
   Future<void> clearAll() => _db.clearAllSongs();
 
   Future<void> clearSongsExceptExternal() => _db.clearSongsExceptExternal();

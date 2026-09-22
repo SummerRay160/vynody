@@ -73,11 +73,21 @@ class RemoteDirectoryScanner {
   final Ref _ref;
   final MetadataDatabase _db = MetadataDatabase();
   bool _cancelled = false;
+  final Set<String> _cancelledRootIds = <String>{};
+  final Map<String, Future<void>> _activeDeletions = <String, Future<void>>{};
 
   RemoteDirectoryScanner(this._ref);
 
   void cancel() {
     _cancelled = true;
+    _cancelledRootIds.clear();
+  }
+
+  void cancelRoot(String rootId) {
+    _cancelledRootIds.add(rootId);
+    if (_ref.read(remoteScanProgressProvider).rootId == rootId) {
+      _ref.read(remoteScanProgressProvider.notifier).reset();
+    }
   }
 
   /// Scans a single [RemoteScanRoot], indexes all audio files, extracts metadata and updates DB.
@@ -87,7 +97,25 @@ class RemoteDirectoryScanner {
     required RemoteScanRoot root,
     void Function(RemoteScanProgress)? onProgress,
   }) async {
+    // 1. 如果此根目录正有正在执行的软删除任务，等待其执行完毕，避免刚扫描写入的数据被旧删除误删
+    final deletion = _activeDeletions[root.id];
+    if (deletion != null) {
+      await deletion;
+    }
+
+    // 检查等待后该 root 是否依然存在于 remoteScanRootsProvider 中（若已被彻底移除且未再添加则跳过）
+    final currentRegisteredRoots =
+        _ref.read(remoteScanRootsProvider).asData?.value ?? [];
+    if (!currentRegisteredRoots.any((r) => r.id == root.id)) {
+      return 0;
+    }
+
+    _cancelledRootIds.remove(root.id);
     _cancelled = false;
+
+    bool isCurrentScanCancelled() =>
+        _cancelled || _cancelledRootIds.contains(root.id);
+
     final progressNotifier = _ref.read(remoteScanProgressProvider.notifier);
 
     void reportProgress(RemoteScanProgress progress) {
@@ -115,7 +143,7 @@ class RemoteDirectoryScanner {
       final List<String> dirQueue = [normalizeRemotePath(root.remotePath)];
       final Set<String> visitedDirs = {};
 
-      while (dirQueue.isNotEmpty && !_cancelled) {
+      while (dirQueue.isNotEmpty && !isCurrentScanCancelled()) {
         final currentDir = dirQueue.removeAt(0);
         if (!visitedDirs.add(currentDir)) continue;
 
@@ -152,7 +180,7 @@ class RemoteDirectoryScanner {
         }
       }
 
-      if (_cancelled) {
+      if (isCurrentScanCancelled()) {
         reportProgress(const RemoteScanProgress());
         return 0;
       }
@@ -200,7 +228,7 @@ class RemoteDirectoryScanner {
           server: server,
           password: password,
           concurrency: 3,
-          isCancelled: () => _cancelled,
+          isCancelled: isCurrentScanCancelled,
           onFileStart: (file) {
             reportProgress(RemoteScanProgress(
               isScanning: true,
@@ -227,7 +255,7 @@ class RemoteDirectoryScanner {
         );
       }
 
-      if (_cancelled) {
+      if (isCurrentScanCancelled()) {
         reportProgress(const RemoteScanProgress());
         return 0;
       }
@@ -241,6 +269,11 @@ class RemoteDirectoryScanner {
       }
       for (final deleteUri in urisToDelete) {
         await _db.deleteSongByPath(deleteUri);
+      }
+
+      if (isCurrentScanCancelled()) {
+        reportProgress(const RemoteScanProgress());
+        return 0;
       }
 
       // 6. Update RemoteScanRoot info
@@ -269,13 +302,30 @@ class RemoteDirectoryScanner {
 
   /// Removes all song metadata and thumbnail records belonging to [root] from the database.
   Future<void> removeRootFromDatabase(RemoteScanRoot root) async {
-    final songs = await _db.getSongsUnderPath(root.virtualUri);
-    for (final song in songs) {
-      await _db.deleteSongByPath(song.path);
+    cancelRoot(root.id);
+
+    final priorDeletion = _activeDeletions[root.id];
+    if (priorDeletion != null) {
+      await priorDeletion;
     }
-    await _ref.read(remoteScanRootsProvider.notifier).removeRoot(root.id);
-    final currentRoots = _ref.read(remoteScanRootsProvider).asData?.value ?? [];
-    _ref.read(scannerServiceProvider).setRemoteRoots(currentRoots);
+
+    final completer = Completer<void>();
+    _activeDeletions[root.id] = completer.future;
+
+    try {
+      final deleteTriggerTime = DateTime.now().millisecondsSinceEpoch;
+      await _db.softDeleteSongsUnderPath(
+        root.virtualUri,
+        maxCreatedAt: deleteTriggerTime,
+      );
+      await _ref.read(remoteScanRootsProvider.notifier).removeRoot(root.id);
+      final currentRoots = _ref.read(remoteScanRootsProvider).asData?.value ?? [];
+      _ref.read(scannerServiceProvider).setRemoteRoots(currentRoots);
+    } finally {
+      _cancelledRootIds.remove(root.id);
+      completer.complete();
+      _activeDeletions.remove(root.id);
+    }
   }
 
   /// Removes all scan roots and song records belonging to [serverId] from the database and scanner.
@@ -284,10 +334,7 @@ class RemoteDirectoryScanner {
 
     final schemes = const ['webdav', 'smb', 'subsonic', 'jellyfin'];
     for (final scheme in schemes) {
-      final songs = await _db.getSongsUnderPath('$scheme://$serverId');
-      for (final song in songs) {
-        await _db.deleteSongByPath(song.path);
-      }
+      await _db.softDeleteSongsUnderPath('$scheme://$serverId');
     }
 
     await _ref.read(remoteScanRootsProvider.notifier).removeRootsForServer(serverId);

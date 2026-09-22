@@ -1601,6 +1601,107 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
     }
   }
 
+  Future<void> softDeleteSongsUnderPath(
+    String rootPath, {
+    int? maxCreatedAt,
+  }) async {
+    final normalized = _normalizePath(rootPath);
+    if (normalized.isEmpty) return;
+
+    final separator = RemoteMediaResolver.isRemoteUri(normalized)
+        ? '/'
+        : (Platform.isWindows ? '\\' : '/');
+    final prefixPattern = normalized.endsWith(separator) ? '$normalized%' : '$normalized$separator%';
+
+    final isRemote = RemoteMediaResolver.isRemoteUri(normalized);
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final createdAtCondition = maxCreatedAt != null ? ' AND (createdAt IS NULL OR createdAt <= ?)' : '';
+    final baseSelectVariables = [
+      Variable(normalized),
+      Variable(prefixPattern),
+      if (maxCreatedAt != null) Variable(maxCreatedAt),
+    ];
+    final baseUpdateVariables = [
+      Variable(now),
+      Variable(normalized),
+      Variable(prefixPattern),
+      if (maxCreatedAt != null) Variable(maxCreatedAt),
+    ];
+
+    await transaction(() async {
+      // 1. 获取即将被软删除的歌曲的缩略图路径，以便后续清理文件
+      final songRows = await customSelect(
+        '''
+        SELECT thumbnailPath
+        FROM songs
+        WHERE (path = ? OR path LIKE ?)
+          AND deletedAt IS NULL
+          $createdAtCondition
+        ''',
+        variables: baseSelectVariables,
+        readsFrom: {songs},
+      ).get();
+
+      final List<String?> thumbnailPaths = songRows
+          .map((r) => r.read<String?>('thumbnailPath'))
+          .where((p) => p != null && p.isNotEmpty)
+          .toList();
+
+      // 2. 批量软删除 songs 表
+      await customUpdate(
+        '''
+        UPDATE songs
+        SET deletedAt = ?, thumbnailPath = NULL
+        WHERE (path = ? OR path LIKE ?)
+          AND deletedAt IS NULL
+          $createdAtCondition
+        ''',
+        variables: baseUpdateVariables,
+        updates: {songs},
+      );
+
+      // 3. 如果是远程歌曲，同时批量软删除 remoteSongs 表
+      if (isRemote) {
+        final remoteRows = await customSelect(
+          '''
+          SELECT thumbnailPath
+          FROM remote_songs
+          WHERE (virtualUri = ? OR virtualUri LIKE ?)
+            AND deletedAt IS NULL
+            $createdAtCondition
+          ''',
+          variables: baseSelectVariables,
+          readsFrom: {remoteSongs},
+        ).get();
+
+        for (final r in remoteRows) {
+          final thumb = r.read<String?>('thumbnailPath');
+          if (thumb != null && thumb.isNotEmpty) {
+            thumbnailPaths.add(thumb);
+          }
+        }
+
+        await customUpdate(
+          '''
+          UPDATE remote_songs
+          SET deletedAt = ?, thumbnailPath = NULL
+          WHERE (virtualUri = ? OR virtualUri LIKE ?)
+            AND deletedAt IS NULL
+            $createdAtCondition
+          ''',
+          variables: baseUpdateVariables,
+          updates: {remoteSongs},
+        );
+      }
+
+      // 4. 异步清理磁盘缩略图文件，不阻塞事务提交
+      if (thumbnailPaths.isNotEmpty) {
+        _deleteThumbnailFiles(thumbnailPaths).ignore();
+      }
+    });
+  }
+
   Future<void> clearAllSongs() async {
     final rows = await select(songs).get();
     await delete(songs).go();

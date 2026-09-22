@@ -147,6 +147,75 @@ void main() {
       expect(await db.getSongMetadata(srv1Track1), isNull);
       expect(await db.getSongMetadata(srv2Track1), isNotNull);
     });
+
+    test('softDeleteSongsUnderPath deletes songs in directory and respects maxCreatedAt', () async {
+      final rootUri = 'webdav://srv_test/music/folderA';
+      final song1 = 'webdav://srv_test/music/folderA/song1.mp3';
+      final song2 = 'webdav://srv_test/music/folderA/sub/song2.mp3';
+      final other = 'webdav://srv_test/music/folderB/song3.mp3';
+
+      final t0 = 1000000;
+      await db.insertOrUpdateSong(
+        SongMetadata(
+          path: song1,
+          title: 'Song 1',
+          artist: 'Art',
+          album: 'Alb',
+          createdAt: t0,
+          sourceFlags: SongSourceFlags.remote,
+        ),
+      );
+      await db.insertOrUpdateSong(
+        SongMetadata(
+          path: song2,
+          title: 'Song 2',
+          artist: 'Art',
+          album: 'Alb',
+          createdAt: t0,
+          sourceFlags: SongSourceFlags.remote,
+        ),
+      );
+      await db.insertOrUpdateSong(
+        SongMetadata(
+          path: other,
+          title: 'Other',
+          artist: 'Art',
+          album: 'Alb',
+          createdAt: t0,
+          sourceFlags: SongSourceFlags.remote,
+        ),
+      );
+
+      // Verify songs exist
+      expect((await db.getSongsUnderPath(rootUri)).length, 2);
+
+      // Soft delete folderA with maxCreatedAt = t0
+      await db.softDeleteSongsUnderPath(rootUri, maxCreatedAt: t0);
+
+      // songs under folderA should now be deleted
+      expect((await db.getSongsUnderPath(rootUri)).length, 0);
+      // folderB is unaffected
+      expect((await db.getSongsUnderPath('webdav://srv_test/music/folderB')).length, 1);
+
+      // Now simulate a song re-added during or after deletion with createdAt > t0
+      final songReadded = 'webdav://srv_test/music/folderA/song1.mp3';
+      await db.insertOrUpdateSong(
+        SongMetadata(
+          path: songReadded,
+          title: 'Song 1 Readded',
+          artist: 'Art',
+          album: 'Alb',
+          createdAt: t0 + 5000,
+          sourceFlags: SongSourceFlags.remote,
+        ),
+      );
+
+      // If an old soft delete with maxCreatedAt = t0 were executed, it should NOT delete songReadded
+      await db.softDeleteSongsUnderPath(rootUri, maxCreatedAt: t0);
+      final activeSongs = await db.getSongsUnderPath(rootUri);
+      expect(activeSongs.length, 1);
+      expect(activeSongs.first.path, songReadded);
+    });
   });
 }
 

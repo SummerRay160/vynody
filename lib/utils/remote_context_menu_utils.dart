@@ -2307,13 +2307,16 @@ Future<void> _handleWebDavFolderMenuSelection({
           .read(remoteScanRootsProvider.notifier)
           .findExactRoot(server.id, folder.path);
       if (exactRoot != null) {
-        await ref
-            .read(remoteDirectoryScannerProvider)
-            .removeRootFromDatabase(exactRoot);
+        await ref.read(remoteScanRootsProvider.notifier).removeRoot(exactRoot.id);
         final currentRoots =
             ref.read(remoteScanRootsProvider).asData?.value ?? [];
         ref.read(scannerServiceProvider).setRemoteRoots(currentRoots);
         showToast(l10n.removedFromMediaLibrary);
+        unawaited(
+          ref
+              .read(remoteDirectoryScannerProvider)
+              .removeRootFromDatabase(exactRoot),
+        );
       }
       break;
     case 'open':
