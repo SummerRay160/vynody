@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
@@ -44,7 +45,8 @@ class MiniPlayerCard extends ConsumerWidget {
     final isFavorite =
         currentMusic != null && playlistService.isFavoriteSong(currentMusic);
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final windowWidth = MediaQuery.of(context).size.width;
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
@@ -147,54 +149,81 @@ class MiniPlayerCard extends ConsumerWidget {
       onExit: (_) => onMiniMouseExit?.call(),
       child: Container(
         decoration: BoxDecoration(
-          color: isDark
-              ? Colors.black.withValues(alpha: 0.82)
-              : Colors.white.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(100),
           boxShadow: [
             BoxShadow(
-              color: (isDark ? Colors.black : Colors.grey[400]!)
-                  .withValues(alpha: 0.3),
-              blurRadius: 10,
-              spreadRadius: 2,
+              color: Colors.black.withValues(
+                alpha: isDark ? 0.22 : 0.10,
+              ),
+              blurRadius: 28,
+              offset: const Offset(0, 8),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(
+                alpha: isDark ? 0.12 : 0.05,
+              ),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+              spreadRadius: 0,
             ),
           ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(100),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: MiniSpectrumBackground(
-                  audio: ref.read(audioServiceProvider),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 24,
+              sigmaY: 24,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface.withValues(
+                  alpha: isDark ? 0.66 : 0.80,
+                ),
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(
+                  color: (isDark ? Colors.white : Colors.black).withValues(
+                    alpha: isDark ? 0.15 : 0.08,
+                  ),
+                  width: 0.8,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 10,
-                  bottom: 0,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: showVolume
-                      ? [
-                          playControls,
-                          const SizedBox(width: 12),
-                          trackInfo,
-                          const SizedBox(width: 12),
-                          rightControls,
-                        ]
-                      : [
-                          trackInfo,
-                          const SizedBox(width: 12),
-                          playControls,
-                        ],
-                ),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: MiniSpectrumBackground(
+                      audio: ref.read(audioServiceProvider),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 10,
+                      bottom: 0,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: showVolume
+                          ? [
+                              playControls,
+                              const SizedBox(width: 12),
+                              trackInfo,
+                              const SizedBox(width: 12),
+                              rightControls,
+                            ]
+                          : [
+                              trackInfo,
+                              const SizedBox(width: 12),
+                              playControls,
+                            ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
