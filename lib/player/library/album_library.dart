@@ -4,6 +4,7 @@ import 'package:path/path.dart' as p;
 import 'package:vynody/models/album_summary.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
+import 'package:vynody/player/library/library_source_filter.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 
 final albumLibraryProvider = StreamProvider<List<AlbumSummary>>((ref) async* {
@@ -15,12 +16,24 @@ final albumLibraryProvider = StreamProvider<List<AlbumSummary>>((ref) async* {
   final hasSystemMedia = ref.watch(
     scannerServiceProvider.select((s) => s.systemMediaFolder != null),
   );
+  final remoteRootsKey = ref.watch(
+    scannerServiceProvider
+        .select((s) => s.remoteRoots.map((r) => r.virtualUri).join('|')),
+  );
+  final sourceFilter = ref.watch(librarySourceFilterProvider);
   final scanner = ref.read(scannerServiceProvider);
-  final shouldFilter = isReady && (rootPathsKey.isNotEmpty || hasSystemMedia);
+  final shouldFilter =
+      isReady &&
+      (rootPathsKey.isNotEmpty ||
+          hasSystemMedia ||
+          remoteRootsKey.isNotEmpty);
   await for (final songs in db.watchAllSongMetadata()) {
-    final validSongs = shouldFilter
-        ? songs.where((s) => scanner.isPathInActiveRoots(s.path))
-        : songs;
+    final validSongs = songs.where((s) {
+      if (shouldFilter && !scanner.isPathInActiveRoots(s.path)) {
+        return false;
+      }
+      return sourceFilter.matchesSongPath(s.path);
+    });
     yield buildAlbumSummaries(validSongs);
   }
 });

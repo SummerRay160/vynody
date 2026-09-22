@@ -19,6 +19,7 @@ class RemoteMetadataHelper {
     required WebDavFile file,
     required RemoteServer server,
     required String password,
+    int? sourceFlags,
   }) async {
     if (!file.isAudio) return null;
 
@@ -58,11 +59,25 @@ class RemoteMetadataHelper {
 
       if (tagData == null) {
         debugPrint(
-          '[Remote Metadata] Skip metadata for "${file.name}": '
+          '[Remote Metadata] Skip TagLib metadata for "${file.name}": '
           'TagLib returned null (${taglib.TagLibFile.lastError ?? "read failed"}). '
           'Falling back to filename.',
         );
-        return null;
+        final fallbackTitle = p.basenameWithoutExtension(file.name);
+        final fallbackMetadata = SongMetadata(
+          path: virtualUri,
+          title: fallbackTitle.isNotEmpty ? fallbackTitle : file.name,
+          album: 'Unknown',
+          artist: 'Unknown',
+          duration: null,
+          trackNumber: null,
+          thumbnailPath: null,
+          lastModifiedTime: file.lastModified?.millisecondsSinceEpoch ?? 0,
+          sourceFlags: sourceFlags ?? SongSourceFlags.remote,
+        );
+        final db = MetadataDatabase();
+        await db.insertOrUpdateSong(fallbackMetadata);
+        return fallbackMetadata;
       }
 
       final title = tagData.title.trim();
@@ -110,6 +125,7 @@ class RemoteMetadataHelper {
         trackNumber: trackNumber > 0 ? trackNumber : null,
         thumbnailPath: savedThumbnailPath,
         lastModifiedTime: file.lastModified?.millisecondsSinceEpoch ?? 0,
+        sourceFlags: sourceFlags ?? SongSourceFlags.remote,
         genres: genre.isNotEmpty ? [genre] : null,
       );
 
@@ -118,8 +134,24 @@ class RemoteMetadataHelper {
 
       return songMetadata;
     } catch (e) {
-      debugPrint('[Remote Metadata] Error reading metadata for "${file.name}": $e');
-      return null;
+      debugPrint('[Remote Metadata] Error reading metadata for "${file.name}": $e. Falling back to filename.');
+      final fallbackTitle = p.basenameWithoutExtension(file.name);
+      final fallbackMetadata = SongMetadata(
+        path: virtualUri,
+        title: fallbackTitle.isNotEmpty ? fallbackTitle : file.name,
+        album: 'Unknown',
+        artist: 'Unknown',
+        duration: null,
+        trackNumber: null,
+        thumbnailPath: null,
+        lastModifiedTime: file.lastModified?.millisecondsSinceEpoch ?? 0,
+        sourceFlags: sourceFlags ?? SongSourceFlags.remote,
+      );
+      try {
+        final db = MetadataDatabase();
+        await db.insertOrUpdateSong(fallbackMetadata);
+      } catch (_) {}
+      return fallbackMetadata;
     }
   }
 
@@ -128,7 +160,8 @@ class RemoteMetadataHelper {
     required List<WebDavFile> files,
     required RemoteServer server,
     required String password,
-    required void Function(String virtualUri, SongMetadata metadata) onMetadataLoaded,
+    required void Function(String virtualUri, SongMetadata metadata, WebDavFile file) onMetadataLoaded,
+    void Function(WebDavFile file)? onFileStart,
     int concurrency = 3,
     bool Function()? isCancelled,
   }) async {
@@ -142,6 +175,7 @@ class RemoteMetadataHelper {
       while (queue.isNotEmpty) {
         if (isCancelled?.call() == true) return;
         final file = queue.removeAt(0);
+        onFileStart?.call(file);
 
         final meta = await fetchSongMetadata(
           file: file,
@@ -153,7 +187,7 @@ class RemoteMetadataHelper {
 
         if (meta != null) {
           final virtualUri = RemoteMediaResolver.buildRemoteUri(server, file.path);
-          onMetadataLoaded(virtualUri, meta);
+          onMetadataLoaded(virtualUri, meta, file);
         }
       }
     }

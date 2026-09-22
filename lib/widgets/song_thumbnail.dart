@@ -53,6 +53,7 @@ class _SongThumbnailState extends ConsumerState<SongThumbnail> {
 
   static final LinkedHashMap<String, String> _artworkCache = LinkedHashMap<String, String>();
   static final LinkedHashMap<String, String> _remoteUrlCache = LinkedHashMap<String, String>();
+  static final LinkedHashMap<String, String> _remoteThumbnailCache = LinkedHashMap<String, String>();
   static final Set<String> _failedRemoteUrls = <String>{};
 
   @override
@@ -64,10 +65,24 @@ class _SongThumbnailState extends ConsumerState<SongThumbnail> {
   void _checkOrQueryArtwork() {
     if (RemoteMediaResolver.isRemoteUri(widget.path)) {
       final existingPath = widget.thumbnailPath ??
-          ref.read(scannerServiceProvider).metadataMap[widget.path]?.thumbnailPath;
+          ref.read(scannerServiceProvider).metadataMap[widget.path]?.thumbnailPath ??
+          _artworkFilePath;
       if (existingPath != null && existingPath.isNotEmpty && File(existingPath).existsSync()) {
+        _artworkFilePath = existingPath;
+        _artworkQueried = true;
         return;
       }
+      if (_remoteThumbnailCache.containsKey(widget.path)) {
+        final cached = _remoteThumbnailCache[widget.path];
+        if (cached != null && cached.isNotEmpty && File(cached).existsSync()) {
+          _artworkFilePath = cached;
+          _artworkQueried = true;
+          return;
+        }
+      }
+
+      _queryRemoteSongThumbnailFromDb();
+
       final cacheKey = '${widget.path}_${widget.artworkPath ?? ''}';
       if (_remoteUrlCache.containsKey(cacheKey)) {
         _remoteArtworkUrl = _remoteUrlCache[cacheKey];
@@ -121,6 +136,28 @@ class _SongThumbnailState extends ConsumerState<SongThumbnail> {
         setState(() {
           _remoteArtworkUrl = url;
         });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _queryRemoteSongThumbnailFromDb() async {
+    try {
+      final db = MetadataDatabase();
+      final songMeta = await db.getSongMetadata(widget.path);
+      final thumbPath = songMeta?.thumbnailPath;
+      if (thumbPath != null && thumbPath.isNotEmpty) {
+        if (File(thumbPath).existsSync()) {
+          _remoteThumbnailCache[widget.path] = thumbPath;
+          if (_remoteThumbnailCache.length > 1000) {
+            _remoteThumbnailCache.remove(_remoteThumbnailCache.keys.first);
+          }
+          if (mounted) {
+            setState(() {
+              _artworkFilePath = thumbPath;
+              _artworkQueried = true;
+            });
+          }
+        }
       }
     } catch (_) {}
   }
@@ -270,7 +307,11 @@ class _SongThumbnailState extends ConsumerState<SongThumbnail> {
     );
     final rawImagePath = (widget.thumbnailPath != null && widget.thumbnailPath!.isNotEmpty)
         ? widget.thumbnailPath
-        : metadata?.thumbnailPath;
+        : (_artworkFilePath != null && _artworkFilePath!.isNotEmpty)
+            ? _artworkFilePath
+            : (_remoteThumbnailCache[widget.path]?.isNotEmpty ?? false)
+                ? _remoteThumbnailCache[widget.path]
+                : metadata?.thumbnailPath;
     final imagePath = (rawImagePath != null && rawImagePath.isNotEmpty && File(rawImagePath).existsSync())
         ? rawImagePath
         : null;

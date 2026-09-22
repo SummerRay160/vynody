@@ -20,6 +20,8 @@ import '../widgets/library_selection_scope.dart';
 import '../widgets/library_selection_panel.dart';
 import '../models/music_file.dart';
 import '../dialogs/sort_options_dialog.dart';
+import '../dialogs/library_source_filter_dialog.dart';
+import 'package:vynody/player/library/library_source_filter.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 import 'main_layout_riverpod.dart';
 import 'package:vynody/utils/layout_constants.dart';
@@ -688,6 +690,8 @@ class _AlbumCard extends ConsumerWidget {
               path: album.representativeSong.path,
               id: album.representativeSong.id,
               bytes: album.representativeSong.artworkBytes,
+              thumbnailPath: album.representativeSong.thumbnailPath,
+              artworkPath: album.representativeSong.artworkPath,
               size: 250,
               width: double.infinity,
               height: double.infinity,
@@ -910,6 +914,8 @@ Future<void> _showAlbumContextMenu(
                                   child: SongThumbnail(
                                     path: album.representativeSong.path,
                                     id: album.representativeSong.id,
+                                    thumbnailPath: album.representativeSong.thumbnailPath,
+                                    artworkPath: album.representativeSong.artworkPath,
                                     size: 52,
                                     borderRadius: BorderRadius.zero,
                                   ),
@@ -1079,7 +1085,7 @@ Future<void> _showAlbumContextMenu(
     );
   }
 
-class _AlbumsToolbar extends StatelessWidget {
+class _AlbumsToolbar extends ConsumerWidget {
   const _AlbumsToolbar({
     required this.searchController,
     required this.searchQuery,
@@ -1109,9 +1115,12 @@ class _AlbumsToolbar extends StatelessWidget {
   final VoidCallback? onShufflePressed;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final isZh = Localizations.localeOf(context).languageCode == 'zh';
+    final currentFilter = ref.watch(librarySourceFilterProvider);
+    final isFiltered = currentFilter.type != LibrarySourceType.all;
 
     final titleBlock = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1174,6 +1183,18 @@ class _AlbumsToolbar extends StatelessWidget {
       runSpacing: 8,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
+        IconButton(
+          tooltip: isZh ? '渠道与来源筛选' : 'Filter by Source',
+          onPressed: () => showLibrarySourceFilterDialog(context),
+          icon: Badge(
+            isLabelVisible: isFiltered,
+            smallSize: 8,
+            child: Icon(
+              Icons.tune_rounded,
+              color: isFiltered ? theme.colorScheme.primary : null,
+            ),
+          ),
+        ),
         if (is3DView)
           IconButton(
             tooltip: l10n.shuffleAlbumOrder,

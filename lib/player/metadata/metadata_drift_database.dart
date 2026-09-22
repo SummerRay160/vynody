@@ -534,7 +534,9 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
       return rows.map(_songFromQueryRow).toList(growable: false);
     }
 
-    final separator = Platform.isWindows ? '\\' : '/';
+    final separator = RemoteMediaResolver.isRemoteUri(normalized)
+        ? '/'
+        : (Platform.isWindows ? '\\' : '/');
     final prefixPattern = normalized.endsWith(separator) ? '$normalized%' : '$normalized$separator%';
     final rows = await customSelect(
       '''
@@ -577,7 +579,9 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
       return row.read<int>('c');
     }
 
-    final separator = Platform.isWindows ? '\\' : '/';
+    final separator = RemoteMediaResolver.isRemoteUri(normalized)
+        ? '/'
+        : (Platform.isWindows ? '\\' : '/');
     final prefixPattern = normalized.endsWith(separator) ? '$normalized%' : '$normalized$separator%';
     final row = await customSelect(
       '''
@@ -619,7 +623,9 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
       return row.read<int?>('s') ?? 0;
     }
 
-    final separator = Platform.isWindows ? '\\' : '/';
+    final separator = RemoteMediaResolver.isRemoteUri(normalized)
+        ? '/'
+        : (Platform.isWindows ? '\\' : '/');
     final prefixPattern = normalized.endsWith(separator) ? '$normalized%' : '$normalized$separator%';
     final row = await customSelect(
       '''
@@ -985,9 +991,6 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
     if (normalizedPath.isEmpty) {
       return null;
     }
-    if (RemoteMediaResolver.isRemoteUri(normalizedPath)) {
-      return getRemoteSongMetadata(normalizedPath);
-    }
     final row = await customSelect(
       '''
       SELECT *
@@ -999,7 +1002,13 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
       variables: [Variable(normalizedPath)],
       readsFrom: {songs},
     ).getSingleOrNull();
-    return row == null ? null : _songFromQueryRow(row);
+    if (row != null) {
+      return _songFromQueryRow(row);
+    }
+    if (RemoteMediaResolver.isRemoteUri(normalizedPath)) {
+      return getRemoteSongMetadata(normalizedPath);
+    }
+    return null;
   }
 
   Future<Map<String, SongMetadata>> getSongMetadataByPaths(
@@ -1024,7 +1033,10 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
       }
     }
 
-    final result = <String, SongMetadata>{};
+    final result = LinkedHashMap<String, SongMetadata>(
+      equals: (a, b) => _pathLookupKey(a) == _pathLookupKey(b),
+      hashCode: (a) => _pathLookupKey(a).hashCode,
+    );
     const batchSize = 500;
     await transaction(() async {
       for (var i = 0; i < localPaths.length; i += batchSize) {
@@ -1049,8 +1061,8 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
         ).get();
 
         for (final row in rows) {
-          result[_pathLookupKey(row.read<String>('path'))] =
-              _songFromQueryRow(row);
+          final rowPath = row.read<String>('path');
+          result[rowPath] = _songFromQueryRow(row);
         }
       }
 
@@ -1076,8 +1088,8 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
         ).get();
 
         for (final row in rows) {
-          result[_pathLookupKey(row.read<String>('virtualUri'))] =
-              _songFromRemoteRow(row);
+          final rowUri = row.read<String>('virtualUri');
+          result[rowUri] = _songFromRemoteRow(row);
         }
       }
     });
@@ -1266,7 +1278,10 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
     final normalizedPath = _normalizePath(song.path);
     if (normalizedPath.isEmpty) return;
 
-    if (RemoteMediaResolver.isRemoteUri(normalizedPath)) {
+    final isIndexedRemote = (song.sourceFlags != null &&
+        (song.sourceFlags! & SongSourceFlags.remote) != 0);
+
+    if (RemoteMediaResolver.isRemoteUri(normalizedPath) && !isIndexedRemote) {
       await insertOrUpdateRemoteSong(song.copyWith(path: normalizedPath));
       return;
     }
@@ -1557,15 +1572,33 @@ class MetadataDriftDatabase extends _$MetadataDriftDatabase {
               ..where((t) => t.path.equals(normalizedPath))
               ..limit(1))
             .getSingleOrNull();
-    if (row == null) return;
+    if (row != null) {
+      await (update(songs)..where((t) => t.path.equals(normalizedPath))).write(
+        SongsCompanion(
+          deletedAt: Value(DateTime.now().millisecondsSinceEpoch),
+          thumbnailPath: const Value(null),
+        ),
+      );
+      await _deleteThumbnailFile(row.thumbnailPath);
+    }
 
-    await (update(songs)..where((t) => t.path.equals(normalizedPath))).write(
-      SongsCompanion(
-        deletedAt: Value(DateTime.now().millisecondsSinceEpoch),
-        thumbnailPath: const Value(null),
-      ),
-    );
-    await _deleteThumbnailFile(row.thumbnailPath);
+    if (RemoteMediaResolver.isRemoteUri(normalizedPath)) {
+      final remoteRow = await (select(remoteSongs)
+            ..where((t) => t.virtualUri.equals(normalizedPath))
+            ..limit(1))
+          .getSingleOrNull();
+      if (remoteRow != null) {
+        await (update(remoteSongs)
+              ..where((t) => t.virtualUri.equals(normalizedPath)))
+            .write(
+          RemoteSongsCompanion(
+            deletedAt: Value(DateTime.now().millisecondsSinceEpoch),
+            thumbnailPath: const Value(null),
+          ),
+        );
+        await _deleteThumbnailFile(remoteRow.thumbnailPath);
+      }
+    }
   }
 
   Future<void> clearAllSongs() async {

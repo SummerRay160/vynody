@@ -37,6 +37,8 @@ class LibrarySelectionPanel extends ConsumerStatefulWidget {
     this.cloudFavoritesIcon,
     this.onDownload,
     this.onTranscode,
+    this.onAddToMediaLibrary,
+    this.addToMediaLibraryLabel,
     this.isSelectionEmpty,
     this.isAllSelected,
   });
@@ -64,6 +66,8 @@ class LibrarySelectionPanel extends ConsumerStatefulWidget {
   final IconData? cloudFavoritesIcon;
   final VoidCallback? onDownload;
   final VoidCallback? onTranscode;
+  final VoidCallback? onAddToMediaLibrary;
+  final String? addToMediaLibraryLabel;
   final bool? isSelectionEmpty;
   final bool? isAllSelected;
 
@@ -273,6 +277,16 @@ class _LibrarySelectionPanelState extends ConsumerState<LibrarySelectionPanel> {
             ),
           );
         }
+        if (widget.onAddToMediaLibrary != null) {
+          secondaryActions.add(
+            _buildSelectionActionButton(
+              context: context,
+              icon: Icons.library_add_rounded,
+              label: widget.addToMediaLibraryLabel ?? l10n.addToMediaLibrary,
+              onPressed: isEmpty ? null : widget.onAddToMediaLibrary,
+            ),
+          );
+        }
         if (widget.onDownload != null) {
           secondaryActions.add(
             _buildSelectionActionButton(
@@ -418,6 +432,16 @@ class _LibrarySelectionPanelState extends ConsumerState<LibrarySelectionPanel> {
                       widget.onCancel();
                     }
                   : null,
+            ),
+          );
+        }
+        if (widget.onAddToMediaLibrary != null) {
+          secondaryActions.add(
+            _buildSelectionActionButton(
+              context: context,
+              icon: Icons.library_add_rounded,
+              label: widget.addToMediaLibraryLabel ?? l10n.addToMediaLibrary,
+              onPressed: isEmpty ? null : widget.onAddToMediaLibrary,
             ),
           );
         }

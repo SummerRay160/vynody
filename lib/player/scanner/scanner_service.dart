@@ -39,6 +39,8 @@ import 'package:vynody/utils/localized_text.dart';
 import 'package:vynody/utils/linux_mount_helper.dart';
 import 'package:vynody/utils/folder_helpers.dart';
 import 'package:linux_directory_access/linux_directory_access.dart';
+import 'package:vynody/player/remote/services/remote_scan_root.dart';
+import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
 
 export 'package:vynody/player/scanner/scanner_scan_support.dart';
 
@@ -369,8 +371,43 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
     return songsFromRepo.map(_treeBuilder.musicFileFromSongMetadata).toList();
   }
 
+  List<RemoteScanRoot> _remoteRoots = const [];
+  List<RemoteScanRoot> get remoteRoots => _remoteRoots;
+
+  void setRemoteRoots(Iterable<RemoteScanRoot> roots) {
+    _remoteRoots = List.unmodifiable(roots);
+    notifyListeners();
+  }
+
+  Future<void> loadRemoteRoots() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('remote_scan_roots_list');
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        final list = jsonDecode(raw) as List;
+        _remoteRoots = list
+            .whereType<Map<String, dynamic>>()
+            .map(RemoteScanRoot.fromJson)
+            .toList(growable: false);
+      } catch (e) {
+        debugPrint('[ScannerService] loadRemoteRoots failed: $e');
+      }
+    }
+    notifyListeners();
+  }
+
   bool isPathInActiveRoots(String path) {
     if (path.isEmpty) return false;
+
+    if (RemoteMediaResolver.isRemoteUri(path)) {
+      for (final root in _remoteRoots) {
+        if (root.containsSong(path)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     final normalized = _normalizePath(path);
     if (normalized.isEmpty) return false;
 
@@ -879,6 +916,7 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
       );
       await _timeInitStep('load sort settings', _loadSortSettings);
       await _timeInitStep('load scan settings', _loadScanSettings);
+      await _timeInitStep('load remote roots', loadRemoteRoots);
       final cachedSongs = const <SongMetadata>[];
       await _timeInitStep(
         'load cached root folders from database',

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vynody/l10n/app_localizations.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
+import 'package:vynody/player/remote/remote_server_riverpod.dart';
+import 'package:vynody/player/remote/services/remote_scan_root.dart';
+import 'package:vynody/player/remote/services/remote_directory_scanner.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 import 'package:vynody/utils/app_snack_bar.dart';
 import '../widgets/settings_group_card.dart';
@@ -76,6 +79,7 @@ class ScanningSection extends ConsumerWidget {
             ),
           ],
         ),
+        _buildRemoteRootsCard(context, ref),
         SettingsGroupCard(
           title: l10n.rebuildIndex,
           icon: Icons.build_circle_outlined,
@@ -121,6 +125,106 @@ class ScanningSection extends ConsumerWidget {
             ),
           ],
         ),
+      ],
+    );
+  }
+
+  Widget _buildRemoteRootsCard(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final rootsAsync = ref.watch(remoteScanRootsProvider);
+    final roots = rootsAsync.asData?.value ?? [];
+    final progress = ref.watch(remoteScanProgressProvider);
+
+    return SettingsGroupCard(
+      title: l10n.remoteMediaFolders,
+      icon: Icons.cloud_sync_rounded,
+      children: [
+        if (roots.isEmpty)
+          ListTile(
+            leading: const Icon(Icons.cloud_off_rounded),
+            title: Text(
+              Localizations.localeOf(context).languageCode == 'zh'
+                  ? '暂无已索引的远程目录'
+                  : 'No indexed remote folders',
+            ),
+            subtitle: Text(
+              Localizations.localeOf(context).languageCode == 'zh'
+                  ? '可在 SMB / WebDAV 浏览界面中右键或多选文件夹加入媒体库'
+                  : 'You can right-click or multi-select folders in SMB/WebDAV to add them to media library.',
+            ),
+          )
+        else
+          for (final root in roots)
+            ListTile(
+              leading: Icon(
+                root.serverType.name == 'smb'
+                    ? Icons.dns_rounded
+                    : Icons.cloud_rounded,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              title: Text('${root.serverName} · ${root.remotePath}'),
+              subtitle: Text(
+                progress.isScanning && progress.rootId == root.id
+                    ? '${progress.currentFolder ?? ""} (${progress.processedCount}/${progress.totalDiscovered})'
+                    : '${root.songCount} ${l10n.songs}',
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (progress.isScanning && progress.rootId == root.id)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  else
+                    IconButton(
+                      icon: const Icon(Icons.refresh_rounded),
+                      tooltip: l10n.rebuild,
+                      onPressed: () async {
+                        final servers =
+                            ref.read(remoteServersProvider).asData?.value ?? [];
+                        final server = servers
+                            .where((s) => s.id == root.serverId)
+                            .firstOrNull;
+                        if (server == null) return;
+                        final storage =
+                            await ref.read(remoteServerStorageProvider.future);
+                        final password =
+                            await storage.getPassword(server.id) ?? '';
+                        unawaited(
+                          ref.read(remoteDirectoryScannerProvider).scanRoot(
+                                server: server,
+                                password: password,
+                                root: root,
+                              ),
+                        );
+                      },
+                    ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline_rounded,
+                        color: Colors.redAccent),
+                    tooltip: l10n.removeFromMediaLibrary,
+                    onPressed: () async {
+                      await ref
+                          .read(remoteDirectoryScannerProvider)
+                          .removeRootFromDatabase(root);
+                      final currentRoots =
+                          ref.read(remoteScanRootsProvider).asData?.value ?? [];
+                      ref
+                          .read(scannerServiceProvider)
+                          .setRemoteRoots(currentRoots);
+                    },
+                  ),
+                ],
+              ),
+            ),
       ],
     );
   }

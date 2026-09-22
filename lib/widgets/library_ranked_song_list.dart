@@ -583,6 +583,9 @@ class _SongListItem extends ConsumerWidget {
                           child: SongThumbnail(
                             path: song.path,
                             id: song.id,
+                            thumbnailPath: song.thumbnailPath,
+                            artworkPath: song.artworkPath,
+                            bytes: song.artworkBytes,
                             size: 44,
                           ),
                         ),

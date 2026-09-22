@@ -3,6 +3,7 @@ import 'package:vynody/player/remote/remote_server_models.dart';
 
 import 'package:vynody/player/remote/clients/webdav_client.dart';
 import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
+import 'package:vynody/player/remote/services/remote_scan_root.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -68,5 +69,43 @@ void main() {
     expect(musicFile.path, 'webdav://webdav_test/Music/Rock/Song.mp3');
     expect(musicFile.title, 'Song');
     expect(musicFile.name, 'Song.mp3');
+  });
+
+  test('RemoteScanRoot model, normalization and URI matching', () {
+    expect(normalizeRemotePath('/Music/Rock/'), '/Music/Rock');
+    expect(normalizeRemotePath('Music/Rock'), '/Music/Rock');
+    expect(normalizeRemotePath(''), '/');
+
+    final rootId = RemoteScanRoot.generateId(testServer.id, '/Music/Rock/');
+    expect(rootId, 'webdav_test:/Music/Rock');
+
+    final virtualUri = RemoteScanRoot.generateVirtualUri(testServer, '/Music/Rock');
+    expect(virtualUri, 'webdav://webdav_test/Music/Rock');
+
+    final root = RemoteScanRoot(
+      id: rootId,
+      serverId: testServer.id,
+      serverType: testServer.type,
+      serverName: testServer.name,
+      remotePath: '/Music/Rock',
+      virtualUri: virtualUri,
+      addedAt: 100000,
+      songCount: 5,
+    );
+
+    expect(root.containsSong('webdav://webdav_test/Music/Rock/track1.mp3'), isTrue);
+    expect(root.containsSong('webdav://webdav_test/Music/Rock/Sub/track2.flac'), isTrue);
+    expect(root.containsSong('webdav://webdav_test/Music/Jazz/track3.mp3'), isFalse);
+    expect(root.containsSong('webdav://other_server/Music/Rock/track1.mp3'), isFalse);
+
+    final json = root.toJson();
+    final restored = RemoteScanRoot.fromJson(json);
+    expect(restored.id, root.id);
+    expect(restored.serverId, root.serverId);
+    expect(restored.serverType, root.serverType);
+    expect(restored.serverName, root.serverName);
+    expect(restored.remotePath, root.remotePath);
+    expect(restored.virtualUri, root.virtualUri);
+    expect(restored.songCount, 5);
   });
 }

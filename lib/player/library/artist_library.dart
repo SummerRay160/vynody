@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vynody/models/artist_summary.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
+import 'package:vynody/player/library/library_source_filter.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 
 final artistLibraryProvider = StreamProvider<List<ArtistSummary>>((ref) async* {
@@ -18,10 +19,24 @@ final artistLibraryProvider = StreamProvider<List<ArtistSummary>>((ref) async* {
   final hasSystemMedia = ref.watch(
     scannerServiceProvider.select((s) => s.systemMediaFolder != null),
   );
+  final remoteRootsKey = ref.watch(
+    scannerServiceProvider
+        .select((s) => s.remoteRoots.map((r) => r.virtualUri).join('|')),
+  );
+  final sourceFilter = ref.watch(librarySourceFilterProvider);
   final scanner = ref.read(scannerServiceProvider);
-  final shouldFilter = isReady && (rootPathsKey.isNotEmpty || hasSystemMedia);
+  final shouldFilter =
+      isReady &&
+      (rootPathsKey.isNotEmpty ||
+          hasSystemMedia ||
+          remoteRootsKey.isNotEmpty);
   yield* repository.watchArtistSummaries(
-    isPathAllowed: shouldFilter ? scanner.isPathInActiveRoots : null,
+    isPathAllowed: (path) {
+      if (shouldFilter && !scanner.isPathInActiveRoots(path)) {
+        return false;
+      }
+      return sourceFilter.matchesSongPath(path);
+    },
   );
 });
 

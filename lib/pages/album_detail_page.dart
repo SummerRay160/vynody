@@ -121,6 +121,9 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage>
                                   child: SongThumbnail(
                                     path: widget.album.representativeSong.path,
                                     id: widget.album.representativeSong.id,
+                                    thumbnailPath: widget.album.representativeSong.thumbnailPath,
+                                    artworkPath: widget.album.representativeSong.artworkPath,
+                                    bytes: widget.album.representativeSong.artworkBytes,
                                     size: isWide
                                         ? 220
                                         : math.min(220, constraints.maxWidth),

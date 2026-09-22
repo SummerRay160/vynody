@@ -101,6 +101,8 @@ class SongGridCard extends ConsumerWidget {
                             path: song.path,
                             id: song.id,
                             bytes: song.artworkBytes,
+                            thumbnailPath: song.thumbnailPath,
+                            artworkPath: song.artworkPath,
                             size: 200,
                             width: double.infinity,
                             height: double.infinity,

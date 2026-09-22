@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vynody/player/library/library_source_filter.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 
+import '../../dialogs/library_source_filter_dialog.dart';
 import '../../dialogs/sort_options_dialog.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -255,6 +258,27 @@ class _FloatingCoverFlowToolbarState extends State<FloatingCoverFlowToolbar> {
                           onPressed: _expandSearch,
                           icon: const Icon(Icons.search_rounded),
                         ),
+                ),
+                Consumer(
+                  builder: (context, ref, child) {
+                    final filter = ref.watch(librarySourceFilterProvider);
+                    final isFiltered = filter.type != LibrarySourceType.all;
+                    final isZh = Localizations.localeOf(context).languageCode == 'zh';
+                    return IconButton(
+                      tooltip: isZh ? '渠道与来源筛选' : 'Filter by Source',
+                      iconSize: 20,
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () => showLibrarySourceFilterDialog(context),
+                      icon: Badge(
+                        isLabelVisible: isFiltered,
+                        smallSize: 6,
+                        child: Icon(
+                          Icons.tune_rounded,
+                          color: isFiltered ? theme.colorScheme.primary : null,
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 IconButton(
                   tooltip: l10n.shuffleAlbumOrder,

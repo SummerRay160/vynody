@@ -246,6 +246,9 @@ class _SongDetailsDialogState extends ConsumerState<_SongDetailsDialog> {
                           child: SongThumbnail(
                             path: widget.song.path,
                             id: widget.song.id,
+                            thumbnailPath: widget.song.thumbnailPath,
+                            artworkPath: widget.song.artworkPath,
+                            bytes: widget.song.artworkBytes,
                             size: 64,
                             borderRadius: BorderRadius.zero,
                           ),

@@ -25,6 +25,7 @@ import 'settings/sections/windows_section.dart';
 import 'settings/settings_search_registry.dart';
 import 'settings/settings_section.dart';
 import 'package:vynody/utils/layout_constants.dart';
+import 'main_layout_riverpod.dart';
 
 export 'settings/settings_section.dart';
 export 'settings/dialogs/custom_provider_config_dialog.dart';
@@ -50,10 +51,23 @@ class SettingsPageState extends ConsumerState<SettingsPage> {
   String _searchQuery = '';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(isSettingsPageActiveProvider.notifier).set(true);
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     _portraitSearchFocusNode.dispose();
     _landscapeSearchFocusNode.dispose();
+    Future.microtask(() {
+      ref.read(isSettingsPageActiveProvider.notifier).set(false);
+    });
     super.dispose();
   }
 

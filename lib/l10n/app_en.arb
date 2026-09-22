@@ -2237,5 +2237,12 @@
   "sortPlaylists": "Sort Playlists",
   "sortRecentlyUpdated": "Recently Updated",
   "sortRecentlyCreated": "Recently Created",
-  "sortCustom": "Custom Order"
+  "sortCustom": "Custom Order",
+  "addToMediaLibrary": "Add to Media Library",
+  "removeFromMediaLibrary": "Remove from Media Library",
+  "addedToMediaLibrary": "Added to media library, scanning in background...",
+  "removedFromMediaLibrary": "Removed from media library",
+  "indexingRemoteFolders": "Indexing remote folders...",
+  "remoteMediaFolders": "Remote Network Folders",
+  "remoteFolderAlreadyIndexed": "Folder is already indexed in media library"
 }

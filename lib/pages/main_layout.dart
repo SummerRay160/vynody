@@ -39,6 +39,7 @@ import '../widgets/playback_ui_tuning.dart';
 import '../widgets/volume_controls.dart';
 import '../widgets/global_drop_target.dart';
 import '../widgets/library_selection_scope.dart';
+import '../widgets/global_scan_progress_watcher.dart';
 import 'package:vynody/utils/deleted_song_snack.dart';
 import 'package:vynody/utils/app_snack_bar.dart';
 
@@ -1276,101 +1277,111 @@ class _MainLayoutState extends ConsumerState<MainLayout>
 
     final double railWidth = (useSidebar && !isSidebarHidden) ? 80.0 : 0.0;
 
-    final mainAppWidget = Focus(
-      autofocus: true,
-      child: PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) {
-              if (didPop) return;
-              _handleBackPressed();
-            },
-            child: GlobalDropTarget(
-              enable:
-                  _currentIndex != 3 &&
-                  !(_currentIndex == 1 &&
-                      isSmallWin &&
-                      settings.smallWindowBottomPanelMode !=
-                          SmallWindowBottomPanelMode.collapsed),
-              child: Listener(
-                behavior: HitTestBehavior.translucent,
-                onPointerDown: _handleDesktopPointerActivity,
-                onPointerMove: _handleDesktopPointerActivity,
-                onPointerHover: _handleDesktopPointerActivity,
-                child: Scaffold(
-                  extendBody: true,
-                  body: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: _buildCurrentPage(
-                          isDesktop,
-                          useSidebar,
-                          isCoverFlowImmersive,
+    final mainAppWidget = GlobalScanProgressWatcher(
+      child: Focus(
+        autofocus: true,
+        child: PopScope(
+              canPop: false,
+              onPopInvokedWithResult: (didPop, result) {
+                if (didPop) return;
+                _handleBackPressed();
+              },
+              child: GlobalDropTarget(
+                enable:
+                    _currentIndex != 3 &&
+                    !(_currentIndex == 1 &&
+                        isSmallWin &&
+                        settings.smallWindowBottomPanelMode !=
+                            SmallWindowBottomPanelMode.collapsed),
+                child: Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerDown: _handleDesktopPointerActivity,
+                  onPointerMove: _handleDesktopPointerActivity,
+                  onPointerHover: _handleDesktopPointerActivity,
+                  child: Scaffold(
+                    extendBody: true,
+                    body: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: _buildCurrentPage(
+                            isDesktop,
+                            useSidebar,
+                            isCoverFlowImmersive,
+                          ),
                         ),
-                      ),
-                      if (useSidebar)
-                        Positioned(
-                          left: 0,
-                          top: 0,
-                          bottom: 0,
-                          child: SizedBox(
-                            width: 80,
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              opacity: hideImmersiveTabBar ? 0.0 : 1.0,
-                              child: IgnorePointer(
-                                ignoring: hideImmersiveTabBar,
-                                child: TweenAnimationBuilder<double>(
-                                  duration: const Duration(milliseconds: 120),
-                                  curve: Curves.easeOut,
-                                  tween: Tween<double>(
-                                    begin: navBgOpacityTarget,
-                                    end: navBgOpacityTarget,
+                        if (useSidebar)
+                          Positioned(
+                            left: 0,
+                            top: 0,
+                            bottom: 0,
+                            child: SizedBox(
+                              width: 80,
+                              child: AnimatedOpacity(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                opacity: hideImmersiveTabBar ? 0.0 : 1.0,
+                                child: IgnorePointer(
+                                  ignoring: hideImmersiveTabBar,
+                                  child: TweenAnimationBuilder<double>(
+                                    duration: const Duration(milliseconds: 120),
+                                    curve: Curves.easeOut,
+                                    tween: Tween<double>(
+                                      begin: navBgOpacityTarget,
+                                      end: navBgOpacityTarget,
+                                    ),
+                                    builder: (context, animatedOpacity, child) {
+                                      return NavigationRail(
+                                        leading: isDesktop
+                                            ? const SizedBox(height: 32)
+                                            : null,
+                                        backgroundColor: Color.lerp(
+                                          navBgBaseColor.withValues(alpha: 0.0),
+                                          navBgBaseColor,
+                                          animatedOpacity,
+                                        ),
+                                        selectedIndex: _currentIndex,
+                                        onDestinationSelected: (index) {
+                                          if (index == 1) {
+                                            ref.read(settingsServiceProvider).resetInactivity();
+                                          }
+                                          _onDestinationSelected(index);
+                                        },
+                                        labelType: NavigationRailLabelType.none,
+                                        groupAlignment: -0.2,
+                                        minWidth: 80,
+                                        useIndicator: true,
+                                        indicatorColor: Color.lerp(
+                                          navIndicatorBaseColor.withValues(
+                                            alpha: 0.0,
+                                          ),
+                                          navIndicatorBaseColor,
+                                          animatedOpacity,
+                                        ),
+                                        destinations: _buildRailDestinations(
+                                          context,
+                                          isPlayback,
+                                        ),
+                                      );
+                                    },
                                   ),
-                                  builder: (context, animatedOpacity, child) {
-                                    return NavigationRail(
-                                      leading: isDesktop
-                                          ? const SizedBox(height: 32)
-                                          : null,
-                                      backgroundColor: Color.lerp(
-                                        navBgBaseColor.withValues(alpha: 0.0),
-                                        navBgBaseColor,
-                                        animatedOpacity,
-                                      ),
-                                      selectedIndex: _currentIndex,
-                                      onDestinationSelected:
-                                          _onDestinationSelected,
-                                      labelType: NavigationRailLabelType.none,
-                                      indicatorColor: Color.lerp(
-                                        navIndicatorBaseColor.withValues(alpha: 0.0),
-                                        navIndicatorBaseColor,
-                                        animatedOpacity,
-                                      ),
-                                      destinations: _buildRailDestinations(
-                                        context,
-                                        isPlayback,
-                                      ),
-                                    );
-                                  },
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      if (showCustomTitleBar)
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          child: DesktopWindowTitleBar(
-                            brightness: isPlayback
-                                ? Brightness.dark
-                                : theme.brightness,
-                            showSmallWindowButton: isPlayback,
-                            showButtonGroupBackground: isPlayback,
-                            hideButtonsWhenInactive: isPlayback,
+                        if (showCustomTitleBar)
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: DesktopWindowTitleBar(
+                              brightness: isPlayback
+                                  ? Brightness.dark
+                                  : theme.brightness,
+                              showSmallWindowButton: isPlayback,
+                              showButtonGroupBackground: isPlayback,
+                              hideButtonsWhenInactive: isPlayback,
+                            ),
                           ),
-                        ),
                       if (useSidebar)
                         AnimatedPositioned(
                           duration: const Duration(milliseconds: 300),
@@ -1527,7 +1538,8 @@ class _MainLayoutState extends ConsumerState<MainLayout>
               ),
             ),
           ),
-        );
+        ),
+      );
 
     final showOnboarding =
         _showOnboarding || _isOnboardingAnimatingOut;

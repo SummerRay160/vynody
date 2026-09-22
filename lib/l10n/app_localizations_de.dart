@@ -5012,4 +5012,25 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sortCustom => '自定义排序';
+
+  @override
+  String get addToMediaLibrary => '加入媒体库索引';
+
+  @override
+  String get removeFromMediaLibrary => '从媒体库索引移除';
+
+  @override
+  String get addedToMediaLibrary => '已加入媒体库索引，正在后台扫描...';
+
+  @override
+  String get removedFromMediaLibrary => '已从媒体库索引移除';
+
+  @override
+  String get indexingRemoteFolders => '正在索引远程目录...';
+
+  @override
+  String get remoteMediaFolders => '远程网络目录';
+
+  @override
+  String get remoteFolderAlreadyIndexed => '该目录已在媒体库索引中';
 }

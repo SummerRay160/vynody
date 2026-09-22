@@ -2999,5 +2999,12 @@
   "sortPlaylists": "播放列表排序",
   "sortRecentlyUpdated": "最近更新",
   "sortRecentlyCreated": "最近创建",
-  "sortCustom": "自定义排序"
+  "sortCustom": "自定义排序",
+  "addToMediaLibrary": "加入媒体库索引",
+  "removeFromMediaLibrary": "从媒体库索引移除",
+  "addedToMediaLibrary": "已加入媒体库索引，正在后台扫描...",
+  "removedFromMediaLibrary": "已从媒体库索引移除",
+  "indexingRemoteFolders": "正在索引远程目录...",
+  "remoteMediaFolders": "远程网络目录",
+  "remoteFolderAlreadyIndexed": "该目录已在媒体库索引中"
 }

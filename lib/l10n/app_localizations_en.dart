@@ -4953,4 +4953,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sortCustom => 'Custom Order';
+
+  @override
+  String get addToMediaLibrary => 'Add to Media Library';
+
+  @override
+  String get removeFromMediaLibrary => 'Remove from Media Library';
+
+  @override
+  String get addedToMediaLibrary =>
+      'Added to media library, scanning in background...';
+
+  @override
+  String get removedFromMediaLibrary => 'Removed from media library';
+
+  @override
+  String get indexingRemoteFolders => 'Indexing remote folders...';
+
+  @override
+  String get remoteMediaFolders => 'Remote Network Folders';
+
+  @override
+  String get remoteFolderAlreadyIndexed =>
+      'Folder is already indexed in media library';
 }

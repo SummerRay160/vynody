@@ -682,6 +682,9 @@ Future<void> showSongBottomSheet(
                                 child: SongThumbnail(
                                   path: song.path,
                                   id: song.id,
+                                  thumbnailPath: song.thumbnailPath,
+                                  artworkPath: song.artworkPath,
+                                  bytes: song.artworkBytes,
                                   size: 52,
                                   borderRadius: BorderRadius.zero,
                                 ),

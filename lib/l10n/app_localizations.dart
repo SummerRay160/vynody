@@ -8787,6 +8787,48 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'自定义排序'**
   String get sortCustom;
+
+  /// No description provided for @addToMediaLibrary.
+  ///
+  /// In zh, this message translates to:
+  /// **'加入媒体库索引'**
+  String get addToMediaLibrary;
+
+  /// No description provided for @removeFromMediaLibrary.
+  ///
+  /// In zh, this message translates to:
+  /// **'从媒体库索引移除'**
+  String get removeFromMediaLibrary;
+
+  /// No description provided for @addedToMediaLibrary.
+  ///
+  /// In zh, this message translates to:
+  /// **'已加入媒体库索引，正在后台扫描...'**
+  String get addedToMediaLibrary;
+
+  /// No description provided for @removedFromMediaLibrary.
+  ///
+  /// In zh, this message translates to:
+  /// **'已从媒体库索引移除'**
+  String get removedFromMediaLibrary;
+
+  /// No description provided for @indexingRemoteFolders.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在索引远程目录...'**
+  String get indexingRemoteFolders;
+
+  /// No description provided for @remoteMediaFolders.
+  ///
+  /// In zh, this message translates to:
+  /// **'远程网络目录'**
+  String get remoteMediaFolders;
+
+  /// No description provided for @remoteFolderAlreadyIndexed.
+  ///
+  /// In zh, this message translates to:
+  /// **'该目录已在媒体库索引中'**
+  String get remoteFolderAlreadyIndexed;
 }
 
 class _AppLocalizationsDelegate

@@ -493,6 +493,9 @@ class _AlbumSectionHeader extends StatelessWidget {
           child: SongThumbnail(
             path: section.representativeSong.path,
             id: section.representativeSong.id,
+            thumbnailPath: section.representativeSong.thumbnailPath,
+            artworkPath: section.representativeSong.artworkPath,
+            bytes: section.representativeSong.artworkBytes,
             size: 104,
             borderRadius: BorderRadius.zero,
           ),

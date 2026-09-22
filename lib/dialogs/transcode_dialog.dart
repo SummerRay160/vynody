@@ -726,6 +726,9 @@ class _TranscodeDialogState extends ConsumerState<TranscodeDialog> {
                   leading: SongThumbnail(
                     path: song.path,
                     id: song.id,
+                    thumbnailPath: song.thumbnailPath,
+                    artworkPath: song.artworkPath,
+                    bytes: song.artworkBytes,
                     size: 36,
                   ),
                   title: Text(

@@ -16,6 +16,8 @@ import '../../player/remote/proxy/remote_media_resolver.dart';
 import '../../l10n/app_localizations.dart';
 import '../../player/remote/services/remote_download_service.dart';
 import '../../player/remote/services/webdav_metadata_helper.dart';
+import '../../player/remote/services/remote_scan_root.dart';
+import '../../player/remote/services/remote_directory_scanner.dart';
 import '../../player/library/playlist_service.dart';
 import '../../player/metadata/metadata_database.dart';
 import '../../player/scanner/scanner_sorting.dart';
@@ -365,7 +367,7 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
       password: widget.password,
       concurrency: 3,
       isCancelled: () => !mounted || _loadEpoch != epoch,
-      onMetadataLoaded: (virtualUri, meta) {
+      onMetadataLoaded: (virtualUri, meta, file) {
         if (!mounted || _loadEpoch != epoch) return;
         _metadataMap[virtualUri] = meta;
         newMetas[virtualUri] = meta;
@@ -1808,6 +1810,60 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
                           }
                           _clearAllSelection();
                         },
+                        onAddToMediaLibrary: _selectedFolderPaths.isEmpty
+                            ? null
+                            : () async {
+                                final folderPaths =
+                                    List<String>.from(_selectedFolderPaths);
+                                _clearAllSelection();
+                                int addedCount = 0;
+                                final rootsNotifier =
+                                    ref.read(remoteScanRootsProvider.notifier);
+                                final scanner =
+                                    ref.read(remoteDirectoryScannerProvider);
+                                for (final folderPath in folderPaths) {
+                                  final scanRoot = RemoteScanRoot(
+                                    id: RemoteScanRoot.generateId(
+                                      widget.server.id,
+                                      folderPath,
+                                    ),
+                                    serverId: widget.server.id,
+                                    serverType: widget.server.type,
+                                    serverName: widget.server.name,
+                                    remotePath: folderPath,
+                                    virtualUri:
+                                        RemoteScanRoot.generateVirtualUri(
+                                      widget.server,
+                                      folderPath,
+                                    ),
+                                    addedAt:
+                                        DateTime.now().millisecondsSinceEpoch,
+                                  );
+                                  final added =
+                                      await rootsNotifier.addRoot(scanRoot);
+                                  if (added) {
+                                    addedCount++;
+                                    unawaited(scanner.scanRoot(
+                                      server: widget.server,
+                                      password: widget.password,
+                                      root: scanRoot,
+                                    ));
+                                  }
+                                }
+                                if (addedCount > 0) {
+                                  final currentRoots = ref
+                                          .read(remoteScanRootsProvider)
+                                          .asData
+                                          ?.value ??
+                                      [];
+                                  ref
+                                      .read(scannerServiceProvider)
+                                      .setRemoteRoots(currentRoots);
+                                  showToast(l10n.addedToMediaLibrary);
+                                } else {
+                                  showToast(l10n.remoteFolderAlreadyIndexed);
+                                }
+                              },
                       )
                     : const SizedBox.shrink(
                         key: ValueKey('webdav-selection-panel-hidden'),

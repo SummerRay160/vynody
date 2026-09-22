@@ -147,5 +147,22 @@ final isCoverFlowImmersiveActiveProvider = Provider<bool>((ref) {
   return mainIndex == 2 && libIndex == 4 && is3D;
 });
 
+class IsSettingsPageActiveNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool value) {
+    if (state != value) {
+      state = value;
+    }
+  }
+}
+
+final isSettingsPageActiveProvider =
+    NotifierProvider<IsSettingsPageActiveNotifier, bool>(
+      IsSettingsPageActiveNotifier.new,
+    );
+
+
 
 

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oktoast/oktoast.dart';
 import '../utils/file_selector_helper.dart';
 import '../utils/folder_helpers.dart';
 import '../utils/song_locator_helper.dart';
@@ -19,7 +18,6 @@ import 'package:vynody/utils/app_snack_bar.dart';
 import 'package:vynody/transcode/transcode_riverpod.dart';
 import 'package:vynody/player/metadata/metadata_helper.dart';
 import 'package:audio_core/audio_core.dart';
-import '../widgets/scan_progress_toast.dart';
 import '../widgets/folder_bottom_sheet.dart';
 import 'folder_root_view.dart';
 import 'folder_detail_view.dart';
@@ -47,18 +45,9 @@ class FoldersPageState extends ConsumerState<FoldersPage> {
   final Set<String> _selectedSongPaths = {};
   final Set<String> _selectedFolderPaths = {};
   final Set<String> _selectedRootPaths = {};
-  StreamSubscription<ScanProgress>? _scanProgressSubscription;
-  ToastFuture? _scanToast;
-  bool _wasScanning = false;
-  Timer? _scanToastUpdateTimer;
-  Timer? _scanToastAutoDismissTimer;
-  ScanProgress? _pendingScanProgress;
-  DateTime? _lastScanToastUpdateAt;
   AppLocalizations? _l10n;
   ScannerService? _scanner;
   late final LibrarySelectionScopeController _librarySelectionScopeController;
-  final ValueNotifier<ScanToastState?> _scanToastState =
-      ValueNotifier<ScanToastState?>(null);
   late final HeroController _heroController;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -251,125 +240,7 @@ class FoldersPageState extends ConsumerState<FoldersPage> {
     _librarySelectionScopeController.clear();
   }
 
-  void _ensureScanToastVisible() {
-    if (!ref.read(settingsServiceProvider).showScanProgressToast) return;
-    if (_scanToast?.mounted == true) return;
 
-    final l10n = _l10n;
-    if (l10n == null) return;
-    _scanToastState.value = const ScanToastState(
-      fileName: '',
-      discoveredLabelText: '',
-      preprocessedLabelText: '',
-      completedLabelText: '',
-    );
-    _scanToast = showToastWidget(
-      ScanProgressToast(
-        stateListenable: _scanToastState,
-        label: l10n.scanningDirectory,
-        onClose: () {
-          _dismissScanToast();
-          ref.read(settingsServiceProvider).showScanProgressToast = false;
-          final currentL10n = AppLocalizations.of(context);
-          if (currentL10n != null) {
-            AppSnackBar.show(
-              context,
-              ref,
-              SnackBar(content: Text(currentL10n.scanToastHiddenHint)),
-            );
-          }
-        },
-      ),
-      position: ToastPosition.top.copyWith(offset: 28),
-      duration: const Duration(days: 1),
-      dismissOtherToast: true,
-      animationDuration: const Duration(milliseconds: 180),
-      handleTouch: true,
-    );
-  }
-
-  void _dismissScanToast({bool notifyListeners = true}) {
-    _scanToastUpdateTimer?.cancel();
-    _scanToastUpdateTimer = null;
-    _scanToastAutoDismissTimer?.cancel();
-    _scanToastAutoDismissTimer = null;
-    _pendingScanProgress = null;
-    _lastScanToastUpdateAt = null;
-    _scanToast?.dismiss(showAnim: false);
-    _scanToast = null;
-    if (notifyListeners) {
-      _scanToastState.value = null;
-    }
-  }
-
-  void _handleScannerChanged() {
-    final scanner = _scanner;
-    if (scanner == null) return;
-    final isScanning = scanner.isScanning;
-    if (_wasScanning && !isScanning) {
-      _dismissScanToast();
-    }
-    _wasScanning = isScanning;
-  }
-
-  void _showScanProgressToast(ScanProgress progress) {
-    if (!mounted) return;
-    if (!ref.read(settingsServiceProvider).showScanProgressToast) return;
-
-    _pendingScanProgress = progress;
-
-    final now = DateTime.now();
-    final lastUpdate = _lastScanToastUpdateAt;
-    final elapsed = lastUpdate == null ? null : now.difference(lastUpdate);
-
-    if (_scanToastUpdateTimer?.isActive ?? false) {
-      return;
-    }
-
-    if (elapsed == null || elapsed >= const Duration(seconds: 1)) {
-      _flushPendingScanProgress();
-      return;
-    }
-
-    _scanToastUpdateTimer = Timer(const Duration(seconds: 1) - elapsed, () {
-      _scanToastUpdateTimer = null;
-      if (!mounted) return;
-      _flushPendingScanProgress();
-    });
-  }
-
-  void _flushPendingScanProgress() {
-    final progress = _pendingScanProgress;
-    final l10n = _l10n;
-    if (progress == null || l10n == null) return;
-
-    _pendingScanProgress = null;
-    _ensureScanToastVisible();
-    _scanToastState.value = ScanToastState(
-      fileName: p.basename(progress.filePath),
-      discoveredLabelText: l10n.filesDiscovered(progress.discoveredCount),
-      preprocessedLabelText: l10n.filesPreprocessed(progress.preprocessedCount),
-      completedLabelText: l10n.filesFullyProcessed(progress.completedCount),
-    );
-    _lastScanToastUpdateAt = DateTime.now();
-    _scheduleScanToastAutoDismiss();
-  }
-
-  void _scheduleScanToastAutoDismiss() {
-    _scanToastAutoDismissTimer?.cancel();
-    _scanToastAutoDismissTimer = Timer(const Duration(seconds: 2), () {
-      _scanToastAutoDismissTimer = null;
-      if (!mounted) return;
-
-      final scanner = _scanner;
-      if (scanner != null && scanner.isScanning) {
-        _scheduleScanToastAutoDismiss();
-        return;
-      }
-
-      _dismissScanToast();
-    });
-  }
 
   void _toggleSelection(String path) {
     setState(() {
@@ -473,11 +344,6 @@ class FoldersPageState extends ConsumerState<FoldersPage> {
       librarySelectionScopeProvider.notifier,
     );
     _scanner = ref.read(scannerServiceProvider);
-    _wasScanning = _scanner!.isScanning;
-    _scanner!.addListener(_handleScannerChanged);
-    _scanProgressSubscription = _scanner!.scanProgressStream.listen(
-      _showScanProgressToast,
-    );
   }
 
   @override
@@ -487,12 +353,6 @@ class FoldersPageState extends ConsumerState<FoldersPage> {
       _setFolderSelectionMode(false);
       _librarySelectionScopeController.clear();
     });
-    _scanToastUpdateTimer?.cancel();
-    _scanToastAutoDismissTimer?.cancel();
-    _scanProgressSubscription?.cancel();
-    _scanner?.removeListener(_handleScannerChanged);
-    _dismissScanToast(notifyListeners: false);
-    _scanToastState.dispose();
     super.dispose();
   }
 

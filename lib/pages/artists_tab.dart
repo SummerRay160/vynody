@@ -14,6 +14,8 @@ import '../widgets/library_selection_scope.dart';
 import '../widgets/library_selection_panel.dart';
 import '../models/music_file.dart';
 import '../dialogs/sort_options_dialog.dart';
+import '../dialogs/library_source_filter_dialog.dart';
+import 'package:vynody/player/library/library_source_filter.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 
 class ArtistsTab extends ConsumerStatefulWidget {
@@ -921,7 +923,7 @@ Widget _buildArtistBottomSheetItem({
   );
 }
 
-class _ArtistsToolbar extends StatelessWidget {
+class _ArtistsToolbar extends ConsumerWidget {
   const _ArtistsToolbar({
     required this.searchController,
     required this.searchQuery,
@@ -947,39 +949,60 @@ class _ArtistsToolbar extends StatelessWidget {
   final void Function(ArtistSortField field, bool sortAscending) onSortChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final searchArtistsLabel = l10n.searchArtists;
     final artistCountLabel = '$artistCount $artistsLabel';
-    final sortControls = IconButton(
-      tooltip: l10n.albumSort,
-      onPressed: () async {
-        final result = await showDialog<SortResult<ArtistSortField>>(
-          context: context,
-          builder: (context) => SortOptionsDialog<ArtistSortField>(
-            title: l10n.albumSort,
-            currentField: sortField,
-            sortAscending: sortAscending,
-            options: [
-              SortOptionItem(
-                value: ArtistSortField.artist,
-                label: l10n.sortArtistAsc,
-                icon: Icons.person_rounded,
-              ),
-              SortOptionItem(
-                value: ArtistSortField.songCount,
-                label: l10n.sortTrackCount,
-                icon: Icons.format_list_numbered_rounded,
-              ),
-            ],
+    final isZh = Localizations.localeOf(context).languageCode == 'zh';
+    final currentFilter = ref.watch(librarySourceFilterProvider);
+    final isFiltered = currentFilter.type != LibrarySourceType.all;
+
+    final sortControls = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          tooltip: isZh ? '渠道与来源筛选' : 'Filter by Source',
+          onPressed: () => showLibrarySourceFilterDialog(context),
+          icon: Badge(
+            isLabelVisible: isFiltered,
+            smallSize: 8,
+            child: Icon(
+              Icons.tune_rounded,
+              color: isFiltered ? theme.colorScheme.primary : null,
+            ),
           ),
-        );
-        if (result != null) {
-          onSortChanged(result.field, result.sortAscending);
-        }
-      },
-      icon: const Icon(Icons.sort_rounded),
+        ),
+        IconButton(
+          tooltip: l10n.albumSort,
+          onPressed: () async {
+            final result = await showDialog<SortResult<ArtistSortField>>(
+              context: context,
+              builder: (context) => SortOptionsDialog<ArtistSortField>(
+                title: l10n.albumSort,
+                currentField: sortField,
+                sortAscending: sortAscending,
+                options: [
+                  SortOptionItem(
+                    value: ArtistSortField.artist,
+                    label: l10n.sortArtistAsc,
+                    icon: Icons.person_rounded,
+                  ),
+                  SortOptionItem(
+                    value: ArtistSortField.songCount,
+                    label: l10n.sortTrackCount,
+                    icon: Icons.format_list_numbered_rounded,
+                  ),
+                ],
+              ),
+            );
+            if (result != null) {
+              onSortChanged(result.field, result.sortAscending);
+            }
+          },
+          icon: const Icon(Icons.sort_rounded),
+        ),
+      ],
     );
 
     Widget buildTextField() {

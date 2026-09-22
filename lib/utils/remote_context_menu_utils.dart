@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +18,8 @@ import '../player/remote/remote_server_models.dart';
 import '../player/remote/remote_server_riverpod.dart';
 import '../pages/remote/remote_download_manager_page.dart';
 import '../player/remote/services/remote_download_service.dart';
+import '../player/remote/services/remote_scan_root.dart';
+import '../player/remote/services/remote_directory_scanner.dart';
 import '../widgets/library_selection_scope.dart';
 import 'app_snack_bar.dart';
 import 'song_context_menu_utils.dart';
@@ -1906,6 +1909,21 @@ Future<String?> showWebDavFolderBottomSheet({
                             label: l10n.downloadAllAudio,
                             icon: Icons.download_rounded,
                           ),
+                          _buildWebDavBottomSheetItem(
+                            context: ctx,
+                            value: ref.read(remoteScanRootsProvider.notifier).isFolderIndexed(server.id, folder.path)
+                                ? 'remove_from_media_library'
+                                : 'add_to_media_library',
+                            label: ref.read(remoteScanRootsProvider.notifier).isFolderIndexed(server.id, folder.path)
+                                ? l10n.removeFromMediaLibrary
+                                : l10n.addToMediaLibrary,
+                            icon: ref.read(remoteScanRootsProvider.notifier).isFolderIndexed(server.id, folder.path)
+                                ? Icons.bookmark_remove_rounded
+                                : Icons.library_add_rounded,
+                            iconColor: ref.read(remoteScanRootsProvider.notifier).isFolderIndexed(server.id, folder.path)
+                                ? Colors.orangeAccent
+                                : theme.colorScheme.primary,
+                          ),
                           if (onOpen != null)
                             _buildWebDavBottomSheetItem(
                               context: ctx,
@@ -2070,6 +2088,21 @@ Future<void> showWebDavFolderContextMenu({
       value: 'download_folder',
       label: l10n.downloadAllAudio,
       icon: Icons.download_rounded,
+      context: context,
+    ),
+    buildContextMenuItem<String>(
+      value: ref.read(remoteScanRootsProvider.notifier).isFolderIndexed(server.id, folder.path)
+          ? 'remove_from_media_library'
+          : 'add_to_media_library',
+      label: ref.read(remoteScanRootsProvider.notifier).isFolderIndexed(server.id, folder.path)
+          ? l10n.removeFromMediaLibrary
+          : l10n.addToMediaLibrary,
+      icon: ref.read(remoteScanRootsProvider.notifier).isFolderIndexed(server.id, folder.path)
+          ? Icons.bookmark_remove_rounded
+          : Icons.library_add_rounded,
+      iconColor: ref.read(remoteScanRootsProvider.notifier).isFolderIndexed(server.id, folder.path)
+          ? Colors.orangeAccent
+          : null,
       context: context,
     ),
     if (onOpen != null)
@@ -2239,6 +2272,48 @@ Future<void> _handleWebDavFolderMenuSelection({
         }
       } catch (e) {
         showToast(l10n.failedToLoadFolder(e.toString()));
+      }
+      break;
+    case 'add_to_media_library':
+      final scanRoot = RemoteScanRoot(
+        id: RemoteScanRoot.generateId(server.id, folder.path),
+        serverId: server.id,
+        serverType: server.type,
+        serverName: server.name,
+        remotePath: folder.path,
+        virtualUri: RemoteScanRoot.generateVirtualUri(server, folder.path),
+        addedAt: DateTime.now().millisecondsSinceEpoch,
+      );
+      final added =
+          await ref.read(remoteScanRootsProvider.notifier).addRoot(scanRoot);
+      if (!added) {
+        showToast(l10n.remoteFolderAlreadyIndexed);
+        break;
+      }
+      final currentRoots =
+          ref.read(remoteScanRootsProvider).asData?.value ?? [scanRoot];
+      ref.read(scannerServiceProvider).setRemoteRoots(currentRoots);
+      showToast(l10n.addedToMediaLibrary);
+      unawaited(
+        ref.read(remoteDirectoryScannerProvider).scanRoot(
+              server: server,
+              password: password,
+              root: scanRoot,
+            ),
+      );
+      break;
+    case 'remove_from_media_library':
+      final exactRoot = ref
+          .read(remoteScanRootsProvider.notifier)
+          .findExactRoot(server.id, folder.path);
+      if (exactRoot != null) {
+        await ref
+            .read(remoteDirectoryScannerProvider)
+            .removeRootFromDatabase(exactRoot);
+        final currentRoots =
+            ref.read(remoteScanRootsProvider).asData?.value ?? [];
+        ref.read(scannerServiceProvider).setRemoteRoots(currentRoots);
+        showToast(l10n.removedFromMediaLibrary);
       }
       break;
     case 'open':

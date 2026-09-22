@@ -43,11 +43,25 @@ class SmbMetadataHelper {
 
       if (tagData == null) {
         debugPrint(
-          '[SMB Metadata] Skip metadata for "${file.name}": '
+          '[SMB Metadata] Skip TagLib metadata for "${file.name}": '
           'TagLib returned null (${taglib.TagLibFile.lastError ?? "read failed"}). '
           'Falling back to filename.',
         );
-        return null;
+        final fallbackTitle = p.basenameWithoutExtension(file.name);
+        final fallbackMetadata = SongMetadata(
+          path: virtualUri,
+          title: fallbackTitle.isNotEmpty ? fallbackTitle : file.name,
+          album: 'Unknown',
+          artist: 'Unknown',
+          duration: null,
+          trackNumber: null,
+          thumbnailPath: null,
+          lastModifiedTime: file.lastModified?.millisecondsSinceEpoch ?? 0,
+          sourceFlags: SongSourceFlags.remote,
+        );
+        final db = MetadataDatabase();
+        await db.insertOrUpdateSong(fallbackMetadata);
+        return fallbackMetadata;
       }
 
       final title = tagData.title.trim();
@@ -95,6 +109,7 @@ class SmbMetadataHelper {
         trackNumber: trackNumber > 0 ? trackNumber : null,
         thumbnailPath: savedThumbnailPath,
         lastModifiedTime: file.lastModified?.millisecondsSinceEpoch ?? 0,
+        sourceFlags: SongSourceFlags.remote,
         genres: genre.isNotEmpty ? [genre] : null,
       );
 
@@ -103,8 +118,24 @@ class SmbMetadataHelper {
 
       return songMetadata;
     } catch (e) {
-      debugPrint('[SMB Metadata] Error reading metadata for "${file.name}": $e');
-      return null;
+      debugPrint('[SMB Metadata] Error reading metadata for "${file.name}": $e. Falling back to filename.');
+      final fallbackTitle = p.basenameWithoutExtension(file.name);
+      final fallbackMetadata = SongMetadata(
+        path: virtualUri,
+        title: fallbackTitle.isNotEmpty ? fallbackTitle : file.name,
+        album: 'Unknown',
+        artist: 'Unknown',
+        duration: null,
+        trackNumber: null,
+        thumbnailPath: null,
+        lastModifiedTime: file.lastModified?.millisecondsSinceEpoch ?? 0,
+        sourceFlags: SongSourceFlags.remote,
+      );
+      try {
+        final db = MetadataDatabase();
+        await db.insertOrUpdateSong(fallbackMetadata);
+      } catch (_) {}
+      return fallbackMetadata;
     }
   }
 

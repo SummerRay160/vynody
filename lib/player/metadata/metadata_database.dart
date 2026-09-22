@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'package:drift/drift.dart' hide JsonKey;
@@ -23,6 +24,7 @@ class SongSourceFlags {
   static const int rootScan = 1 << 0;
   static const int systemMedia = 1 << 1;
   static const int external = 1 << 2;
+  static const int remote = 1 << 3;
 
   const SongSourceFlags._();
 }
@@ -910,23 +912,27 @@ bool _isWithinAnyRoot(String path, List<String> roots) {
 }
 
 int? _mergeSourceFlags(int? existing, int? incoming) {
+  const recognizedSourceMask =
+      SongSourceFlags.rootScan |
+      SongSourceFlags.systemMedia |
+      SongSourceFlags.remote;
   if (incoming == null) {
     if (existing == null) return null;
     var flags = existing;
-    if ((flags & (SongSourceFlags.rootScan | SongSourceFlags.systemMedia)) != 0) {
+    if ((flags & recognizedSourceMask) != 0) {
       flags &= ~SongSourceFlags.external;
     }
     return flags;
   }
   if (existing == null) {
     var flags = incoming;
-    if ((flags & (SongSourceFlags.rootScan | SongSourceFlags.systemMedia)) != 0) {
+    if ((flags & recognizedSourceMask) != 0) {
       flags &= ~SongSourceFlags.external;
     }
     return flags;
   }
   var merged = existing | incoming;
-  if ((merged & (SongSourceFlags.rootScan | SongSourceFlags.systemMedia)) != 0) {
+  if ((merged & recognizedSourceMask) != 0) {
     merged &= ~SongSourceFlags.external;
   }
   return merged;
