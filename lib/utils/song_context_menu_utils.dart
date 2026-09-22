@@ -674,21 +674,10 @@ Future<void> showSongBottomSheet(
                         // Header showing Song title and artwork
                         Row(
                           children: [
-                            ClipRRect(
+                            SongThumbnail.fromSong(
+                              song,
+                              size: 52,
                               borderRadius: BorderRadius.circular(12),
-                              child: SizedBox(
-                                width: 52,
-                                height: 52,
-                                child: SongThumbnail(
-                                  path: song.path,
-                                  id: song.id,
-                                  thumbnailPath: song.thumbnailPath,
-                                  artworkPath: song.artworkPath,
-                                  bytes: song.artworkBytes,
-                                  size: 52,
-                                  borderRadius: BorderRadius.zero,
-                                ),
-                              ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(

@@ -488,17 +488,10 @@ class _AlbumSectionHeader extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWide = constraints.maxWidth >= 500;
-        final cover = ClipRRect(
+        final cover = SongThumbnail.fromSong(
+          section.representativeSong,
+          size: 104,
           borderRadius: BorderRadius.circular(18),
-          child: SongThumbnail(
-            path: section.representativeSong.path,
-            id: section.representativeSong.id,
-            thumbnailPath: section.representativeSong.thumbnailPath,
-            artworkPath: section.representativeSong.artworkPath,
-            bytes: section.representativeSong.artworkBytes,
-            size: 104,
-            borderRadius: BorderRadius.zero,
-          ),
         );
         final info = Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -11,6 +11,8 @@ import 'package:vynody/utils/memory_trace.dart';
 import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
 import 'package:vynody/player/remote/remote_service_providers.dart';
 import 'package:vynody/player/metadata/metadata_helper.dart';
+import 'package:vynody/models/music_file.dart';
+import 'package:vynody/models/album_summary.dart';
 
 class SongThumbnail extends ConsumerStatefulWidget {
   final String path;
@@ -36,6 +38,48 @@ class SongThumbnail extends ConsumerStatefulWidget {
     this.height,
     this.borderRadius,
   });
+
+  /// Factory constructor for a [MusicFile].
+  SongThumbnail.fromSong(
+    MusicFile song, {
+    super.key,
+    this.size = 40.0,
+    this.width,
+    this.height,
+    this.borderRadius,
+  })  : path = song.path,
+        id = song.id,
+        thumbnailPath = song.thumbnailPath,
+        artworkPath = song.artworkPath,
+        bytes = song.artworkBytes;
+
+  /// Factory constructor for an [AlbumSummary].
+  SongThumbnail.fromAlbum(
+    AlbumSummary album, {
+    super.key,
+    this.size = 40.0,
+    this.width,
+    this.height,
+    this.borderRadius,
+  })  : path = album.representativeSong.path,
+        id = album.representativeSong.id,
+        thumbnailPath = album.representativeSong.thumbnailPath,
+        artworkPath = album.representativeSong.artworkPath,
+        bytes = album.representativeSong.artworkBytes;
+
+  /// Factory constructor for a [SongMetadata] database record.
+  SongThumbnail.fromMetadata(
+    SongMetadata metadata, {
+    super.key,
+    this.size = 40.0,
+    this.width,
+    this.height,
+    this.borderRadius,
+  })  : path = metadata.path,
+        id = metadata.id,
+        thumbnailPath = metadata.thumbnailPath,
+        artworkPath = metadata.artworkPath,
+        bytes = null;
 
   @override
   ConsumerState<SongThumbnail> createState() => _SongThumbnailState();

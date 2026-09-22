@@ -594,12 +594,8 @@ class Album3DCoverCard extends StatelessWidget {
             child: Transform(
               alignment: Alignment.center,
               transform: Matrix4.diagonal3Values(1.0, -1.0, 1.0),
-              child: SongThumbnail(
-                path: album.representativeSong.path,
-                id: album.representativeSong.id,
-                bytes: album.representativeSong.artworkBytes,
-                thumbnailPath: album.representativeSong.thumbnailPath,
-                artworkPath: album.representativeSong.artworkPath,
+              child: SongThumbnail.fromAlbum(
+                album,
                 size: coverSize,
                 width: coverSize,
                 height: coverSize,
@@ -649,12 +645,8 @@ class Album3DCoverCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            SongThumbnail(
-              path: album.representativeSong.path,
-              id: album.representativeSong.id,
-              bytes: album.representativeSong.artworkBytes,
-              thumbnailPath: album.representativeSong.thumbnailPath,
-              artworkPath: album.representativeSong.artworkPath,
+            SongThumbnail.fromAlbum(
+              album,
               size: coverSize,
               width: double.infinity,
               height: double.infinity,

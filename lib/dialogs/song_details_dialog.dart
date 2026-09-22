@@ -238,21 +238,10 @@ class _SongDetailsDialogState extends ConsumerState<_SongDetailsDialog> {
                   // Song info header card
                   Row(
                     children: [
-                      ClipRRect(
+                      SongThumbnail.fromSong(
+                        widget.song,
+                        size: 64,
                         borderRadius: BorderRadius.circular(12),
-                        child: SizedBox(
-                          width: 64,
-                          height: 64,
-                          child: SongThumbnail(
-                            path: widget.song.path,
-                            id: widget.song.id,
-                            thumbnailPath: widget.song.thumbnailPath,
-                            artworkPath: widget.song.artworkPath,
-                            bytes: widget.song.artworkBytes,
-                            size: 64,
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(

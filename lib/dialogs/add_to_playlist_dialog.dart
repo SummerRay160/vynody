@@ -247,19 +247,10 @@ class _AddToPlaylistDialogState extends State<AddToPlaylistDialog> {
 
     if (playlist.songs.isNotEmpty) {
       final firstSong = playlist.songs.first;
-      return ClipRRect(
+      return SongThumbnail.fromSong(
+        firstSong,
+        size: 44,
         borderRadius: BorderRadius.circular(12),
-        child: SizedBox(
-          width: 44,
-          height: 44,
-          child: SongThumbnail(
-            path: firstSong.path,
-            id: firstSong.id,
-            thumbnailPath: firstSong.thumbnailPath,
-            size: 44,
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
       );
     }
 

@@ -580,12 +580,8 @@ class _SongListItem extends ConsumerWidget {
                               : isSelectionMode
                                   ? (isSelected ? 0.5 : 0.7)
                                   : 1.0,
-                          child: SongThumbnail(
-                            path: song.path,
-                            id: song.id,
-                            thumbnailPath: song.thumbnailPath,
-                            artworkPath: song.artworkPath,
-                            bytes: song.artworkBytes,
+                          child: SongThumbnail.fromSong(
+                            song,
                             size: 44,
                           ),
                         ),

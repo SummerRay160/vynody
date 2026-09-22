@@ -97,12 +97,8 @@ class SongGridCard extends ConsumerWidget {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          SongThumbnail(
-                            path: song.path,
-                            id: song.id,
-                            bytes: song.artworkBytes,
-                            thumbnailPath: song.thumbnailPath,
-                            artworkPath: song.artworkPath,
+                          SongThumbnail.fromSong(
+                            song,
                             size: 200,
                             width: double.infinity,
                             height: double.infinity,

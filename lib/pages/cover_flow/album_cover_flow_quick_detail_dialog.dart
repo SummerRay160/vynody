@@ -14,6 +14,7 @@ import 'package:vynody/utils/song_context_menu_utils.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../widgets/song_thumbnail.dart';
+import '../../widgets/album_cover.dart';
 import '../../widgets/volume_controls.dart';
 
 Future<void> showAlbumQuickDetailModal(
@@ -507,19 +508,10 @@ class _AlbumCoverFlowQuickDetailDialogState
                                 ),
                               ],
                             ),
-                            child: ClipRRect(
+                            child: AlbumCover(
+                              album: album,
+                              size: coverSize,
                               borderRadius: BorderRadius.circular(16),
-                              child: SongThumbnail(
-                                path: album.representativeSong.path,
-                                id: album.representativeSong.id,
-                                bytes: album.representativeSong.artworkBytes,
-                                thumbnailPath: album.representativeSong.thumbnailPath,
-                                artworkPath: album.representativeSong.artworkPath,
-                                size: coverSize,
-                                width: coverSize,
-                                height: coverSize,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
                             ),
                           ),
                         ),
@@ -1037,15 +1029,9 @@ class _AlbumCoverFlowQuickDetailDialogState
                         ),
                       ],
                     ),
-                    child: SongThumbnail(
-                      path: album.representativeSong.path,
-                      id: album.representativeSong.id,
-                      bytes: album.representativeSong.artworkBytes,
-                      thumbnailPath: album.representativeSong.thumbnailPath,
-                      artworkPath: album.representativeSong.artworkPath,
+                    child: AlbumCover(
+                      album: album,
                       size: headerHeight,
-                      width: headerHeight,
-                      height: headerHeight,
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),

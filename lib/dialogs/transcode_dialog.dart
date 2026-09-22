@@ -723,12 +723,8 @@ class _TranscodeDialogState extends ConsumerState<TranscodeDialog> {
                   dense: true,
                   visualDensity: VisualDensity.compact,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                  leading: SongThumbnail(
-                    path: song.path,
-                    id: song.id,
-                    thumbnailPath: song.thumbnailPath,
-                    artworkPath: song.artworkPath,
-                    bytes: song.artworkBytes,
+                  leading: SongThumbnail.fromSong(
+                    song,
                     size: 36,
                   ),
                   title: Text(

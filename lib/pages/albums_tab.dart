@@ -14,6 +14,7 @@ import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/audio/playback_source.dart';
 import 'package:vynody/utils/song_context_menu_utils.dart';
 import '../widgets/song_thumbnail.dart';
+import '../widgets/album_cover.dart';
 import 'album_detail_page.dart';
 import '../widgets/scroll_to_top_wrapper.dart';
 import '../widgets/library_selection_scope.dart';
@@ -686,12 +687,8 @@ class _AlbumCard extends ConsumerWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            SongThumbnail(
-              path: album.representativeSong.path,
-              id: album.representativeSong.id,
-              bytes: album.representativeSong.artworkBytes,
-              thumbnailPath: album.representativeSong.thumbnailPath,
-              artworkPath: album.representativeSong.artworkPath,
+            SongThumbnail.fromAlbum(
+              album,
               size: 250,
               width: double.infinity,
               height: double.infinity,
@@ -906,20 +903,9 @@ Future<void> _showAlbumContextMenu(
                           // Header showing Album title and artwork
                           Row(
                             children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: SizedBox(
-                                  width: 52,
-                                  height: 52,
-                                  child: SongThumbnail(
-                                    path: album.representativeSong.path,
-                                    id: album.representativeSong.id,
-                                    thumbnailPath: album.representativeSong.thumbnailPath,
-                                    artworkPath: album.representativeSong.artworkPath,
-                                    size: 52,
-                                    borderRadius: BorderRadius.zero,
-                                  ),
-                                ),
+                              AlbumCover(
+                                album: album,
+                                size: 52,
                               ),
                               const SizedBox(width: 16),
                               Expanded(

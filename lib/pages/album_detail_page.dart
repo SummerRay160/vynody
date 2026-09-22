@@ -13,6 +13,7 @@ import 'package:vynody/player/audio/playback_source.dart';
 import 'package:vynody/utils/song_context_menu_utils.dart';
 import '../widgets/desktop_window_title_bar.dart';
 import '../widgets/song_thumbnail.dart';
+import '../widgets/album_cover.dart';
 import '../widgets/mini_player_wrapper.dart';
 import '../widgets/library_selection_panel.dart';
 import '../widgets/library_selection_scope.dart';
@@ -114,22 +115,12 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage>
                             final isWide = constraints.maxWidth >= 700;
                             final cover = HeroMode(
                               enabled: _isCoverVisible,
-                              child: Hero(
-                                tag: 'album-cover-${widget.album.id}',
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: SongThumbnail(
-                                    path: widget.album.representativeSong.path,
-                                    id: widget.album.representativeSong.id,
-                                    thumbnailPath: widget.album.representativeSong.thumbnailPath,
-                                    artworkPath: widget.album.representativeSong.artworkPath,
-                                    bytes: widget.album.representativeSong.artworkBytes,
-                                    size: isWide
-                                        ? 220
-                                        : math.min(220, constraints.maxWidth),
-                                    borderRadius: BorderRadius.zero,
-                                  ),
-                                ),
+                              child: AlbumCover(
+                                album: widget.album,
+                                size: isWide
+                                    ? 220
+                                    : math.min(220, constraints.maxWidth),
+                                enableHero: true,
                               ),
                             );
                             final info = _AlbumInfo(
