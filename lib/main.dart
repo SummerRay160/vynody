@@ -27,6 +27,8 @@ import 'package:vynody/player/platform/desktop_tray_service.dart';
 import 'package:vynody/player/lyrics/custom_font_service.dart';
 import 'package:vynody/player/pro/iap_service.dart';
 import 'widgets/app_global_shortcuts.dart';
+import 'widgets/volume_controls.dart';
+import 'pages/main_layout_riverpod.dart';
 import 'package:flutter_desktop_lyrics/flutter_desktop_lyrics.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -670,7 +672,17 @@ class _MyAppState extends ConsumerState<MyApp>
               color: theme.colorScheme.surface,
               child: AppOrientationWatcher(
                 child: AppGlobalShortcuts(
-                  child: content,
+                  child: Stack(
+                    children: [
+                      content,
+                      const Positioned(
+                        top: 100,
+                        left: 0,
+                        right: 0,
+                        child: _GlobalVolumeHudOverlay(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -696,5 +708,23 @@ class _MyAppState extends ConsumerState<MyApp>
     }
 
     return app;
+  }
+}
+
+class _GlobalVolumeHudOverlay extends ConsumerWidget {
+  const _GlobalVolumeHudOverlay();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final showVolumeHud = ref.watch(
+      mainLayoutUiControllerProvider.select((s) => s.showVolumeHud),
+    );
+    if (!showVolumeHud) {
+      return const SizedBox.shrink();
+    }
+    return VolumeHUD(
+      volume: ref.watch(audioVolumeProvider),
+      isMuted: ref.watch(audioIsMutedProvider),
+    );
   }
 }

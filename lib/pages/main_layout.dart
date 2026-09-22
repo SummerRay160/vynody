@@ -36,7 +36,6 @@ import '../widgets/desktop_window_title_bar.dart';
 import '../widgets/floating_dock_bottom_bar.dart';
 import '../widgets/playback_hero_card.dart';
 import '../widgets/playback_ui_tuning.dart';
-import '../widgets/volume_controls.dart';
 import '../widgets/global_drop_target.dart';
 import '../widgets/library_selection_scope.dart';
 import '../widgets/global_scan_progress_watcher.dart';
@@ -1501,11 +1500,6 @@ class _MainLayoutState extends ConsumerState<MainLayout>
                               ),
                             ),
                           ),
-                        ),
-                      if (uiState.showVolumeHud)
-                        VolumeHUD(
-                          volume: ref.watch(audioVolumeProvider),
-                          isMuted: ref.watch(audioIsMutedProvider),
                         ),
                       if (!useSidebar)
                         FloatingDockBottomBar(

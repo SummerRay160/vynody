@@ -231,10 +231,7 @@ class VolumeHUD extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      top: 100,
-      left: 0,
-      right: 0,
+    return IgnorePointer(
       child: Center(
         child: Material(
           type: MaterialType.transparency,
@@ -259,7 +256,7 @@ class VolumeHUD extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.volume,
+                      AppLocalizations.of(context)?.volume ?? 'Volume',
                       style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                     Text(
