@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/music_file.dart';
 import '../models/music_folder.dart';
@@ -18,6 +19,7 @@ class FolderGridCard extends StatelessWidget {
     this.subtitle,
     this.customTitle,
     this.enableHero = true,
+    this.isIndexed = false,
   });
 
   final MusicFolder folder;
@@ -31,6 +33,7 @@ class FolderGridCard extends StatelessWidget {
   final String? subtitle;
   final String? customTitle;
   final bool enableHero;
+  final bool isIndexed;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +100,43 @@ class FolderGridCard extends StatelessWidget {
                 isSelected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded,
                 color: isSelected ? theme.colorScheme.primary : Colors.white70,
                 size: 24,
+              ),
+            ),
+          if (isIndexed)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Tooltip(
+                message: l10n.remoteFolderAlreadyIndexed,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6.0),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                    child: Container(
+                      padding: const EdgeInsets.all(4.5),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(6.0),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                          width: 0.8,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1.5),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.library_add_check_rounded,
+                        size: 13.0,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
         ],

@@ -19,6 +19,7 @@ class FolderListTile extends StatelessWidget {
     this.subtitle,
     this.customTitle,
     this.enableHero = true,
+    this.isIndexed = false,
   });
 
   final MusicFolder folder;
@@ -33,6 +34,7 @@ class FolderListTile extends StatelessWidget {
   final String? subtitle;
   final String? customTitle;
   final bool enableHero;
+  final bool isIndexed;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +120,30 @@ class FolderListTile extends StatelessWidget {
                 ),
               ),
             ),
+          if (isIndexed)
+            Positioned(
+              top: 3,
+              right: 3,
+              child: Tooltip(
+                message: l10n.remoteFolderAlreadyIndexed,
+                child: Container(
+                  padding: const EdgeInsets.all(3.0),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.65),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.7),
+                      width: 0.75,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.library_add_check_rounded,
+                    size: 11,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -160,14 +186,47 @@ class FolderListTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          customTitle ?? folder.name,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurface,
-                            fontWeight: FontWeight.normal,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                customTitle ?? folder.name,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: theme.colorScheme.onSurface,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (isIndexed) ...[
+                              const SizedBox(width: 6),
+                              Tooltip(
+                                message: l10n.remoteFolderAlreadyIndexed,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 5,
+                                    vertical: 1.5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primaryContainer
+                                        .withValues(alpha: 0.6),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color: theme.colorScheme.primary
+                                          .withValues(alpha: 0.3),
+                                      width: 0.75,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.library_add_check_rounded,
+                                    size: 11,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(

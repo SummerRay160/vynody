@@ -7,6 +7,7 @@ import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/player/remote/clients/webdav_client.dart';
 import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
 import 'package:vynody/player/remote/remote_server_models.dart';
+import 'package:vynody/player/remote/services/remote_scan_root.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 import 'package:vynody/utils/folder_helpers.dart';
 import 'package:vynody/utils/remote_context_menu_utils.dart';
@@ -49,6 +50,9 @@ class WebDavSubfoldersSliver extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(remoteScanRootsProvider);
+    final scanRootsNotifier = ref.read(remoteScanRootsProvider.notifier);
+
     final isGrid =
         viewMode == FolderViewMode.hybrid || viewMode == FolderViewMode.grid;
 
@@ -97,6 +101,8 @@ class WebDavSubfoldersSliver extends ConsumerWidget {
                 (context, index) {
                   final folder = folders[index];
                   final isSelected = selectedFolderPaths.contains(folder.path);
+                  final isIndexed =
+                      scanRootsNotifier.isFolderIndexed(server.id, folder.path);
 
                   return HoverableCard(
                     child: FolderGridCard(
@@ -105,6 +111,7 @@ class WebDavSubfoldersSliver extends ConsumerWidget {
                       enableHero: false,
                       isSelected: isSelected,
                       isSelectionMode: isSelectionMode,
+                      isIndexed: isIndexed,
                       onTap: onFolderTap != null
                           ? () => onFolderTap?.call(folder, index)
                           : (isSelectionMode
@@ -146,6 +153,8 @@ class WebDavSubfoldersSliver extends ConsumerWidget {
             (context, index) {
               final folder = folders[index];
               final isSelected = selectedFolderPaths.contains(folder.path);
+              final isIndexed =
+                  scanRootsNotifier.isFolderIndexed(server.id, folder.path);
 
               return Padding(
                 padding: const EdgeInsets.symmetric(
@@ -157,6 +166,7 @@ class WebDavSubfoldersSliver extends ConsumerWidget {
                   enableHero: false,
                   isSelected: isSelected,
                   isSelectionMode: isSelectionMode,
+                  isIndexed: isIndexed,
                   trailing: Builder(
                     builder: (btnContext) {
                       return IconButton(
