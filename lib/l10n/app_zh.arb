@@ -3006,5 +3006,16 @@
   "removedFromMediaLibrary": "已从媒体库索引移除",
   "indexingRemoteFolders": "正在索引远程目录...",
   "remoteMediaFolders": "远程网络目录",
-  "remoteFolderAlreadyIndexed": "该目录已在媒体库索引中"
+  "remoteFolderAlreadyIndexed": "该目录已在媒体库索引中",
+  "remoteLibraryBadge": "云端",
+  "remoteLibraryTooltip": "来自远程媒体库",
+  "remoteSourceTitle": "远程媒体来源",
+  "remoteServer": "服务器",
+  "remoteChannel": "渠道类型",
+  "remoteFolder": "所在文件夹",
+  "remoteFilePath": "远程路径",
+  "copyPath": "复制路径",
+  "pathCopied": "已复制路径到剪贴板",
+  "viewInRemoteFolder": "在网络目录中查看",
+  "remoteServerNotFound": "未找到关联的媒体服务器"
 }

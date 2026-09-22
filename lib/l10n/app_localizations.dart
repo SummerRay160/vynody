@@ -8829,6 +8829,72 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'该目录已在媒体库索引中'**
   String get remoteFolderAlreadyIndexed;
+
+  /// No description provided for @remoteLibraryBadge.
+  ///
+  /// In zh, this message translates to:
+  /// **'云端'**
+  String get remoteLibraryBadge;
+
+  /// No description provided for @remoteLibraryTooltip.
+  ///
+  /// In zh, this message translates to:
+  /// **'来自远程媒体库'**
+  String get remoteLibraryTooltip;
+
+  /// No description provided for @remoteSourceTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'远程媒体来源'**
+  String get remoteSourceTitle;
+
+  /// No description provided for @remoteServer.
+  ///
+  /// In zh, this message translates to:
+  /// **'服务器'**
+  String get remoteServer;
+
+  /// No description provided for @remoteChannel.
+  ///
+  /// In zh, this message translates to:
+  /// **'渠道类型'**
+  String get remoteChannel;
+
+  /// No description provided for @remoteFolder.
+  ///
+  /// In zh, this message translates to:
+  /// **'所在文件夹'**
+  String get remoteFolder;
+
+  /// No description provided for @remoteFilePath.
+  ///
+  /// In zh, this message translates to:
+  /// **'远程路径'**
+  String get remoteFilePath;
+
+  /// No description provided for @copyPath.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制路径'**
+  String get copyPath;
+
+  /// No description provided for @pathCopied.
+  ///
+  /// In zh, this message translates to:
+  /// **'已复制路径到剪贴板'**
+  String get pathCopied;
+
+  /// No description provided for @viewInRemoteFolder.
+  ///
+  /// In zh, this message translates to:
+  /// **'在网络目录中查看'**
+  String get viewInRemoteFolder;
+
+  /// No description provided for @remoteServerNotFound.
+  ///
+  /// In zh, this message translates to:
+  /// **'未找到关联的媒体服务器'**
+  String get remoteServerNotFound;
 }
 
 class _AppLocalizationsDelegate

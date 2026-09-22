@@ -15,6 +15,7 @@ import 'package:vynody/player/audio/playback_source.dart';
 import 'package:vynody/utils/song_context_menu_utils.dart';
 import '../widgets/song_thumbnail.dart';
 import '../widgets/album_cover.dart';
+import '../widgets/remote_media_badge.dart';
 import 'album_detail_page.dart';
 import '../widgets/scroll_to_top_wrapper.dart';
 import '../widgets/library_selection_scope.dart';
@@ -687,12 +688,18 @@ class _AlbumCard extends ConsumerWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            SongThumbnail.fromAlbum(
-              album,
-              size: 250,
-              width: double.infinity,
-              height: double.infinity,
-              borderRadius: BorderRadius.zero,
+            RemoteMediaBadge.wrapCover(
+              child: SongThumbnail.fromAlbum(
+                album,
+                size: 250,
+                width: double.infinity,
+                height: double.infinity,
+                borderRadius: BorderRadius.zero,
+              ),
+              songs: album.songs,
+              title: album.title,
+              top: 8,
+              right: 8,
             ),
             if (isSelectionMode)
               Positioned.fill(

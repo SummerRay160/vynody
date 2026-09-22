@@ -12,6 +12,7 @@ import 'package:vynody/player/audio/playback_source.dart';
 import 'package:vynody/utils/song_context_menu_utils.dart';
 import '../widgets/desktop_window_title_bar.dart';
 import '../widgets/song_thumbnail.dart';
+import '../widgets/remote_media_badge.dart';
 import '../widgets/mini_player_wrapper.dart';
 import '../widgets/library_selection_panel.dart';
 import '../widgets/library_selection_scope.dart';
@@ -259,6 +260,11 @@ class _ArtistInfo extends StatelessWidget {
     final shufflePlayLabel = l10n.shufflePlay;
     final chips = <Widget>[
       _InfoChip(label: artistCountLabel),
+      if (RemoteMediaHelper.isAllRemote(artist.songs))
+        RemoteMediaBadge.chip(
+          songs: artist.songs,
+          title: artist.name,
+        ),
       if (artist.country?.trim().isNotEmpty ?? false)
         _InfoChip(label: artist.country!.trim()),
       if (artist.beginDate?.trim().isNotEmpty ?? false)
@@ -386,6 +392,8 @@ class _AlbumSectionSliver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMixedSection = RemoteMediaHelper.isMixed(section.songs);
+
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: DecoratedSliver(
@@ -429,11 +437,13 @@ class _AlbumSectionSliver extends StatelessWidget {
                       final song = section.songs[i];
                       final isCurrent = currentMusic?.path == song.path;
                       final isSelected = selectedSongPaths.contains(song.path);
+                      final showRemote = isMixedSection && RemoteMediaHelper.isRemote(song);
 
                       return _AlbumSongTile(
                         song: song,
                         isCurrent: isCurrent,
                         theme: theme,
+                        showRemoteIndicator: showRemote,
                         onTap: () => onSongTap(i),
                         onSecondaryTapDown: (details) =>
                             onSongSecondaryTapDown(details, song),
@@ -488,10 +498,14 @@ class _AlbumSectionHeader extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWide = constraints.maxWidth >= 500;
-        final cover = SongThumbnail.fromSong(
-          section.representativeSong,
-          size: 104,
-          borderRadius: BorderRadius.circular(18),
+        final cover = RemoteMediaBadge.wrapCover(
+          child: SongThumbnail.fromSong(
+            section.representativeSong,
+            size: 104,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          songs: section.songs,
+          title: section.title,
         );
         final info = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -558,6 +572,7 @@ class _AlbumSongTile extends StatelessWidget {
     required this.song,
     required this.isCurrent,
     required this.theme,
+    this.showRemoteIndicator = false,
     required this.onTap,
     required this.onSecondaryTapDown,
     required this.onLongPress,
@@ -570,6 +585,7 @@ class _AlbumSongTile extends StatelessWidget {
   final MusicFile song;
   final bool isCurrent;
   final ThemeData theme;
+  final bool showRemoteIndicator;
   final VoidCallback onTap;
   final void Function(TapDownDetails details) onSecondaryTapDown;
   final VoidCallback onLongPress;
@@ -630,14 +646,24 @@ class _AlbumSongTile extends StatelessWidget {
                           const SizedBox(width: 16),
                         ],
                         Expanded(
-                          child: Text(
-                            song.displayName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: isCurrent ? theme.colorScheme.primary : null,
-                              fontWeight: isCurrent ? FontWeight.w700 : null,
-                            ),
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  song.displayName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    color: isCurrent ? theme.colorScheme.primary : null,
+                                    fontWeight: isCurrent ? FontWeight.w700 : null,
+                                  ),
+                                ),
+                              ),
+                              RemoteMediaBadge.songTrailing(
+                                song: song,
+                                isMixed: showRemoteIndicator,
+                              ),
+                            ],
                           ),
                         ),
                         if (durationLabel != null) ...[

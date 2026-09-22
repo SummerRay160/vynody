@@ -14,6 +14,7 @@ import 'package:vynody/utils/song_context_menu_utils.dart';
 import '../widgets/desktop_window_title_bar.dart';
 import '../widgets/song_thumbnail.dart';
 import '../widgets/album_cover.dart';
+import '../widgets/remote_media_badge.dart';
 import '../widgets/mini_player_wrapper.dart';
 import '../widgets/library_selection_panel.dart';
 import '../widgets/library_selection_scope.dart';
@@ -74,6 +75,7 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage>
         ? getSelectedSongs(widget.album.songs)
         : const <MusicFile>[];
     final isLargeAlbum = widget.album.songs.length >= 100;
+    final isMixedAlbum = RemoteMediaHelper.isMixed(widget.album.songs);
     final unknownArtist = l10n.unknownArtist;
 
     Widget content = Scaffold(
@@ -176,6 +178,7 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage>
                   final song = widget.album.songs[index];
                   final isCurrent = currentMusic?.path == song.path;
                   final isSelected = isSongSelected(song.path);
+                  final showRemote = isMixedAlbum && RemoteMediaHelper.isRemote(song);
 
                   return _AlbumSongItem(
                     song: song,
@@ -184,6 +187,7 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage>
                     isSelected: isSelected,
                     isSelectionMode: isSelectionMode,
                     isLargeAlbum: isLargeAlbum,
+                    showRemoteIndicator: showRemote,
                     unknownArtist: unknownArtist,
                     onTap: () {
                       handleSongTap(
@@ -302,11 +306,22 @@ class _AlbumInfo extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Text(
-          '${l10n.songCount(album.trackCount)} · ${_formatDuration(album.totalDurationMillis) ?? l10n.durationZero}',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          children: [
+            Text(
+              '${l10n.songCount(album.trackCount)} · ${_formatDuration(album.totalDurationMillis) ?? l10n.durationZero}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            if (RemoteMediaHelper.isAllRemote(album.songs))
+              RemoteMediaBadge.chip(
+                songs: album.songs,
+                title: album.title,
+              ),
+          ],
         ),
         const SizedBox(height: 20),
         Wrap(
@@ -351,6 +366,7 @@ class _AlbumSongItem extends StatelessWidget {
     required this.isSelectionMode,
     required this.isLargeAlbum,
     required this.unknownArtist,
+    this.showRemoteIndicator = false,
     required this.onTap,
     required this.onLongPress,
     required this.onSecondaryTapDown,
@@ -364,6 +380,7 @@ class _AlbumSongItem extends StatelessWidget {
   final bool isSelectionMode;
   final bool isLargeAlbum;
   final String unknownArtist;
+  final bool showRemoteIndicator;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final ValueChanged<TapDownDetails> onSecondaryTapDown;
@@ -432,14 +449,24 @@ class _AlbumSongItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            song.displayName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: isCurrent ? theme.colorScheme.primary : null,
-                              fontWeight: isCurrent ? FontWeight.w700 : null,
-                            ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  song.displayName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    color: isCurrent ? theme.colorScheme.primary : null,
+                                    fontWeight: isCurrent ? FontWeight.w700 : null,
+                                  ),
+                                ),
+                              ),
+                              RemoteMediaBadge.songTrailing(
+                                song: song,
+                                isMixed: showRemoteIndicator,
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 2),
                           Text(

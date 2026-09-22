@@ -1561,5 +1561,16 @@
   "sortPlaylists": "播放清單排序",
   "sortRecentlyUpdated": "最近更新",
   "sortRecentlyCreated": "最近建立",
-  "sortCustom": "自訂排序"
+  "sortCustom": "自訂排序",
+  "remoteLibraryBadge": "雲端",
+  "remoteLibraryTooltip": "來自遠端媒體庫",
+  "remoteSourceTitle": "遠端媒體來源",
+  "remoteServer": "伺服器",
+  "remoteChannel": "渠道類型",
+  "remoteFolder": "所在資料夾",
+  "remoteFilePath": "遠端路徑",
+  "copyPath": "複製路徑",
+  "pathCopied": "已複製路徑至剪貼簿",
+  "viewInRemoteFolder": "在網路目錄中檢視",
+  "remoteServerNotFound": "未找到關聯的媒體伺服器"
 }

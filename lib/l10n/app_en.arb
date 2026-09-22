@@ -2244,5 +2244,16 @@
   "removedFromMediaLibrary": "Removed from media library",
   "indexingRemoteFolders": "Indexing remote folders...",
   "remoteMediaFolders": "Remote Network Folders",
-  "remoteFolderAlreadyIndexed": "Folder is already indexed in media library"
+  "remoteFolderAlreadyIndexed": "Folder is already indexed in media library",
+  "remoteLibraryBadge": "Cloud",
+  "remoteLibraryTooltip": "From remote media library",
+  "remoteSourceTitle": "Remote Media Source",
+  "remoteServer": "Server",
+  "remoteChannel": "Channel Type",
+  "remoteFolder": "Remote Folder",
+  "remoteFilePath": "Remote Path",
+  "copyPath": "Copy Path",
+  "pathCopied": "Path copied to clipboard",
+  "viewInRemoteFolder": "View in Remote Folder",
+  "remoteServerNotFound": "Associated remote server not found"
 }

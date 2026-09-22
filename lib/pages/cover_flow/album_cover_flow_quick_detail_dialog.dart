@@ -15,6 +15,7 @@ import 'package:vynody/utils/song_context_menu_utils.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/song_thumbnail.dart';
 import '../../widgets/album_cover.dart';
+import '../../widgets/remote_media_badge.dart';
 import '../../widgets/volume_controls.dart';
 
 Future<void> showAlbumQuickDetailModal(
@@ -283,6 +284,7 @@ class _AlbumCoverFlowQuickDetailDialogState
     }
 
     Widget buildSongList({EdgeInsets? padding}) {
+      final isMixedAlbum = RemoteMediaHelper.isMixed(album.songs);
       final effectivePadding = (padding ??
               const EdgeInsets.symmetric(horizontal: 10, vertical: 6))
           .copyWith(
@@ -387,17 +389,29 @@ class _AlbumCoverFlowQuickDetailDialogState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            song.title ?? song.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight:
-                                  isCurrent ? FontWeight.bold : FontWeight.w500,
-                              color: isCurrent
-                                  ? theme.colorScheme.primary
-                                  : theme.colorScheme.onSurface,
-                            ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  song.title ?? song.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight:
+                                        isCurrent ? FontWeight.bold : FontWeight.w500,
+                                    color: isCurrent
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
+                              RemoteMediaBadge.songTrailing(
+                                song: song,
+                                isMixed: isMixedAlbum,
+                                iconSize: 13,
+                                leftSpacing: 4,
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 2),
                           Text(

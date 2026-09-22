@@ -4731,6 +4731,39 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get remoteFolderAlreadyIndexed => '该目录已在媒体库索引中';
+
+  @override
+  String get remoteLibraryBadge => '云端';
+
+  @override
+  String get remoteLibraryTooltip => '来自远程媒体库';
+
+  @override
+  String get remoteSourceTitle => '远程媒体来源';
+
+  @override
+  String get remoteServer => '服务器';
+
+  @override
+  String get remoteChannel => '渠道类型';
+
+  @override
+  String get remoteFolder => '所在文件夹';
+
+  @override
+  String get remoteFilePath => '远程路径';
+
+  @override
+  String get copyPath => '复制路径';
+
+  @override
+  String get pathCopied => '已复制路径到剪贴板';
+
+  @override
+  String get viewInRemoteFolder => '在网络目录中查看';
+
+  @override
+  String get remoteServerNotFound => '未找到关联的媒体服务器';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -9439,4 +9472,37 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get sortCustom => '自訂排序';
+
+  @override
+  String get remoteLibraryBadge => '雲端';
+
+  @override
+  String get remoteLibraryTooltip => '來自遠端媒體庫';
+
+  @override
+  String get remoteSourceTitle => '遠端媒體來源';
+
+  @override
+  String get remoteServer => '伺服器';
+
+  @override
+  String get remoteChannel => '渠道類型';
+
+  @override
+  String get remoteFolder => '所在資料夾';
+
+  @override
+  String get remoteFilePath => '遠端路徑';
+
+  @override
+  String get copyPath => '複製路徑';
+
+  @override
+  String get pathCopied => '已複製路徑至剪貼簿';
+
+  @override
+  String get viewInRemoteFolder => '在網路目錄中檢視';
+
+  @override
+  String get remoteServerNotFound => '未找到關聯的媒體伺服器';
 }

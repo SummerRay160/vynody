@@ -4815,4 +4815,37 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get remoteFolderAlreadyIndexed => '该目录已在媒体库索引中';
+
+  @override
+  String get remoteLibraryBadge => '云端';
+
+  @override
+  String get remoteLibraryTooltip => '来自远程媒体库';
+
+  @override
+  String get remoteSourceTitle => '远程媒体来源';
+
+  @override
+  String get remoteServer => '服务器';
+
+  @override
+  String get remoteChannel => '渠道类型';
+
+  @override
+  String get remoteFolder => '所在文件夹';
+
+  @override
+  String get remoteFilePath => '远程路径';
+
+  @override
+  String get copyPath => '复制路径';
+
+  @override
+  String get pathCopied => '已复制路径到剪贴板';
+
+  @override
+  String get viewInRemoteFolder => '在网络目录中查看';
+
+  @override
+  String get remoteServerNotFound => '未找到关联的媒体服务器';
 }

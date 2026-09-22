@@ -9,6 +9,7 @@ import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/audio/playback_source.dart';
 import 'artist_detail_page.dart';
 import '../widgets/artist_avatar.dart';
+import '../widgets/remote_media_badge.dart';
 import '../widgets/scroll_to_top_wrapper.dart';
 import '../widgets/library_selection_scope.dart';
 import '../widgets/library_selection_panel.dart';
@@ -636,13 +637,23 @@ class _ArtistListItem extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        artist.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              artist.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          RemoteMediaBadge.pillTrailing(
+                            songs: artist.songs,
+                            title: artist.name,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Text(

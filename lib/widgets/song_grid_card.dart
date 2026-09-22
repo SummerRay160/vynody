@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/song_thumbnail.dart';
 import '../widgets/playing_equalizer_icon.dart';
 import '../player/audio/audio_riverpod.dart';
+import 'remote_media_badge.dart';
 
 class SongGridCard extends ConsumerWidget {
   const SongGridCard({
@@ -97,12 +98,18 @@ class SongGridCard extends ConsumerWidget {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          SongThumbnail.fromSong(
-                            song,
-                            size: 200,
-                            width: double.infinity,
-                            height: double.infinity,
-                            borderRadius: BorderRadius.zero,
+                          RemoteMediaBadge.wrapCover(
+                            child: SongThumbnail.fromSong(
+                              song,
+                              size: 200,
+                              width: double.infinity,
+                              height: double.infinity,
+                              borderRadius: BorderRadius.zero,
+                            ),
+                            song: song,
+                            title: song.displayName,
+                            top: 8,
+                            right: 8,
                           ),
                           // Capsule in bottom-left corner
                           Positioned(

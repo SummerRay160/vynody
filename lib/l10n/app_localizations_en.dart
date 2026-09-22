@@ -4976,4 +4976,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get remoteFolderAlreadyIndexed =>
       'Folder is already indexed in media library';
+
+  @override
+  String get remoteLibraryBadge => 'Cloud';
+
+  @override
+  String get remoteLibraryTooltip => 'From remote media library';
+
+  @override
+  String get remoteSourceTitle => 'Remote Media Source';
+
+  @override
+  String get remoteServer => 'Server';
+
+  @override
+  String get remoteChannel => 'Channel Type';
+
+  @override
+  String get remoteFolder => 'Remote Folder';
+
+  @override
+  String get remoteFilePath => 'Remote Path';
+
+  @override
+  String get copyPath => 'Copy Path';
+
+  @override
+  String get pathCopied => 'Path copied to clipboard';
+
+  @override
+  String get viewInRemoteFolder => 'View in Remote Folder';
+
+  @override
+  String get remoteServerNotFound => 'Associated remote server not found';
 }
