@@ -95,7 +95,7 @@ class FolderHeaderNavBar extends ConsumerWidget {
             l10n.scanDirectory,
             style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: style.folderTextColor,
               shadows: style.shadows,
             ),
@@ -165,7 +165,7 @@ class FolderHeaderNavBar extends ConsumerWidget {
             currentFolder!.name,
             style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: style.folderTextColor,
               shadows: style.shadows,
             ),

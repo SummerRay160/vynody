@@ -40,7 +40,7 @@ import '../../utils/selection_utils.dart';
 import '../../utils/song_locator_helper.dart';
 import '../../widgets/folder_nav_bar_scaffold.dart';
 
-class WebDavBrowserPage extends ConsumerStatefulWidget {
+class RemoteFolderBrowserPage extends ConsumerStatefulWidget {
   final RemoteServer server;
   final String password;
   final String? initialPath;
@@ -48,7 +48,7 @@ class WebDavBrowserPage extends ConsumerStatefulWidget {
   final bool wrapWithMiniPlayer;
   final String? highlightedSongPath;
 
-  const WebDavBrowserPage({
+  const RemoteFolderBrowserPage({
     super.key,
     required this.server,
     required this.password,
@@ -59,10 +59,12 @@ class WebDavBrowserPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<WebDavBrowserPage> createState() => _WebDavBrowserPageState();
+  ConsumerState<RemoteFolderBrowserPage> createState() =>
+      _RemoteFolderBrowserPageState();
 }
 
-class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
+class _RemoteFolderBrowserPageState
+    extends ConsumerState<RemoteFolderBrowserPage> {
   late final RemoteDirectoryClient _client;
   late String _rootPath;
   late String _currentPath;
@@ -153,7 +155,7 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
   }
 
   @override
-  void didUpdateWidget(WebDavBrowserPage oldWidget) {
+  void didUpdateWidget(RemoteFolderBrowserPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.highlightedSongPath != null &&
         widget.highlightedSongPath != oldWidget.highlightedSongPath) {
@@ -1972,7 +1974,7 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
           widget.server.name,
           style: TextStyle(
             fontSize: 14,
-            fontWeight: segments.isEmpty ? FontWeight.bold : FontWeight.w500,
+            fontWeight: FontWeight.w500,
             color: style.folderTextColor,
             shadows: style.shadows,
           ),
@@ -2024,7 +2026,7 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
                 segments[i],
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: style.folderTextColor,
                   shadows: style.shadows,
                 ),
