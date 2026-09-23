@@ -132,54 +132,107 @@ class _FolderHeaderBannerState extends ConsumerState<FolderHeaderBanner> {
 
 
 
-    if (isLandscape) {
-      return RepaintBoundary(
-        child: _FolderLandscapeHeaderBanner(
-          title: widget.title,
-          subtitle: widget.subtitle,
-          songsCount: widget.songsCount,
-          durationText: durationText,
-          coverWidget: widget.coverWidget,
-          actionButtons: widget.actionButtons,
-          actionButtonsScrollable: widget.actionButtonsScrollable,
-          isSearching: widget.isSearching,
-          searchController: widget.searchController,
-          searchQuery: widget.searchQuery,
-          searchHintText: widget.searchHintText,
-          onSearchQueryChanged: widget.onSearchQueryChanged,
-          onToggleSearch: widget.onToggleSearch,
-          heroTag: widget.heroTag,
-          isHeroModeEnabled: widget.isHeroModeEnabled,
-        ),
-      );
-    }
+    return _OverscrollStretchBuilder(
+      builder: (context, overscroll) {
+        if (isLandscape) {
+          return RepaintBoundary(
+            child: _FolderLandscapeHeaderBanner(
+              title: widget.title,
+              subtitle: widget.subtitle,
+              songsCount: widget.songsCount,
+              durationText: durationText,
+              coverWidget: widget.coverWidget,
+              actionButtons: widget.actionButtons,
+              actionButtonsScrollable: widget.actionButtonsScrollable,
+              isSearching: widget.isSearching,
+              searchController: widget.searchController,
+              searchQuery: widget.searchQuery,
+              searchHintText: widget.searchHintText,
+              onSearchQueryChanged: widget.onSearchQueryChanged,
+              onToggleSearch: widget.onToggleSearch,
+              heroTag: widget.heroTag,
+              isHeroModeEnabled: widget.isHeroModeEnabled,
+              overscroll: overscroll,
+            ),
+          );
+        }
 
-    return RepaintBoundary(
-      child: _FolderPortraitHeaderBanner(
-        title: widget.title,
-        subtitle: widget.subtitle,
-        songsCount: widget.songsCount,
-        durationText: durationText,
-        coverWidget: widget.coverWidget,
-        coverFile: coverFile,
-        hasImage: hasImage,
-        isWideOrSquare: isWideOrSquare,
-        topHeader: widget.topHeader,
-        actionButtons: widget.actionButtons,
-        actionButtonsScrollable: widget.actionButtonsScrollable,
-        isSearching: widget.isSearching,
-        searchController: widget.searchController,
-        searchQuery: widget.searchQuery,
-        searchHintText: widget.searchHintText,
-        onSearchQueryChanged: widget.onSearchQueryChanged,
-        onToggleSearch: widget.onToggleSearch,
-        heroTag: widget.heroTag,
-        isHeroModeEnabled: widget.isHeroModeEnabled,
-        resolvedPath: _resolvedPath,
-        totalDuration: widget.totalDuration,
-        isLowEndDevice: isLowEndDevice,
-      ),
+        return RepaintBoundary(
+          child: _FolderPortraitHeaderBanner(
+            title: widget.title,
+            subtitle: widget.subtitle,
+            songsCount: widget.songsCount,
+            durationText: durationText,
+            coverWidget: widget.coverWidget,
+            coverFile: coverFile,
+            hasImage: hasImage,
+            isWideOrSquare: isWideOrSquare,
+            topHeader: widget.topHeader,
+            actionButtons: widget.actionButtons,
+            actionButtonsScrollable: widget.actionButtonsScrollable,
+            isSearching: widget.isSearching,
+            searchController: widget.searchController,
+            searchQuery: widget.searchQuery,
+            searchHintText: widget.searchHintText,
+            onSearchQueryChanged: widget.onSearchQueryChanged,
+            onToggleSearch: widget.onToggleSearch,
+            heroTag: widget.heroTag,
+            isHeroModeEnabled: widget.isHeroModeEnabled,
+            resolvedPath: _resolvedPath,
+            totalDuration: widget.totalDuration,
+            isLowEndDevice: isLowEndDevice,
+            overscroll: overscroll,
+          ),
+        );
+      },
     );
+  }
+}
+
+/// Helper widget to observe overscroll from the ambient [Scrollable].
+class _OverscrollStretchBuilder extends StatefulWidget {
+  const _OverscrollStretchBuilder({required this.builder});
+
+  final Widget Function(BuildContext context, double overscroll) builder;
+
+  @override
+  State<_OverscrollStretchBuilder> createState() => _OverscrollStretchBuilderState();
+}
+
+class _OverscrollStretchBuilderState extends State<_OverscrollStretchBuilder> {
+  ScrollPosition? _position;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newPosition = Scrollable.maybeOf(context)?.position;
+    if (_position != newPosition) {
+      _position?.removeListener(_onScroll);
+      _position = newPosition;
+      _position?.addListener(_onScroll);
+    }
+  }
+
+  @override
+  void dispose() {
+    _position?.removeListener(_onScroll);
+    _position = null;
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double overscroll = 0.0;
+    if (_position != null && _position!.hasPixels && _position!.pixels < 0) {
+      overscroll = -_position!.pixels;
+    }
+    return widget.builder(context, overscroll);
   }
 }
 
@@ -201,6 +254,7 @@ class _FolderLandscapeHeaderBanner extends StatelessWidget {
     required this.onToggleSearch,
     required this.heroTag,
     required this.isHeroModeEnabled,
+    this.overscroll = 0.0,
   });
 
   final String title;
@@ -218,6 +272,7 @@ class _FolderLandscapeHeaderBanner extends StatelessWidget {
   final ValueChanged<bool> onToggleSearch;
   final String? heroTag;
   final bool isHeroModeEnabled;
+  final double overscroll;
 
   @override
   Widget build(BuildContext context) {
@@ -460,6 +515,7 @@ class _FolderPortraitHeaderBanner extends StatelessWidget {
     required this.resolvedPath,
     required this.totalDuration,
     required this.isLowEndDevice,
+    this.overscroll = 0.0,
   });
 
   final String title;
@@ -484,6 +540,7 @@ class _FolderPortraitHeaderBanner extends StatelessWidget {
   final String? resolvedPath;
   final Duration totalDuration;
   final bool isLowEndDevice;
+  final double overscroll;
 
   @override
   Widget build(BuildContext context) {
@@ -510,102 +567,112 @@ class _FolderPortraitHeaderBanner extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 12),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-        border: Border(
-          bottom: BorderSide(
-            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.25),
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: isDark ? Colors.black.withValues(alpha: 0.12) : theme.colorScheme.shadow.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-        child: Stack(
-          children: [
-            // 1. Background cover / backdrop layer
-            Positioned.fill(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Container(
-                    color: isDark
-                        ? Colors.black
-                        : theme.colorScheme.surface,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // 1. Background cover / backdrop layer with elastic overscroll stretch
+          Positioned(
+            top: -overscroll,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                border: Border(
+                  bottom: BorderSide(
+                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.25),
                   ),
-                  if (hasImage && !isWideOrSquare) ...[
-                    Opacity(
-                      opacity: isDark ? 1.0 : _kLightModeBlurredCoverOpacity,
-                      child: ImageFiltered(
-                        imageFilter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-                        child: Image.file(
-                          coverFile!,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark ? Colors.black.withValues(alpha: 0.12) : theme.colorScheme.shadow.withValues(alpha: 0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Container(
+                      color: isDark
+                          ? Colors.black
+                          : theme.colorScheme.surface,
                     ),
-                    if (isDark)
-                      Container(
-                        color: Colors.black.withValues(alpha: isWideOrSquare ? 0.25 : 0.45),
-                      ),
-                  ],
-                  // Wide or Square cover extending across full width
-                  if (isWideOrSquare && hasImage) ...[
-                    Positioned.fill(
-                      child: Opacity(
-                        opacity: isDark ? 1.0 : _kLightModeCoverOpacity,
-                        child: Image.file(
-                          coverFile!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
-                      ),
-                    ),
-                  ],
-                  // Gradient overlay for text readability (Dark mode: dark gradient, Light mode: light surface gradient)
-                  if (hasImage)
-                    AnimatedBuilder(
-                      animation: routeAnimation ?? const AlwaysStoppedAnimation(1.0),
-                      builder: (context, child) {
-                        final opacity = (darkOverlayAnimation?.value ?? 1.0).clamp(0.0, 1.0);
-                        return Opacity(
-                          opacity: opacity,
-                          child: child,
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: isDark
-                                ? [
-                                    Colors.black.withValues(alpha: 0.35),
-                                    Colors.black.withValues(alpha: 0.55),
-                                    Colors.black.withValues(alpha: 0.85),
-                                  ]
-                                : [
-                                    theme.colorScheme.surface.withValues(alpha: 0.25),
-                                    theme.colorScheme.surface.withValues(alpha: 0.60),
-                                    theme.colorScheme.surface.withValues(alpha: 0.92),
-                                  ],
-                            stops: const [0.0, 0.45, 1.0],
+                    if (hasImage && !isWideOrSquare) ...[
+                      Opacity(
+                        opacity: isDark ? 1.0 : _kLightModeBlurredCoverOpacity,
+                        child: ImageFiltered(
+                          imageFilter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                          child: Image.file(
+                            coverFile!,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
                           ),
                         ),
                       ),
-                    ),
-                ],
+                      if (isDark)
+                        Container(
+                          color: Colors.black.withValues(alpha: isWideOrSquare ? 0.25 : 0.45),
+                        ),
+                    ],
+                    // Wide or Square cover extending across full width
+                    if (isWideOrSquare && hasImage) ...[
+                      Positioned.fill(
+                        child: Opacity(
+                          opacity: isDark ? 1.0 : _kLightModeCoverOpacity,
+                          child: Image.file(
+                            coverFile!,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                        ),
+                      ),
+                    ],
+                    // Gradient overlay for text readability (Dark mode: dark gradient, Light mode: light surface gradient)
+                    if (hasImage)
+                      AnimatedBuilder(
+                        animation: routeAnimation ?? const AlwaysStoppedAnimation(1.0),
+                        builder: (context, child) {
+                          final opacity = (darkOverlayAnimation?.value ?? 1.0).clamp(0.0, 1.0);
+                          return Opacity(
+                            opacity: opacity,
+                            child: child,
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: isDark
+                                  ? [
+                                      Colors.black.withValues(alpha: 0.35),
+                                      Colors.black.withValues(alpha: 0.55),
+                                      Colors.black.withValues(alpha: 0.85),
+                                    ]
+                                  : [
+                                      theme.colorScheme.surface.withValues(alpha: 0.25),
+                                      theme.colorScheme.surface.withValues(alpha: 0.60),
+                                      theme.colorScheme.surface.withValues(alpha: 0.92),
+                                    ],
+                              stops: const [0.0, 0.45, 1.0],
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
+          ),
 
-            // 2. Foreground content layer
+          // 2. Foreground content layer
             AnimatedBuilder(
               animation: routeAnimation ?? const AlwaysStoppedAnimation(1.0),
               builder: (context, child) {
@@ -856,8 +923,7 @@ class _FolderPortraitHeaderBanner extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
 
