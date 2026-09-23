@@ -2028,10 +2028,6 @@ class SettingsService extends ChangeNotifier {
         _prefs.getString(customProviderNameStorageKey)?.trim() ?? '';
     LocalizedText.overrideLanguageCode =
         _prefs.getString(_keyLocale) ?? 'system';
-    if (defaultTargetPlatform == TargetPlatform.linux &&
-        _enableDesktopLyricsProperty.value) {
-      _enableDesktopLyricsProperty.value = false;
-    }
     _syncProxyToManager();
   }
 
@@ -3415,7 +3411,6 @@ class SettingsService extends ChangeNotifier {
           : _enableDesktopLyricsProperty.value;
   set enableDesktopLyrics(bool value) {
     if (defaultTargetPlatform == TargetPlatform.linux) {
-      _enableDesktopLyricsProperty.value = false;
       return;
     }
     _enableDesktopLyricsProperty.value = value;

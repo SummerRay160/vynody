@@ -173,9 +173,6 @@ class AudioService extends Notifier<AudioSnapshot> {
     final isProUnlocked = ref.read(isProUnlockedProvider);
     _userVisualizerEnabled =
         isProUnlocked && settingsService.isVisualizerEnabled;
-    if (!isProUnlocked && settingsService.isVisualizerEnabled) {
-      settingsService.isVisualizerEnabled = false;
-    }
 
     final initialFadeEnabled = settingsService.enableFadeEffect;
     final streamCacheManager = AudioStreamCacheManager(
@@ -252,6 +249,37 @@ class AudioService extends Notifier<AudioSnapshot> {
       final shouldThrottle =
           _isWindowMinimized && !settingsService.enableDesktopLyrics;
       _player.setBackgroundThrottled(shouldThrottle);
+    });
+
+    ref.listen<bool>(isProUnlockedProvider, (previous, isUnlocked) {
+      if (_disposed || previous == isUnlocked) return;
+      final currentVisualizerEnabled =
+          isUnlocked && settingsService.isVisualizerEnabled;
+      if (_userVisualizerEnabled != currentVisualizerEnabled) {
+        _userVisualizerEnabled = currentVisualizerEnabled;
+        _updateEffectiveVisualizerState();
+      }
+      final currentEqualizerEnabled =
+          isUnlocked && settingsService.equalizerEnabled;
+      unawaited(_player.setEqualizerEnabled(currentEqualizerEnabled));
+      if (Platform.isWindows) {
+        final isExclusive = isUnlocked &&
+            settingsService.windowsAudioOutputMode == 'wasapi_exclusive';
+        final devId = settingsService.windowsAudioDeviceId.trim().isEmpty
+            ? null
+            : settingsService.windowsAudioDeviceId.trim();
+        unawaited(
+          _player.setAudioOutputMode(
+            mode: isExclusive
+                ? AudioOutputMode.wasapiExclusive
+                : AudioOutputMode.shared,
+            deviceId: devId,
+            releaseOnPause: settingsService.wasapiReleaseOnPause,
+            bitPerfect: settingsService.wasapiBitPerfect,
+          ),
+        );
+      }
+      notifyListeners();
     });
     _visualizerOptions = VisualizerOptionsService(
       controller: _player,
@@ -356,9 +384,6 @@ class AudioService extends Notifier<AudioSnapshot> {
         final bandCount = settingsService.equalizerBandCount;
         final isProUnlocked = ref.read(isProUnlockedProvider);
         final savedEnabled = isProUnlocked && settingsService.equalizerEnabled;
-        if (!isProUnlocked && settingsService.equalizerEnabled) {
-          settingsService.equalizerEnabled = false;
-        }
         final savedGains = settingsService.equalizerGains;
         final savedPreamp = settingsService.equalizerPreamp;
         final savedBassBoost = settingsService.equalizerBassBoost;
@@ -1522,8 +1547,9 @@ class AudioService extends Notifier<AudioSnapshot> {
   }
 
   void setVisualizerEnabled(bool enabled) {
-    _userVisualizerEnabled = enabled;
     settingsService.isVisualizerEnabled = enabled;
+    final isProUnlocked = ref.read(isProUnlockedProvider);
+    _userVisualizerEnabled = enabled && isProUnlocked;
     _updateEffectiveVisualizerState();
   }
 
@@ -1725,8 +1751,9 @@ class AudioService extends Notifier<AudioSnapshot> {
     if (value && !ref.read(isProUnlockedProvider)) {
       return;
     }
-    await _player.setEqualizerEnabled(value);
     settingsService.equalizerEnabled = value;
+    final isProUnlocked = ref.read(isProUnlockedProvider);
+    await _player.setEqualizerEnabled(value && isProUnlocked);
     notifyListeners();
   }
 
