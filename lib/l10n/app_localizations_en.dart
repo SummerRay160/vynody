@@ -1333,6 +1333,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearArtwork => 'Clear Cover';
 
   @override
+  String get exportArtwork => 'Export Cover';
+
+  @override
+  String get exportArtworkSuccess => 'Cover exported successfully';
+
+  @override
+  String get exportArtworkFailed => 'Failed to export cover';
+
+  @override
   String get editSongTagsDescription =>
       'You can save changes only in the app, or write them back to the source file as well.';
 

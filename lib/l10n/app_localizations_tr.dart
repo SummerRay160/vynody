@@ -1337,6 +1337,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get clearArtwork => 'Kapağı Temizle';
 
   @override
+  String get exportArtwork => 'Kapağı Dışa Aktar';
+
+  @override
+  String get exportArtworkSuccess => 'Kapak başarıyla dışa aktarıldı';
+
+  @override
+  String get exportArtworkFailed => 'Kapak dışa aktarılamadı';
+
+  @override
   String get editSongTagsDescription =>
       'Değişiklikleri yalnızca uygulamaya kaydedebilir veya kaynak ses dosyasına da yazabilirsiniz.';
 

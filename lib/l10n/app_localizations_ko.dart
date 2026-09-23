@@ -1311,6 +1311,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get clearArtwork => '커버 지우기';
 
   @override
+  String get exportArtwork => '커버 내보내기';
+
+  @override
+  String get exportArtworkSuccess => '커버를 성공적으로 내보냈습니다';
+
+  @override
+  String get exportArtworkFailed => '커버 내보내기 실패';
+
+  @override
   String get editSongTagsDescription => '앱에만 변경사항을 저장하거나 소스 파일에도 다시 쓸 수 있습니다.';
 
   @override

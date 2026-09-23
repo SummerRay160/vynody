@@ -1351,6 +1351,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get clearArtwork => 'Effacer la pochette';
 
   @override
+  String get exportArtwork => 'Exporter la pochette';
+
+  @override
+  String get exportArtworkSuccess => 'Pochette exportée avec succès';
+
+  @override
+  String get exportArtworkFailed => 'Échec de l\'exportation de la pochette';
+
+  @override
   String get editSongTagsDescription =>
       'Vous pouvez sauvegarder les modifications uniquement dans l\'application ou les écrire dans le fichier source.';
 

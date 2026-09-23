@@ -1299,6 +1299,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get clearArtwork => '清除封面';
 
   @override
+  String get exportArtwork => '导出封面';
+
+  @override
+  String get exportArtworkSuccess => '封面已成功导出';
+
+  @override
+  String get exportArtworkFailed => '导出封面失败';
+
+  @override
   String get editSongTagsDescription => '修改后可以只保存到 App，也可以同步写回源文件。';
 
   @override
@@ -6082,6 +6091,15 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get clearArtwork => '清除封面';
+
+  @override
+  String get exportArtwork => '匯出封面';
+
+  @override
+  String get exportArtworkSuccess => '封面已成功匯出';
+
+  @override
+  String get exportArtworkFailed => '匯出封面失敗';
 
   @override
   String get editSongTagsDescription => '修改後可以只儲存到 App，也可以同步寫回來源檔案。';

@@ -1306,6 +1306,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get clearArtwork => 'カバーをクリア';
 
   @override
+  String get exportArtwork => 'カバーをエクスポート';
+
+  @override
+  String get exportArtworkSuccess => 'カバーをエクスポートしました';
+
+  @override
+  String get exportArtworkFailed => 'カバーのエクスポートに失敗しました';
+
+  @override
   String get editSongTagsDescription =>
       '変更内容はアプリ内のみに保存するか、ソースファイルにも書き戻すことができます。';
 

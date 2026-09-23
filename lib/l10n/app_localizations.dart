@@ -2583,6 +2583,24 @@ abstract class AppLocalizations {
   /// **'清除封面'**
   String get clearArtwork;
 
+  /// No description provided for @exportArtwork.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出封面'**
+  String get exportArtwork;
+
+  /// No description provided for @exportArtworkSuccess.
+  ///
+  /// In zh, this message translates to:
+  /// **'封面已成功导出'**
+  String get exportArtworkSuccess;
+
+  /// No description provided for @exportArtworkFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出封面失败'**
+  String get exportArtworkFailed;
+
   /// No description provided for @editSongTagsDescription.
   ///
   /// In zh, this message translates to:

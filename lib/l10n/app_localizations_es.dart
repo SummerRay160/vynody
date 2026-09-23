@@ -1352,6 +1352,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get clearArtwork => 'Limpiar carátula';
 
   @override
+  String get exportArtwork => 'Exportar carátula';
+
+  @override
+  String get exportArtworkSuccess => 'Carátula exportada correctamente';
+
+  @override
+  String get exportArtworkFailed => 'Error al exportar carátula';
+
+  @override
   String get editSongTagsDescription =>
       'Puedes guardar los cambios solo en la app o también escribirlos en el archivo fuente.';
 

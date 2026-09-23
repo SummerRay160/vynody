@@ -10,10 +10,8 @@ import '../l10n/app_localizations.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
-import 'package:vynody/player/library/playlist_service.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/player/metadata/metadata_helper.dart';
-import 'package:vynody/player/scanner/scanner_service.dart';
 import 'package:vynody/utils/app_snack_bar.dart';
 import 'package:audio_core/audio_core.dart';
 import 'package:path_provider/path_provider.dart';
@@ -290,6 +288,86 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
     }
   }
 
+  bool get _hasArtwork =>
+      !_isArtworkMixed &&
+      ((_artworkBytes != null && _artworkBytes!.isNotEmpty) ||
+          (_artworkPath != null && _artworkPath!.isNotEmpty));
+
+  Future<void> _exportArtwork() async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      Uint8List? bytes = _artworkBytes;
+      if ((bytes == null || bytes.isEmpty) &&
+          _artworkPath != null &&
+          _artworkPath!.isNotEmpty) {
+        final file = File(_artworkPath!);
+        if (await file.exists()) {
+          bytes = await file.readAsBytes();
+        }
+      }
+
+      if (bytes == null || bytes.isEmpty) {
+        showToast(l10n.exportArtworkFailed);
+        return;
+      }
+
+      String ext = 'jpg';
+      if (bytes.length >= 8) {
+        if (bytes[0] == 0x89 &&
+            bytes[1] == 0x50 &&
+            bytes[2] == 0x4E &&
+            bytes[3] == 0x47) {
+          ext = 'png';
+        } else if (bytes[0] == 0x52 &&
+            bytes[1] == 0x49 &&
+            bytes[2] == 0x46 &&
+            bytes[3] == 0x46) {
+          ext = 'webp';
+        } else if (bytes[0] == 0xFF && bytes[1] == 0xD8) {
+          ext = 'jpg';
+        }
+      }
+
+      String defaultBaseName = 'cover';
+      if (widget.effectiveSongs.isNotEmpty) {
+        final song = widget.effectiveSongs.first;
+        final title = _titleController.text.trim().isNotEmpty &&
+                _titleController.text.trim() != keepTagPlaceholder
+            ? _titleController.text.trim()
+            : (song.title?.trim().isNotEmpty == true
+                ? song.title!.trim()
+                : song.displayName);
+        final artist = _artistController.text.trim().isNotEmpty &&
+                _artistController.text.trim() != keepTagPlaceholder
+            ? _artistController.text.trim()
+            : (song.artist?.trim() ?? '');
+        if (artist.isNotEmpty && title.isNotEmpty) {
+          defaultBaseName = '$artist - $title - Cover';
+        } else if (title.isNotEmpty) {
+          defaultBaseName = '$title - Cover';
+        }
+      }
+      defaultBaseName =
+          defaultBaseName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+
+      final savedPath = await FileSelectorHelper.saveFile(
+        suggestedName: '$defaultBaseName.$ext',
+        label: 'Images',
+        extensions: [ext],
+        bytes: bytes,
+      );
+
+      if (savedPath != null && mounted) {
+        showToast(l10n.exportArtworkSuccess);
+      }
+    } catch (e) {
+      debugPrint('Error exporting artwork: $e');
+      if (mounted) {
+        showToast(l10n.exportArtworkFailed);
+      }
+    }
+  }
+
   Future<void> _showArtworkOptions() async {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
@@ -306,6 +384,7 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
       useRootNavigator: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
+        final hasArtwork = _hasArtwork;
         return BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
@@ -342,6 +421,13 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                     title: Text(l10n.changeArtwork),
                     onTap: () => Navigator.of(context).pop('change'),
                   ),
+                  if (hasArtwork)
+                    ListTile(
+                      leading: Icon(Icons.file_download_outlined,
+                          color: theme.colorScheme.primary),
+                      title: Text(l10n.exportArtwork),
+                      onTap: () => Navigator.of(context).pop('export'),
+                    ),
                   ListTile(
                     leading:
                         const Icon(Icons.delete_rounded, color: Colors.redAccent),
@@ -365,6 +451,8 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
 
     if (action == 'change') {
       await _pickArtwork();
+    } else if (action == 'export') {
+      await _exportArtwork();
     } else if (action == 'clear') {
       setState(() {
         _artworkBytes = Uint8List(0);
@@ -723,6 +811,45 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                                                           ),
                                   ),
                                 ),
+                                if (!_isSaving && _hasArtwork)
+                                  Positioned(
+                                    right: 4,
+                                    top: 4,
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: _exportArtwork,
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(
+                                            color: isDark
+                                                ? Colors.black.withValues(alpha: 0.65)
+                                                : Colors.white.withValues(alpha: 0.85),
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withValues(alpha: 0.2),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              )
+                                            ],
+                                          ),
+                                          child: Tooltip(
+                                            message: l10n.exportArtwork,
+                                            child: Icon(
+                                              Icons.file_download_outlined,
+                                              size: 14,
+                                              color: isDark
+                                                  ? Colors.white
+                                                  : Colors.black87,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 if (!_isSaving)
                                   Positioned(
                                     right: 4,
