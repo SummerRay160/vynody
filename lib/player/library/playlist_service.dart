@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
@@ -139,9 +140,15 @@ class Playlist {
 class PlaylistService extends ChangeNotifier {
   final List<Playlist> _playlists = [];
   String? _currentPlaylistId;
-  static const String _storageKey = 'playlists';
+  static const String _legacyStorageKey = 'playlists';
+  static const String _playlistsFileName = 'playlists.json';
   static const String _currentPlaylistKey = 'current_playlist_id';
   static const String favoritePlaylistId = 'favorites';
+
+  static Future<File> get playlistsFile async {
+    final dir = await getApplicationSupportDirectory();
+    return File(p.join(dir.path, _playlistsFileName));
+  }
 
   List<Playlist> get playlists => List.unmodifiable(_playlists);
   Playlist? get currentPlaylist => _currentPlaylistId != null
@@ -193,11 +200,39 @@ class PlaylistService extends ChangeNotifier {
   Future<void> _loadPlaylists() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final jsonString = prefs.getString(_storageKey);
       final currentId = prefs.getString(_currentPlaylistKey);
       _cachedRootPaths = prefs.getStringList('root_paths') ?? [];
 
-      if (jsonString != null) {
+      String? jsonString;
+      final file = await playlistsFile;
+      if (await file.exists()) {
+        jsonString = await file.readAsString();
+        if (prefs.containsKey(_legacyStorageKey)) {
+          await prefs.remove(_legacyStorageKey);
+        }
+      } else {
+        // Fallback: migrate from legacy prefs if present
+        jsonString = prefs.getString(_legacyStorageKey);
+        if (jsonString != null && jsonString.trim().isNotEmpty) {
+          try {
+            final parent = file.parent;
+            if (!parent.existsSync()) {
+              await parent.create(recursive: true);
+            }
+            final tmpFile = File('${file.path}.tmp');
+            await tmpFile.writeAsString(jsonString, flush: true);
+            if (await file.exists()) {
+              await file.delete();
+            }
+            await tmpFile.rename(file.path);
+            await prefs.remove(_legacyStorageKey);
+          } catch (e) {
+            debugPrint('Error migrating playlists to file: $e');
+          }
+        }
+      }
+
+      if (jsonString != null && jsonString.trim().isNotEmpty) {
         final List<dynamic> jsonList = json.decode(jsonString);
         _playlists.clear();
         _playlists.addAll(
@@ -224,13 +259,29 @@ class PlaylistService extends ChangeNotifier {
   /// 保存播放列表到本地存储
   Future<void> _savePlaylists() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
       final jsonString = json.encode(
         _playlists.map((p) => p.toJson()).toList(),
       );
-      await prefs.setString(_storageKey, jsonString);
+      final file = await playlistsFile;
+      final parent = file.parent;
+      if (!parent.existsSync()) {
+        await parent.create(recursive: true);
+      }
+      final tmpFile = File('${file.path}.tmp');
+      await tmpFile.writeAsString(jsonString, flush: true);
+      if (await file.exists()) {
+        await file.delete();
+      }
+      await tmpFile.rename(file.path);
+
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.containsKey(_legacyStorageKey)) {
+        await prefs.remove(_legacyStorageKey);
+      }
       if (_currentPlaylistId != null) {
         await prefs.setString(_currentPlaylistKey, _currentPlaylistId!);
+      } else {
+        await prefs.remove(_currentPlaylistKey);
       }
     } catch (e) {
       debugPrint('Error saving playlists: $e');

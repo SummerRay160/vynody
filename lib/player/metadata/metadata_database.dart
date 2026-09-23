@@ -789,11 +789,19 @@ class MetadataDatabase {
       <Object>[oldRoot, newRoot, '$oldRoot%'],
     );
 
-    // 6. Migrate playlists in SharedPreferences
     final prefs = await SharedPreferences.getInstance();
-    final playlistsJson = prefs.getString('playlists');
-    if (playlistsJson != null) {
-      try {
+
+    // 6. Migrate playlists (file + legacy SharedPreferences)
+    try {
+      final appSupportDir = await getApplicationSupportDirectory();
+      final playlistsFile = File(p.join(appSupportDir.path, 'playlists.json'));
+      String? playlistsJson;
+      if (await playlistsFile.exists()) {
+        playlistsJson = await playlistsFile.readAsString();
+      } else {
+        playlistsJson = prefs.getString('playlists');
+      }
+      if (playlistsJson != null && playlistsJson.trim().isNotEmpty) {
         final List<dynamic> jsonList = jsonDecode(playlistsJson);
         bool changed = false;
         for (final playlist in jsonList) {
@@ -821,19 +829,38 @@ class MetadataDatabase {
             }
           }
         }
-        if (changed) {
-          await prefs.setString('playlists', jsonEncode(jsonList));
-          debugPrint('[PathMigration] Migrated playlists in SharedPreferences.');
+        if (changed || !await playlistsFile.exists()) {
+          final parent = playlistsFile.parent;
+          if (!parent.existsSync()) {
+            await parent.create(recursive: true);
+          }
+          final tmpFile = File('${playlistsFile.path}.tmp');
+          await tmpFile.writeAsString(jsonEncode(jsonList), flush: true);
+          if (await playlistsFile.exists()) {
+            await playlistsFile.delete();
+          }
+          await tmpFile.rename(playlistsFile.path);
+          debugPrint('[PathMigration] Migrated playlists file.');
         }
-      } catch (e) {
-        debugPrint('[PathMigration] Failed to migrate playlists in SharedPreferences: $e');
+        if (prefs.containsKey('playlists')) {
+          await prefs.remove('playlists');
+        }
       }
+    } catch (e) {
+      debugPrint('[PathMigration] Failed to migrate playlists: $e');
     }
 
-    // 7. Migrate playback_session_v1 in SharedPreferences
-    final rawSession = prefs.getString('playback_session_v1');
-    if (rawSession != null && rawSession.trim().isNotEmpty) {
-      try {
+    // 7. Migrate playback_session (file + legacy SharedPreferences)
+    try {
+      final appSupportDir = await getApplicationSupportDirectory();
+      final sessionFile = File(p.join(appSupportDir.path, 'playback_session.json'));
+      String? rawSession;
+      if (await sessionFile.exists()) {
+        rawSession = await sessionFile.readAsString();
+      } else {
+        rawSession = prefs.getString('playback_session_v1');
+      }
+      if (rawSession != null && rawSession.trim().isNotEmpty) {
         final decoded = jsonDecode(rawSession);
         if (decoded is Map<String, dynamic>) {
           bool changed = false;
@@ -858,17 +885,26 @@ class MetadataDatabase {
               }
             }
           }
-          if (changed) {
-            await prefs.setString(
-              'playback_session_v1',
-              jsonEncode(decoded),
-            );
-            debugPrint('[PathMigration] Migrated playback_session_v1 in SharedPreferences.');
+          if (changed || !await sessionFile.exists()) {
+            final parent = sessionFile.parent;
+            if (!parent.existsSync()) {
+              await parent.create(recursive: true);
+            }
+            final tmpFile = File('${sessionFile.path}.tmp');
+            await tmpFile.writeAsString(jsonEncode(decoded), flush: true);
+            if (await sessionFile.exists()) {
+              await sessionFile.delete();
+            }
+            await tmpFile.rename(sessionFile.path);
+            debugPrint('[PathMigration] Migrated playback_session file.');
+          }
+          if (prefs.containsKey('playback_session_v1')) {
+            await prefs.remove('playback_session_v1');
           }
         }
-      } catch (e) {
-        debugPrint('[PathMigration] Failed to migrate playback_session_v1 in SharedPreferences: $e');
       }
+    } catch (e) {
+      debugPrint('[PathMigration] Failed to migrate playback_session: $e');
     }
   }
 }
