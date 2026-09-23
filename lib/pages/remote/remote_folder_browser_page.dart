@@ -1203,12 +1203,7 @@ class _RemoteFolderBrowserPageState
     final isAudioPlaying = ref.watch(audioIsPlayingProvider);
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
-    final double headerHeight = 64.0 +
-        (MediaQuery.of(context).padding.top > 0
-            ? MediaQuery.of(context).padding.top
-            : ((Platform.isMacOS || Platform.isWindows || Platform.isLinux)
-                ? 24.0
-                : 0.0));
+    final double headerHeight = FolderNavBarScaffold.getBarHeight(context);
     final bottomOffset = MiniPlayerUiTuning.getListBottomPadding(
       context,
       hasPlayingMusic: currentMusic != null,
@@ -1982,82 +1977,24 @@ class _RemoteFolderBrowserPageState
       ],
     );
 
-    if (segments.isEmpty) {
+    items.add(
+      FolderBreadcrumbItem(
+        style: style,
+        onTap: segments.isEmpty ? null : () => _navigateToBreadcrumb(-1),
+        child: rootContent,
+      ),
+    );
+
+    for (int i = 0; i < segments.length; i++) {
+      final isLast = i == segments.length - 1;
+      items.add(FolderBreadcrumbSeparator(style: style));
       items.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-          child: rootContent,
+        FolderBreadcrumbItem(
+          style: style,
+          label: segments[i],
+          onTap: isLast ? null : () => _navigateToBreadcrumb(i),
         ),
       );
-    } else {
-      items.add(
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: () => _navigateToBreadcrumb(-1),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-              child: rootContent,
-            ),
-          ),
-        ),
-      );
-
-      for (int i = 0; i < segments.length; i++) {
-        final isLast = i == segments.length - 1;
-        items.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Icon(
-              Icons.chevron_right_rounded,
-              size: 16,
-              color: style.chevronColor,
-              shadows: style.shadows,
-            ),
-          ),
-        );
-
-        if (isLast) {
-          items.add(
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-              child: Text(
-                segments[i],
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: style.folderTextColor,
-                  shadows: style.shadows,
-                ),
-              ),
-            ),
-          );
-        } else {
-          items.add(
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(8),
-                onTap: () => _navigateToBreadcrumb(i),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-                  child: Text(
-                    segments[i],
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: style.folderTextColor,
-                      shadows: style.shadows,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
-      }
     }
 
     return items;
@@ -2072,13 +2009,8 @@ class _RemoteFolderBrowserPageState
     int activeDownloadsCount,
   ) {
     if (style.isPortrait) {
-      return PopupMenuButton<String>(
-        icon: Icon(
-          Icons.more_vert_rounded,
-          size: 20,
-          color: style.iconColor,
-          shadows: style.shadows,
-        ),
+      return FolderNavActionMenu<String>(
+        style: style,
         onSelected: (value) {
           if (value == 'locate') {
             _locateCurrentSong();
@@ -2176,7 +2108,8 @@ class _RemoteFolderBrowserPageState
         mainAxisSize: MainAxisSize.min,
         children: [
           if (currentMusic != null) ...[
-            IconButton(
+            FolderNavIconButton(
+              style: style,
               tooltip: l10n.locateCurrentSong,
               icon: Icon(
                 Icons.my_location_rounded,
@@ -2187,7 +2120,8 @@ class _RemoteFolderBrowserPageState
               onPressed: _locateCurrentSong,
             ),
           ],
-          IconButton(
+          FolderNavIconButton(
+            style: style,
             tooltip: l10n.sortBy,
             icon: Icon(
               Icons.sort_rounded,
@@ -2197,7 +2131,8 @@ class _RemoteFolderBrowserPageState
             ),
             onPressed: () => _showSortDialog(context),
           ),
-          IconButton(
+          FolderNavIconButton(
+            style: style,
             tooltip: switch (settings.folderViewMode) {
               FolderViewMode.list => l10n.hybridView,
               FolderViewMode.hybrid => l10n.gridView,
@@ -2221,7 +2156,8 @@ class _RemoteFolderBrowserPageState
               };
             },
           ),
-          IconButton(
+          FolderNavIconButton(
+            style: style,
             tooltip: l10n.refreshResults,
             icon: Icon(
               Icons.refresh_rounded,
@@ -2232,17 +2168,17 @@ class _RemoteFolderBrowserPageState
             onPressed: () =>
                 _loadDirectory(_currentPath, forceRefresh: true),
           ),
-          IconButton(
+          FolderNavIconButton(
+            style: style,
             tooltip: l10n.downloadManager,
-            icon: Badge(
-              isLabelVisible: activeDownloadsCount > 0,
-              label: Text('$activeDownloadsCount'),
-              child: Icon(
-                Icons.download_rounded,
-                size: 20,
-                color: style.iconColor,
-                shadows: style.shadows,
-              ),
+            badge: activeDownloadsCount > 0
+                ? Text('$activeDownloadsCount')
+                : null,
+            icon: Icon(
+              Icons.download_rounded,
+              size: 20,
+              color: style.iconColor,
+              shadows: style.shadows,
             ),
             onPressed: () {
               Navigator.of(context, rootNavigator: true).push(
@@ -2275,35 +2211,13 @@ class _RemoteFolderBrowserPageState
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Material(
-          color: Colors.transparent,
-          child: InkResponse(
-            radius: 18,
-            highlightShape: BoxShape.circle,
-            onTap: _handleGoToFoldersRoot,
-            child: Tooltip(
-              message: l10n.backToRootDirectory,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Icon(
-                  Icons.home_rounded,
-                  size: 20,
-                  color: style.iconColor,
-                  shadows: style.shadows,
-                ),
-              ),
-            ),
-          ),
+        FolderBreadcrumbItem(
+          style: style,
+          icon: Icons.home_rounded,
+          tooltip: l10n.backToRootDirectory,
+          onTap: _handleGoToFoldersRoot,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Icon(
-            Icons.chevron_right_rounded,
-            size: 16,
-            color: style.chevronColor,
-            shadows: style.shadows,
-          ),
-        ),
+        FolderBreadcrumbSeparator(style: style),
       ],
     );
   }

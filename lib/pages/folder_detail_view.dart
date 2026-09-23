@@ -408,7 +408,7 @@ class _FolderDetailViewState extends ConsumerState<FolderDetailView> {
     final showSearchLoading = _searchQuery.isNotEmpty && _isSearchLoading && matchedFolders.isEmpty && matchedSongs.isEmpty;
     final noResults = _searchQuery.isNotEmpty && matchedFolders.isEmpty && matchedSongs.isEmpty && !_isSearchLoading;
 
-    final double headerHeight = 64.0 + (MediaQuery.of(context).padding.top > 0 ? MediaQuery.of(context).padding.top : ((Platform.isMacOS || Platform.isWindows || Platform.isLinux) ? 24.0 : 0.0));
+    final double headerHeight = FolderNavBarScaffold.getBarHeight(context);
 
     final Widget scrollBody = RefreshIndicator(
       edgeOffset: headerHeight,

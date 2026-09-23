@@ -52,6 +52,20 @@ class FolderNavBarScaffold extends StatefulWidget {
   final Widget Function(BuildContext context, FolderNavBarStyle style)
       actionsBuilder;
 
+  /// Returns the exact total height occupied by the navigation bar in the current orientation & platform,
+  /// including the status bar / desktop top padding and internal paddings.
+  static double getBarHeight(BuildContext context) {
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    final isDesktop =
+        Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+    final topPadding = statusBarHeight > 0
+        ? statusBarHeight + 2.0
+        : (isDesktop ? 28.0 : 4.0);
+    const bottomPadding = 4.0;
+    const contentHeight = 32.0;
+    return topPadding + contentHeight + bottomPadding;
+  }
+
   @override
   State<FolderNavBarScaffold> createState() => _FolderNavBarScaffoldState();
 }
@@ -203,33 +217,13 @@ class _FolderNavBarScaffoldState extends State<FolderNavBarScaffold>
           isPortrait: isPortrait,
         );
 
-        final backButton = Material(
-          color: Colors.transparent,
-          child: InkResponse(
-            radius: 18,
-            highlightShape: BoxShape.circle,
-            onTap: widget.onGoBack,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Icon(
-                Icons.arrow_back_rounded,
-                size: 20,
-                color: iconColor,
-                shadows: shadows,
-              ),
-            ),
-          ),
+        final backButton = FolderBreadcrumbItem(
+          style: style,
+          icon: Icons.arrow_back_rounded,
+          onTap: widget.onGoBack,
         );
 
-        final backChevron = Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Icon(
-            Icons.chevron_right_rounded,
-            size: 16,
-            color: chevronColor,
-            shadows: shadows,
-          ),
-        );
+        final backChevron = FolderBreadcrumbSeparator(style: style);
 
         final pinnedLeading = widget.pinnedLeadingBuilder?.call(context, style);
         final breadcrumbItems = widget.breadcrumbItemsBuilder(context, style);
@@ -239,8 +233,9 @@ class _FolderNavBarScaffoldState extends State<FolderNavBarScaffold>
         final isDesktop =
             Platform.isMacOS || Platform.isWindows || Platform.isLinux;
         final topPadding = statusBarHeight > 0
-            ? statusBarHeight + 8
-            : (isDesktop ? 44.0 : 8.0);
+            ? statusBarHeight + 2.0
+            : (isDesktop ? 28.0 : 4.0);
+        const bottomPadding = 4.0;
 
         final Widget barContent = Container(
           width: double.infinity,
@@ -260,9 +255,9 @@ class _FolderNavBarScaffoldState extends State<FolderNavBarScaffold>
               child: Padding(
                 padding: EdgeInsets.only(
                   top: topPadding,
-                  bottom: 8,
+                  bottom: bottomPadding,
                   left: isPortrait ? 8 : 16,
-                  right: isPortrait ? 16 : 24,
+                  right: isPortrait ? 12 : 16,
                 ),
                 child: Row(
                   children: [
@@ -334,3 +329,193 @@ class _FolderNavBarScaffoldState extends State<FolderNavBarScaffold>
     );
   }
 }
+
+/// Reusable breadcrumb item widget (icon, text, or custom content) styled according to [FolderNavBarStyle].
+class FolderBreadcrumbItem extends StatelessWidget {
+  const FolderBreadcrumbItem({
+    super.key,
+    required this.style,
+    this.label,
+    this.icon,
+    this.child,
+    this.tooltip,
+    this.onTap,
+  }) : assert(
+          label != null || icon != null || child != null,
+          'Either label, icon, or child must be provided.',
+        );
+
+  final FolderNavBarStyle style;
+  final String? label;
+  final IconData? icon;
+  final Widget? child;
+  final String? tooltip;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    if (icon != null) {
+      final button = Material(
+        color: Colors.transparent,
+        child: InkResponse(
+          radius: 16,
+          highlightShape: BoxShape.circle,
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Icon(
+              icon,
+              size: 20,
+              color: style.iconColor,
+              shadows: style.shadows,
+            ),
+          ),
+        ),
+      );
+      if (tooltip != null && tooltip!.isNotEmpty) {
+        return Tooltip(message: tooltip!, child: button);
+      }
+      return button;
+    }
+
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 2,
+        horizontal: 6,
+      ),
+      child: child ??
+          Text(
+            label!,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: style.folderTextColor,
+              shadows: style.shadows,
+            ),
+          ),
+    );
+
+    if (onTap == null) {
+      return content;
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: content,
+      ),
+    );
+  }
+}
+
+/// Standard chevron separator between breadcrumb items.
+class FolderBreadcrumbSeparator extends StatelessWidget {
+  const FolderBreadcrumbSeparator({super.key, required this.style});
+
+  final FolderNavBarStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Icon(
+        Icons.chevron_right_rounded,
+        size: 16,
+        color: style.chevronColor,
+        shadows: style.shadows,
+      ),
+    );
+  }
+}
+
+/// Standard action menu button in the navigation bar with compact 32x32 constraints.
+class FolderNavActionMenu<T> extends StatelessWidget {
+  const FolderNavActionMenu({
+    super.key,
+    required this.style,
+    required this.itemBuilder,
+    this.onSelected,
+    this.icon = Icons.more_vert_rounded,
+    this.tooltip,
+  });
+
+  final FolderNavBarStyle style;
+  final PopupMenuItemBuilder<T> itemBuilder;
+  final PopupMenuItemSelected<T>? onSelected;
+  final IconData icon;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    final menu = PopupMenuButton<T>(
+      padding: EdgeInsets.zero,
+      splashRadius: 18,
+      tooltip: tooltip,
+      icon: Icon(
+        icon,
+        size: 20,
+        color: style.iconColor,
+        shadows: style.shadows,
+      ),
+      onSelected: onSelected,
+      itemBuilder: itemBuilder,
+    );
+
+    return SizedBox(
+      width: 32,
+      height: 32,
+      child: menu,
+    );
+  }
+}
+
+/// Standard navigation bar icon button with compact constraints (32x32) and uniform styling.
+class FolderNavIconButton extends StatelessWidget {
+  const FolderNavIconButton({
+    super.key,
+    required this.style,
+    required this.icon,
+    required this.onPressed,
+    this.tooltip,
+    this.isSelected = false,
+    this.badge,
+  });
+
+  final FolderNavBarStyle style;
+  final Widget icon;
+  final VoidCallback? onPressed;
+  final String? tooltip;
+  final bool isSelected;
+  final Widget? badge;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    Widget button = SizedBox(
+      width: 32,
+      height: 32,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        splashRadius: 18,
+        tooltip: tooltip,
+        style: isSelected
+            ? IconButton.styleFrom(
+                backgroundColor: theme.colorScheme.primaryContainer,
+              )
+            : null,
+        icon: icon,
+        onPressed: onPressed,
+      ),
+    );
+    if (badge != null) {
+      button = Badge(
+        label: badge,
+        child: button,
+      );
+    }
+    return button;
+  }
+}
+

@@ -301,7 +301,7 @@ class _FolderRootViewState extends ConsumerState<FolderRootView> {
         matchedSongs.isNotEmpty ? 16.0 : rootListBottomPadding;
 
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-    final double headerHeight = 64.0 + (MediaQuery.of(context).padding.top > 0 ? MediaQuery.of(context).padding.top : ((Platform.isMacOS || Platform.isWindows || Platform.isLinux) ? 24.0 : 0.0));
+    final double headerHeight = FolderNavBarScaffold.getBarHeight(context);
 
     final rootList = RefreshIndicator(
       edgeOffset: headerHeight,

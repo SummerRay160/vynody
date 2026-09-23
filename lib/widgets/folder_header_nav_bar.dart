@@ -7,6 +7,7 @@ import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/settings/settings_service.dart';
 import 'package:vynody/utils/song_locator_helper.dart';
 import 'folder_nav_bar_scaffold.dart';
+export 'folder_nav_bar_scaffold.dart';
 
 class FolderHeaderNavBar extends ConsumerWidget {
   const FolderHeaderNavBar({
@@ -50,126 +51,54 @@ class FolderHeaderNavBar extends ConsumerWidget {
   ) {
     final List<Widget> items = [];
 
-    // Home icon button
+    // Home item
     items.add(
-      Material(
-        color: Colors.transparent,
-        child: InkResponse(
-          radius: 18,
-          highlightShape: BoxShape.circle,
-          onTap: () {
-            final scanner = ref.read(scannerServiceProvider);
-            scanner.setNavigationState(null, []);
-            onClearAllSelection?.call();
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Icon(
-              Icons.home_rounded,
-              size: 20,
-              color: style.iconColor,
-              shadows: style.shadows,
-            ),
-          ),
-        ),
+      FolderBreadcrumbItem(
+        style: style,
+        icon: Icons.home_rounded,
+        onTap: () {
+          final scanner = ref.read(scannerServiceProvider);
+          scanner.setNavigationState(null, []);
+          onClearAllSelection?.call();
+        },
       ),
     );
 
     if (currentFolder == null) {
       // Root View breadcrumb
+      items.add(FolderBreadcrumbSeparator(style: style));
       items.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Icon(
-            Icons.chevron_right_rounded,
-            size: 16,
-            color: style.chevronColor,
-            shadows: style.shadows,
-          ),
-        ),
-      );
-      items.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-          child: Text(
-            l10n.scanDirectory,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: style.folderTextColor,
-              shadows: style.shadows,
-            ),
-          ),
+        FolderBreadcrumbItem(
+          style: style,
+          label: l10n.scanDirectory,
         ),
       );
     } else {
       // Subfolder View breadcrumbs
       for (int i = 0; i < navigationHistory.length; i++) {
         final folder = navigationHistory[i];
+        items.add(FolderBreadcrumbSeparator(style: style));
         items.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Icon(
-              Icons.chevron_right_rounded,
-              size: 16,
-              color: style.chevronColor,
-              shadows: style.shadows,
-            ),
-          ),
-        );
-        items.add(
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () {
-                final scanner = ref.read(scannerServiceProvider);
-                scanner.setNavigationState(
-                  folder,
-                  navigationHistory.take(i).toList(),
-                );
-                onClearAllSelection?.call();
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-                child: Text(
-                  folder.name,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: style.folderTextColor,
-                    shadows: style.shadows,
-                  ),
-                ),
-              ),
-            ),
+          FolderBreadcrumbItem(
+            style: style,
+            label: folder.name,
+            onTap: () {
+              final scanner = ref.read(scannerServiceProvider);
+              scanner.setNavigationState(
+                folder,
+                navigationHistory.take(i).toList(),
+              );
+              onClearAllSelection?.call();
+            },
           ),
         );
       }
 
+      items.add(FolderBreadcrumbSeparator(style: style));
       items.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Icon(
-            Icons.chevron_right_rounded,
-            size: 16,
-            color: style.chevronColor,
-            shadows: style.shadows,
-          ),
-        ),
-      );
-      items.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-          child: Text(
-            currentFolder!.name,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: style.folderTextColor,
-              shadows: style.shadows,
-            ),
-          ),
+        FolderBreadcrumbItem(
+          style: style,
+          label: currentFolder!.name,
         ),
       );
     }
@@ -187,13 +116,8 @@ class FolderHeaderNavBar extends ConsumerWidget {
     final settings = ref.watch(settingsServiceProvider);
 
     if (style.isPortrait) {
-      return PopupMenuButton<String>(
-        icon: Icon(
-          Icons.more_vert_rounded,
-          size: 20,
-          color: style.iconColor,
-          shadows: style.shadows,
-        ),
+      return FolderNavActionMenu<String>(
+        style: style,
         onSelected: (value) {
           if (value == 'locate') {
             _handleLocate(ref, context);
@@ -273,7 +197,8 @@ class FolderHeaderNavBar extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (currentMusic != null) ...[
-            IconButton(
+            FolderNavIconButton(
+              style: style,
               tooltip: l10n.locateCurrentSong,
               icon: Icon(
                 Icons.my_location_rounded,
@@ -284,7 +209,8 @@ class FolderHeaderNavBar extends ConsumerWidget {
               onPressed: () => _handleLocate(ref, context),
             ),
           ],
-          IconButton(
+          FolderNavIconButton(
+            style: style,
             tooltip: switch (settings.folderViewMode) {
               FolderViewMode.list => l10n.hybridView,
               FolderViewMode.hybrid => l10n.gridView,
@@ -308,14 +234,10 @@ class FolderHeaderNavBar extends ConsumerWidget {
               };
             },
           ),
-          IconButton(
+          FolderNavIconButton(
+            style: style,
             tooltip: l10n.sort,
-            style: isSortActive
-                ? IconButton.styleFrom(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
-                  )
-                : null,
+            isSelected: isSortActive,
             icon: Icon(
               isSortActive ? Icons.check_rounded : Icons.sort,
               size: 20,
