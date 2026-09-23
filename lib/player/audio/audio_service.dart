@@ -478,16 +478,6 @@ class AudioService extends Notifier<AudioSnapshot> {
       _queue
         ..clear()
         ..addAll(session.queue);
-
-      if (Platform.isIOS || Platform.isMacOS) {
-        for (final song in _queue) {
-          if (!RemoteMediaResolver.isRemoteUri(song.path)) {
-            await _player.registerPersistentAccess(path: song.path);
-            await _player.beginScopedAccess(path: song.path);
-          }
-        }
-      }
-
       _position = Duration.zero;
       _duration = Duration.zero;
       _isPlaying = false;
@@ -513,6 +503,12 @@ class AudioService extends Notifier<AudioSnapshot> {
           await PlaybackSessionManager.resolveRestoredQueueIndex(session);
       if (restoredIndex >= 0) {
         _currentIndex = restoredIndex;
+        final currentSong = _queue[restoredIndex];
+        if ((Platform.isIOS || Platform.isMacOS) &&
+            !RemoteMediaResolver.isRemoteUri(currentSong.path)) {
+          await _player.registerPersistentAccess(path: currentSong.path);
+          await _player.beginScopedAccess(path: currentSong.path);
+        }
         try {
           await _player.playlist.setActivePlaylist(
             _player.playlist.queuePlaylistId,
@@ -545,7 +541,6 @@ class AudioService extends Notifier<AudioSnapshot> {
         _position = restorePosition;
         _isPlaying = false;
 
-        final currentSong = _queue[restoredIndex];
         final duration = _duration > Duration.zero
             ? _duration
             : Duration(milliseconds: currentSong.durationMillis ?? 0);
@@ -2610,12 +2605,12 @@ class AudioService extends Notifier<AudioSnapshot> {
     final safeIndex = startIndex.clamp(0, songs.length - 1);
     final tracks = songs.map(_audioTrackForSong).toList(growable: false);
 
+    final current = songs[safeIndex];
+
     if (Platform.isIOS || Platform.isMacOS) {
-      for (final song in songs) {
-        if (!RemoteMediaResolver.isRemoteUri(song.path)) {
-          await _player.registerPersistentAccess(path: song.path);
-          await _player.beginScopedAccess(path: song.path);
-        }
+      if (!RemoteMediaResolver.isRemoteUri(current.path)) {
+        await _player.registerPersistentAccess(path: current.path);
+        await _player.beginScopedAccess(path: current.path);
       }
     }
 
@@ -2635,7 +2630,6 @@ class AudioService extends Notifier<AudioSnapshot> {
       autoPlay: true,
     );
 
-    final current = songs[safeIndex];
     _currentIndex = safeIndex;
     await _syncCurrentPlaybackSong(current);
     await _player.player.setVolume(_volume / 100.0);

@@ -41,6 +41,7 @@ class QueueBackgroundProcessor {
     final String? currentPath = priorityPath ?? currentMusic()?.path;
     final Set<String> artworkPriorityPaths = <String>{};
     final Set<String> waveformMemoryPaths = <String>{};
+    final Set<int> priorityIndices = <int>{};
 
     if (currentPath != null) {
       final int currIdx = queue.indexWhere((s) => s.path == currentPath);
@@ -54,6 +55,11 @@ class QueueBackgroundProcessor {
           final idx = (currIdx + i) % queue.length;
           final safeIdx = idx < 0 ? idx + queue.length : idx;
           waveformMemoryPaths.add(queue[safeIdx].path);
+        }
+        for (int i = -2; i <= 3; i++) {
+          final idx = (currIdx + i) % queue.length;
+          final safeIdx = idx < 0 ? idx + queue.length : idx;
+          priorityIndices.add(safeIdx);
         }
       }
     }
@@ -76,10 +82,11 @@ class QueueBackgroundProcessor {
       onChanged();
     }
 
-    if (artworkPriorityPaths.isNotEmpty || waveformMemoryPaths.isNotEmpty) {
+    if (priorityIndices.isNotEmpty && (artworkPriorityPaths.isNotEmpty || waveformMemoryPaths.isNotEmpty)) {
       unawaited(() async {
         bool asyncChanged = false;
-        for (int i = 0; i < queue.length; i++) {
+        for (final i in priorityIndices) {
+          if (i >= queue.length) continue;
           final song = queue[i];
           final bool inWaveform = waveformMemoryPaths.contains(song.path);
           final bool needsDbSync = song.thumbnailPath == null ||

@@ -146,18 +146,20 @@ class PlaybackSessionManager {
       return preferredIndex;
     }
 
-    for (var i = preferredIndex + 1; i < session.queue.length; i++) {
-      if (await songExists(session.queue[i].path)) {
-        return i;
+    // Probe immediate neighboring songs (up to ±5) without blocking on thousands of files
+    for (var offset = 1; offset <= 5; offset++) {
+      final nextIdx = preferredIndex + offset;
+      if (nextIdx < session.queue.length &&
+          await songExists(session.queue[nextIdx].path)) {
+        return nextIdx;
       }
-    }
-    for (var i = 0; i < preferredIndex; i++) {
-      if (await songExists(session.queue[i].path)) {
-        return i;
+      final prevIdx = preferredIndex - offset;
+      if (prevIdx >= 0 && await songExists(session.queue[prevIdx].path)) {
+        return prevIdx;
       }
     }
 
-    return -1;
+    return preferredIndex;
   }
 }
 

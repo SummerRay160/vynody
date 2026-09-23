@@ -224,9 +224,13 @@ class PlaybackQueueProcessor {
       }
 
       // Phase 1: Fast Metadata & Thumbnail Pass
-      // Immediately process basic tags (title, artist, duration) and thumbnails for all songs
+      // Immediately process basic tags (title, artist, duration) and thumbnails for priority songs
       // in the queue that are missing them, prioritizing the current song and upcoming songs.
-      for (final song in sortedList) {
+      final fastPassList = dbPriorityPaths.isNotEmpty
+          ? sortedList.where((s) => dbPriorityPaths.contains(s.path))
+          : sortedList.take(10);
+
+      for (final song in fastPassList) {
         if (_disposed || myId != _currentProcessId) {
           debugPrint(
             'Background process $myId superseded by $_currentProcessId, exiting.',
