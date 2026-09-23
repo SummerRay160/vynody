@@ -55,8 +55,6 @@ class _CoverCarouselState extends State<CoverCarousel>
   bool _isDragging = false;
   final Map<int, int> _indexOverrides = {};
   final Map<String, ({Uint8List? bytes, String? path})> _loadedCoversByPath = {};
-  MusicFile? _oldSongBeforePlaylistChange;
-  double? _oldPageBeforePlaylistChange;
 
   static const double _swipeThreshold = 0.2;
   static const double _resistanceFactor = 0.2;
@@ -99,30 +97,78 @@ class _CoverCarouselState extends State<CoverCarousel>
 
     if (widget.currentIndex != oldWidget.currentIndex || playlistChanged) {
       if (playlistChanged) {
-        _oldSongBeforePlaylistChange = null;
-        _oldPageBeforePlaylistChange = null;
+        _animationController.stop();
         _indexOverrides.clear();
         _currentPage = widget.currentIndex;
         _animationController.value = widget.currentIndex.toDouble();
         _notifyAnimationComplete(widget.currentIndex);
       } else if (widget.currentIndex != _currentPage) {
-        final diff = (widget.currentIndex - _currentPage).abs();
-        if (diff == 1) {
-          _currentPage = widget.currentIndex;
-          _animateToPage(widget.currentIndex);
-        } else {
+        final oldIndex = _currentPage;
+        final newIndex = widget.currentIndex;
+
+        if (_animationController.isAnimating || _indexOverrides.isNotEmpty) {
+          _animationController.stop();
           _indexOverrides.clear();
-          _currentPage = widget.currentIndex;
-          _animationController.value = widget.currentIndex.toDouble();
-          _notifyAnimationComplete(widget.currentIndex);
+          _animationController.value = oldIndex.toDouble();
+        }
+
+        final bool isForward = widget.isNext ?? (newIndex > oldIndex);
+        final int step = isForward ? 1 : -1;
+        final bool isDirectNeighbor = (newIndex - oldIndex == step);
+
+        if (isDirectNeighbor) {
+          _currentPage = newIndex;
+          _animateToPage(newIndex);
+        } else {
+          _currentPage = newIndex;
+          _animateVirtualStep(
+            fromIndex: oldIndex,
+            toIndex: newIndex,
+            isForward: isForward,
+          );
         }
       }
     }
   }
 
+  void _animateVirtualStep({
+    required int fromIndex,
+    required int toIndex,
+    required bool isForward,
+  }) {
+    _logCarouselTrace(
+      '_animateVirtualStep from=$fromIndex to=$toIndex isForward=$isForward',
+    );
+    final int step = isForward ? 1 : -1;
+    final int baseSlot = fromIndex;
+    final int virtualTarget = baseSlot + step;
+
+    _indexOverrides[virtualTarget] = toIndex;
+    _animationController.value = baseSlot.toDouble();
+
+    _animationController
+        .animateTo(
+          virtualTarget.toDouble(),
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic,
+        )
+        .then((_) {
+          if (mounted && !_isDragging) {
+            _logCarouselTrace(
+              '_animateVirtualStep complete -> target=$toIndex '
+              'currentVal=${_animationController.value}',
+            );
+            _animationController.value = toIndex.toDouble();
+            _indexOverrides.clear();
+            _notifyAnimationComplete(toIndex);
+          }
+        });
+  }
+
   void _animateToPage(
     int page, {
     double? velocity,
+    bool isUserGesture = false,
   }) {
     _logCarouselTrace(
       '_animateToPage page=$page velocity=$velocity '
@@ -137,7 +183,9 @@ class _CoverCarouselState extends State<CoverCarousel>
         setState(() {
           _currentPage = targetPage;
         });
-        widget.onPageChanged?.call(targetPage);
+        if (isUserGesture) {
+          widget.onPageChanged?.call(targetPage);
+        }
       }
       _notifyAnimationComplete(targetPage);
       return;
@@ -147,14 +195,9 @@ class _CoverCarouselState extends State<CoverCarousel>
       setState(() {
         _currentPage = targetPage;
       });
-      widget.onPageChanged?.call(targetPage);
-    }
-
-    if (diff.abs() > 2.5) {
-      _indexOverrides.clear();
-      _animationController.value = targetPage.toDouble();
-      _notifyAnimationComplete(targetPage);
-      return;
+      if (isUserGesture) {
+        widget.onPageChanged?.call(targetPage);
+      }
     }
 
     _animationController
@@ -173,8 +216,6 @@ class _CoverCarouselState extends State<CoverCarousel>
               '_animateToPage complete -> page=$targetPage '
               'currentVal=${_animationController.value}',
             );
-            _oldSongBeforePlaylistChange = null;
-            _oldPageBeforePlaylistChange = null;
             _notifyAnimationComplete(targetPage);
           }
         });
@@ -233,8 +274,10 @@ class _CoverCarouselState extends State<CoverCarousel>
         return GestureDetector(
           onHorizontalDragStart: (details) {
             _isDragging = true;
-            if (_animationController.isAnimating) {
+            if (_animationController.isAnimating || _indexOverrides.isNotEmpty) {
               _animationController.stop();
+              _animationController.value = _currentPage.toDouble();
+              _indexOverrides.clear();
             }
           },
           onHorizontalDragUpdate: (details) {
@@ -279,7 +322,7 @@ class _CoverCarouselState extends State<CoverCarousel>
             targetPage = targetPage.clamp(0, widget.playlist.length - 1);
 
             _isDragging = false;
-            _animateToPage(targetPage, velocity: velocity);
+            _animateToPage(targetPage, velocity: velocity, isUserGesture: true);
           },
           child: AnimatedBuilder(
             animation: _animationController,
@@ -320,22 +363,12 @@ class _CoverCarouselState extends State<CoverCarousel>
 
     return uniqueIndices
         .where((idx) {
-          if (_oldSongBeforePlaylistChange != null &&
-              _oldPageBeforePlaylistChange != null &&
-              idx == _oldPageBeforePlaylistChange!.round()) {
-            return true;
-          }
           final actualIdx = _indexOverrides[idx] ?? idx;
           return actualIdx >= 0 && actualIdx < widget.playlist.length;
         })
         .map((index) {
           final actualIndex = _indexOverrides[index] ?? index;
-          final bool isOldSongSlot = _oldSongBeforePlaylistChange != null &&
-              _oldPageBeforePlaylistChange != null &&
-              index == _oldPageBeforePlaylistChange!.round();
-          final musicFile = isOldSongSlot
-              ? _oldSongBeforePlaylistChange!
-              : widget.playlist[actualIndex];
+          final musicFile = widget.playlist[actualIndex];
           return _CoverItem(
             key: ValueKey('track_${musicFile.path}_slot_$index'),
             audioService: widget.audioService,
@@ -462,14 +495,15 @@ class _CoverItemState extends ConsumerState<_CoverItem> {
   void _loadArtwork() {
     _loadTimer?.cancel();
 
-    // Check if we can load instantly (already in cache or available)
+    // Check if we can load instantly (already in cache or available or nearby)
     final cachedBytes = widget.audioService.getCachedArtwork(
       widget.musicFile.path,
     );
     final hasPriorityBytes = widget.audioService.currentMusic?.path == widget.musicFile.path &&
         widget.audioService.currentMusic?.artworkBytes != null;
+    final isNearby = (widget.animation.value - widget.itemIndex).abs() <= 1.05;
 
-    if (cachedBytes != null || hasPriorityBytes) {
+    if (cachedBytes != null || hasPriorityBytes || isNearby) {
       _loadArtworkAsync();
     } else {
       _loadTimer = Timer(const Duration(milliseconds: 150), () {
