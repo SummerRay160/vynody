@@ -144,7 +144,11 @@ class PlaybackHeroCard extends ConsumerStatefulWidget {
 }
 
 class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
+  static const double _kLyricsCollapseThreshold = 12.0;
+  static const double _kLyricsExpandThreshold = 20.0;
+
   bool _isPortraitLyricsControlsExpanded = false;
+  double _lyricsScrollDeltaAccumulator = 0.0;
 
   @override
   void didUpdateWidget(PlaybackHeroCard oldWidget) {
@@ -458,22 +462,38 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
                             effectiveIsLyricsMode &&
                             settings.lyricsStyle == LyricsStyle.apple &&
                             expandPortraitLyricsControlsOnScroll) {
-                          if (notification is ScrollUpdateNotification) {
+                          if (notification is ScrollStartNotification) {
+                            _lyricsScrollDeltaAccumulator = 0.0;
+                          } else if (notification is ScrollUpdateNotification) {
                             if (notification.dragDetails != null &&
                                 notification.scrollDelta != null) {
-                              if (notification.scrollDelta! > 1.0) {
-                                _collapsePortraitLyricsControls();
-                              } else if (notification.scrollDelta! < -1.0) {
-                                _expandPortraitLyricsControls();
+                              final double delta = notification.scrollDelta!;
+                              if (delta > 0) {
+                                if (_lyricsScrollDeltaAccumulator < 0) {
+                                  _lyricsScrollDeltaAccumulator = 0.0;
+                                }
+                                _lyricsScrollDeltaAccumulator += delta;
+                                if (_lyricsScrollDeltaAccumulator >=
+                                    _kLyricsCollapseThreshold) {
+                                  _collapsePortraitLyricsControls();
+                                }
+                              } else if (delta < 0) {
+                                if (_lyricsScrollDeltaAccumulator > 0) {
+                                  _lyricsScrollDeltaAccumulator = 0.0;
+                                }
+                                _lyricsScrollDeltaAccumulator += delta;
+                                if (_lyricsScrollDeltaAccumulator <=
+                                    -_kLyricsExpandThreshold) {
+                                  _expandPortraitLyricsControls();
+                                }
                               }
                             }
+                          } else if (notification is ScrollEndNotification) {
+                            _lyricsScrollDeltaAccumulator = 0.0;
                           } else if (notification is UserScrollNotification) {
                             if (notification.direction ==
-                                ScrollDirection.reverse) {
-                              _collapsePortraitLyricsControls();
-                            } else if (notification.direction ==
-                                ScrollDirection.forward) {
-                              _expandPortraitLyricsControls();
+                                ScrollDirection.idle) {
+                              _lyricsScrollDeltaAccumulator = 0.0;
                             }
                           }
                         }
