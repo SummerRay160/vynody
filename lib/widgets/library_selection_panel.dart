@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/library/playlist_service.dart';
+import 'package:vynody/dialogs/song_tag_edit_dialog.dart';
 import 'package:vynody/dialogs/transcode_dialog.dart';
 import 'package:vynody/dialogs/song_details_dialog.dart';
 import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
@@ -24,6 +25,7 @@ class LibrarySelectionPanel extends ConsumerStatefulWidget {
     this.onOpenLocation,
     this.openLocationLabel,
     this.onImportLyrics,
+    this.onEditTags,
     this.replaceFavoritesWithSongDetails = false,
     this.hideSongProperties = false,
     this.hideSecondaryActions = false,
@@ -53,6 +55,7 @@ class LibrarySelectionPanel extends ConsumerStatefulWidget {
   final VoidCallback? onOpenLocation;
   final String? openLocationLabel;
   final VoidCallback? onImportLyrics;
+  final VoidCallback? onEditTags;
   final bool replaceFavoritesWithSongDetails;
   final bool hideSongProperties;
   final bool hideSecondaryActions;
@@ -212,6 +215,34 @@ class _LibrarySelectionPanelState extends ConsumerState<LibrarySelectionPanel> {
             ),
           );
         }
+        final canEditTags = !isEmpty &&
+            !isRemote &&
+            widget.selectedSongs.any((s) => !RemoteMediaResolver.isRemoteUri(s.path));
+        secondaryActions.add(
+          _buildSelectionActionButton(
+            context: context,
+            icon: Icons.edit_note_rounded,
+            label: isSingleSelected
+                ? l10n.editSongTagsTitle
+                : l10n.batchEditSongTagsTitle,
+            onPressed: canEditTags
+                ? () async {
+                    if (widget.onEditTags != null) {
+                      widget.onEditTags!();
+                    } else {
+                      final result = await showSongTagEditSheet(
+                        context,
+                        songs: widget.selectedSongs,
+                      );
+                      if (result != null && context.mounted) {
+                        await applySongTagEditResult(context, ref, result);
+                        widget.onCancel();
+                      }
+                    }
+                  }
+                : null,
+          ),
+        );
         secondaryActions.add(
           _buildSelectionActionButton(
             context: context,
@@ -388,6 +419,34 @@ class _LibrarySelectionPanelState extends ConsumerState<LibrarySelectionPanel> {
             ),
           );
         }
+        final canEditTags = !isEmpty &&
+            !isRemote &&
+            widget.selectedSongs.any((s) => !RemoteMediaResolver.isRemoteUri(s.path));
+        secondaryActions.add(
+          _buildSelectionActionButton(
+            context: context,
+            icon: Icons.edit_note_rounded,
+            label: isSingleSelected
+                ? l10n.editSongTagsTitle
+                : l10n.batchEditSongTagsTitle,
+            onPressed: canEditTags
+                ? () async {
+                    if (widget.onEditTags != null) {
+                      widget.onEditTags!();
+                    } else {
+                      final result = await showSongTagEditSheet(
+                        context,
+                        songs: widget.selectedSongs,
+                      );
+                      if (result != null && context.mounted) {
+                        await applySongTagEditResult(context, ref, result);
+                        widget.onCancel();
+                      }
+                    }
+                  }
+                : null,
+          ),
+        );
         if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
           secondaryActions.add(
             _buildSelectionActionButton(

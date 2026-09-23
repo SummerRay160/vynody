@@ -1387,6 +1387,29 @@ class AppLocalizationsTr extends AppLocalizations {
       'Kaydetme başarısız oldu. Lütfen daha sonra tekrar deneyin.';
 
   @override
+  String get batchEditSongTagsTitle => '批量编辑歌曲标签';
+
+  @override
+  String get batchEditSongTagsDescription =>
+      '修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。';
+
+  @override
+  String get keepFieldHint => '提示：值为 <keep> 的属性将保留每首歌曲的原值';
+
+  @override
+  String get multipleArtworkKeep => '保留各歌曲原封面';
+
+  @override
+  String batchSongTagsSavedToApp(int count) {
+    return '已将 $count 首歌曲标签保存到 App';
+  }
+
+  @override
+  String batchSongTagsSavedToSourceFileAndApp(int count) {
+    return '已将 $count 首歌曲标签保存到源文件和 App';
+  }
+
+  @override
   String apiKeySaved(Object provider) {
     return '$provider API anahtarı kaydedildi';
   }

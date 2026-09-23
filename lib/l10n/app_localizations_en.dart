@@ -1380,6 +1380,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveFailed => 'Save failed. Please try again later.';
 
   @override
+  String get batchEditSongTagsTitle => 'Batch Edit Song Tags';
+
+  @override
+  String get batchEditSongTagsDescription =>
+      'You can save changes only in the app, or write them back to source files. Fields with <keep> will retain their original values.';
+
+  @override
+  String get keepFieldHint =>
+      'Tip: fields with <keep> will retain their original values.';
+
+  @override
+  String get multipleArtworkKeep => 'Keep individual covers';
+
+  @override
+  String batchSongTagsSavedToApp(int count) {
+    return 'Saved tags for $count songs to App';
+  }
+
+  @override
+  String batchSongTagsSavedToSourceFileAndApp(int count) {
+    return 'Saved tags for $count songs to source files and App';
+  }
+
+  @override
   String apiKeySaved(Object provider) {
     return '$provider API key saved';
   }

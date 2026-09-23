@@ -6,9 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../dialogs/add_to_playlist_dialog.dart';
+import '../dialogs/song_tag_edit_dialog.dart';
 import '../dialogs/transcode_dialog.dart';
 import '../dialogs/song_details_dialog.dart';
 import '../l10n/app_localizations.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:vynody/models/music_file.dart';
 import 'package:vynody/player/library/playlist_service.dart';
 import 'package:vynody/player/audio/audio_riverpod.dart';
@@ -281,8 +283,16 @@ Future<void> showSongContextMenu(
   VoidCallback? onRemoveFromPlaylist,
   VoidCallback? onDownload,
   VoidCallback? onImportLyrics,
+  VoidCallback? onEditTags,
 }) async {
   final l10n = AppLocalizations.of(context)!;
+
+  final effectiveSongs = (songs != null && songs.isNotEmpty)
+      ? songs
+      : (song != null ? [song] : <MusicFile>[]);
+  final isBatch = effectiveSongs.length > 1;
+  final canEditTags = effectiveSongs.isNotEmpty &&
+      effectiveSongs.any((s) => !RemoteMediaResolver.isRemoteUri(s.path));
 
   final titleText = song?.displayName.trim() ?? '';
   final artistText = song?.artist?.trim() ?? '';
@@ -396,6 +406,15 @@ Future<void> showSongContextMenu(
           enabled: song != null,
           label: l10n.songProperties,
           icon: Icons.info_outline_rounded,
+          context: context,
+        ),
+        buildContextMenuItem<String>(
+          value: 'edit_tags',
+          enabled: canEditTags,
+          label: isBatch
+              ? '${l10n.batchEditSongTagsTitle} (${effectiveSongs.length})'
+              : l10n.editSongTagsTitle,
+          icon: Icons.edit_note_rounded,
           context: context,
         ),
         const PopupMenuDivider(),
@@ -542,6 +561,54 @@ Future<void> showSongContextMenu(
     case 'song_details':
       if (song != null) {
         await showSongDetailsDialog(context, song);
+      }
+      break;
+    case 'edit_tags':
+      if (onEditTags != null) {
+        onEditTags();
+      } else if (effectiveSongs.isNotEmpty) {
+        final result = await showSongTagEditSheet(
+          context,
+          songs: effectiveSongs,
+        );
+        if (result != null && context.mounted) {
+          final container = ProviderScope.containerOf(context, listen: false);
+          final scanner = container.read(scannerServiceProvider);
+          final audio = container.read(audioServiceProvider);
+          final playlistService = container.read(playlistServiceProvider);
+
+          final items = result.allUpdatedMetadata.isNotEmpty
+              ? result.allUpdatedMetadata
+              : [(result.metadata, result.artworkBytes)];
+
+          for (final (metadata, artworkBytes) in items) {
+            await audio.applyUpdatedSongMetadata(
+              metadata,
+              artworkBytes: artworkBytes,
+            );
+            scanner.updateMetadataForPath(
+              metadata,
+              artworkBytes: artworkBytes,
+            );
+            await playlistService.updateSongMetadataByPath(
+              metadata,
+              artworkBytes: artworkBytes,
+            );
+          }
+
+          final count = items.length;
+          final String message;
+          if (count > 1) {
+            message = result.savedToSourceFile
+                ? l10n.batchSongTagsSavedToSourceFileAndApp(count)
+                : l10n.batchSongTagsSavedToApp(count);
+          } else {
+            message = result.savedToSourceFile
+                ? l10n.songTagsSavedToSourceFileAndApp
+                : l10n.songTagsSavedToApp;
+          }
+          showToast(message);
+        }
       }
       break;
     case 'add_to_playlist':

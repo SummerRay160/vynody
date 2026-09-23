@@ -3,46 +3,111 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/file_selector_helper.dart';
 
 import '../l10n/app_localizations.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:vynody/models/music_file.dart';
+import 'package:vynody/player/audio/audio_riverpod.dart';
+import 'package:vynody/player/library/playlist_service.dart';
 import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/player/metadata/metadata_helper.dart';
+import 'package:vynody/player/scanner/scanner_service.dart';
+import 'package:vynody/utils/app_snack_bar.dart';
 import 'package:audio_core/audio_core.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
+
+const String keepTagPlaceholder = '<keep>';
 
 class SongTagEditResult {
   const SongTagEditResult({
     required this.metadata,
     required this.savedToSourceFile,
     this.artworkBytes,
+    this.allUpdatedMetadata = const [],
   });
 
   final SongMetadata metadata;
   final bool savedToSourceFile;
   final Uint8List? artworkBytes;
+  final List<(SongMetadata, Uint8List?)> allUpdatedMetadata;
 }
 
 Future<SongTagEditResult?> showSongTagEditSheet(
   BuildContext context, {
-  required MusicFile song,
+  MusicFile? song,
+  List<MusicFile>? songs,
 }) {
+  final targetSongs = songs ?? (song != null ? [song] : <MusicFile>[]);
+  if (targetSongs.isEmpty) return Future.value(null);
+
   return showModalBottomSheet<SongTagEditResult>(
     context: context,
     useRootNavigator: true,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (context) => SongTagEditSheet(song: song),
+    builder: (context) => SongTagEditSheet(songs: targetSongs),
   );
 }
 
-class SongTagEditSheet extends StatefulWidget {
-  const SongTagEditSheet({super.key, required this.song});
+/// Helper method to apply tag edit result across AudioService, ScannerService, and PlaylistService
+Future<void> applySongTagEditResult(
+  BuildContext context,
+  WidgetRef ref,
+  SongTagEditResult result,
+) async {
+  final scanner = ref.read(scannerServiceProvider);
+  final audio = ref.read(audioServiceProvider);
+  final playlistService = ref.read(playlistServiceProvider);
+  final l10n = AppLocalizations.of(context)!;
 
-  final MusicFile song;
+  final items = result.allUpdatedMetadata.isNotEmpty
+      ? result.allUpdatedMetadata
+      : [(result.metadata, result.artworkBytes)];
+
+  for (final (metadata, artworkBytes) in items) {
+    await audio.applyUpdatedSongMetadata(
+      metadata,
+      artworkBytes: artworkBytes,
+    );
+    scanner.updateMetadataForPath(
+      metadata,
+      artworkBytes: artworkBytes,
+    );
+    await playlistService.updateSongMetadataByPath(
+      metadata,
+      artworkBytes: artworkBytes,
+    );
+  }
+
+  final count = items.length;
+  final String message;
+  if (count > 1) {
+    message = result.savedToSourceFile
+        ? l10n.batchSongTagsSavedToSourceFileAndApp(count)
+        : l10n.batchSongTagsSavedToApp(count);
+  } else {
+    message = result.savedToSourceFile
+        ? l10n.songTagsSavedToSourceFileAndApp
+        : l10n.songTagsSavedToApp;
+  }
+  AppSnackBar.show(context, ref, SnackBar(content: Text(message)));
+}
+
+class SongTagEditSheet extends StatefulWidget {
+  const SongTagEditSheet({
+    super.key,
+    this.song,
+    this.songs = const [],
+  });
+
+  final MusicFile? song;
+  final List<MusicFile> songs;
+
+  List<MusicFile> get effectiveSongs =>
+      songs.isNotEmpty ? songs : (song != null ? [song!] : const []);
 
   @override
   State<SongTagEditSheet> createState() => _SongTagEditSheetState();
@@ -60,63 +125,145 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
   Uint8List? _artworkBytes;
   String? _artworkPath;
   bool _isArtworkModified = false;
+  bool _isArtworkMixed = false;
   bool _isLoadingArtwork = false;
+
+  bool get isBatch => widget.effectiveSongs.length > 1;
 
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(
-      text: widget.song.title?.trim().isNotEmpty == true
-          ? widget.song.title!.trim()
-          : widget.song.displayName,
-    );
-    _artistController = TextEditingController(
-      text: widget.song.artist?.trim() ?? '',
-    );
-    _albumArtistController = TextEditingController(
-      text: widget.song.albumArtist?.trim() ?? '',
-    );
-    _albumController = TextEditingController(
-      text: widget.song.album?.trim() ?? '',
-    );
-    _trackNumberController = TextEditingController(
-      text: widget.song.trackNumber?.toString() ?? '',
-    );
+    final songs = widget.effectiveSongs;
+    if (songs.length <= 1) {
+      final song = songs.isNotEmpty ? songs.first : null;
+      _titleController = TextEditingController(
+        text: song?.title?.trim().isNotEmpty == true
+            ? song!.title!.trim()
+            : (song?.displayName ?? ''),
+      );
+      _artistController = TextEditingController(
+        text: song?.artist?.trim() ?? '',
+      );
+      _albumArtistController = TextEditingController(
+        text: song?.albumArtist?.trim() ?? '',
+      );
+      _albumController = TextEditingController(
+        text: song?.album?.trim() ?? '',
+      );
+      _trackNumberController = TextEditingController(
+        text: song?.trackNumber?.toString() ?? '',
+      );
+    } else {
+      final firstTitle = songs.first.title?.trim();
+      final allSameTitle = firstTitle != null &&
+          firstTitle.isNotEmpty &&
+          songs.every((s) => s.title?.trim() == firstTitle);
+      _titleController = TextEditingController(
+        text: allSameTitle ? firstTitle : keepTagPlaceholder,
+      );
+
+      final firstArtist = songs.first.artist?.trim() ?? '';
+      final allSameArtist =
+          songs.every((s) => (s.artist?.trim() ?? '') == firstArtist);
+      _artistController = TextEditingController(
+        text: allSameArtist ? firstArtist : keepTagPlaceholder,
+      );
+
+      final firstAlbumArtist = songs.first.albumArtist?.trim() ?? '';
+      final allSameAlbumArtist =
+          songs.every((s) => (s.albumArtist?.trim() ?? '') == firstAlbumArtist);
+      _albumArtistController = TextEditingController(
+        text: allSameAlbumArtist ? firstAlbumArtist : keepTagPlaceholder,
+      );
+
+      final firstAlbum = songs.first.album?.trim() ?? '';
+      final allSameAlbum =
+          songs.every((s) => (s.album?.trim() ?? '') == firstAlbum);
+      _albumController = TextEditingController(
+        text: allSameAlbum ? firstAlbum : keepTagPlaceholder,
+      );
+
+      final firstTrack = songs.first.trackNumber;
+      final allSameTrack = songs.every((s) => s.trackNumber == firstTrack);
+      _trackNumberController = TextEditingController(
+        text: allSameTrack
+            ? (firstTrack?.toString() ?? '')
+            : keepTagPlaceholder,
+      );
+    }
+
     _loadArtwork();
   }
 
   Future<void> _loadArtwork() async {
+    if (widget.effectiveSongs.isEmpty) return;
     setState(() {
       _isLoadingArtwork = true;
     });
-    String? path = widget.song.artworkPath ?? widget.song.thumbnailPath;
-    Uint8List? bytes;
-    if (path != null && path.isNotEmpty) {
-      final file = File(path);
-      if (await file.exists()) {
-        try {
-          bytes = await file.readAsBytes();
-        } catch (_) {}
-      }
-    }
-    if (bytes == null) {
-      bytes = await MetadataHelper.decodeEmbeddedArtwork(widget.song.path);
-      if (bytes != null && bytes.isNotEmpty) {
-        final md5Hex = await calculateMd5(bytes: bytes);
-        final tempDir = await getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/$md5Hex.jpg');
-        if (!tempFile.existsSync()) {
-          await tempFile.writeAsBytes(bytes);
+
+    if (widget.effectiveSongs.length <= 1) {
+      final song = widget.effectiveSongs.first;
+      String? path = song.artworkPath ?? song.thumbnailPath;
+      Uint8List? bytes;
+      if (path != null && path.isNotEmpty) {
+        final file = File(path);
+        if (await file.exists()) {
+          try {
+            bytes = await file.readAsBytes();
+          } catch (_) {}
         }
-        path = tempFile.path;
       }
-    }
-    if (mounted) {
-      setState(() {
-        _artworkPath = path;
-        _artworkBytes = bytes;
-        _isLoadingArtwork = false;
-      });
+      if (bytes == null) {
+        bytes = await MetadataHelper.decodeEmbeddedArtwork(song.path);
+        if (bytes != null && bytes.isNotEmpty) {
+          final md5Hex = await calculateMd5(bytes: bytes);
+          final tempDir = await getTemporaryDirectory();
+          final tempFile = File('${tempDir.path}/$md5Hex.jpg');
+          if (!tempFile.existsSync()) {
+            await tempFile.writeAsBytes(bytes);
+          }
+          path = tempFile.path;
+        }
+      }
+      if (mounted) {
+        setState(() {
+          _artworkPath = path;
+          _artworkBytes = bytes;
+          _isLoadingArtwork = false;
+        });
+      }
+    } else {
+      final firstPath = widget.effectiveSongs.first.artworkPath ?? widget.effectiveSongs.first.thumbnailPath;
+      final allSameArtwork = firstPath != null &&
+          firstPath.isNotEmpty &&
+          widget.effectiveSongs.every((s) => (s.artworkPath ?? s.thumbnailPath) == firstPath);
+
+      if (allSameArtwork) {
+        final file = File(firstPath);
+        Uint8List? bytes;
+        if (await file.exists()) {
+          try {
+            bytes = await file.readAsBytes();
+          } catch (_) {}
+        }
+        if (mounted) {
+          setState(() {
+            _artworkPath = firstPath;
+            _artworkBytes = bytes;
+            _isArtworkMixed = false;
+            _isLoadingArtwork = false;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _isArtworkMixed = true;
+            _artworkPath = null;
+            _artworkBytes = null;
+            _isLoadingArtwork = false;
+          });
+        }
+      }
     }
   }
 
@@ -135,6 +282,7 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
           _artworkPath = path;
           _artworkBytes = bytes;
           _isArtworkModified = true;
+          _isArtworkMixed = false;
         });
       }
     } catch (e) {
@@ -147,7 +295,8 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    if (_artworkBytes == null || (_isArtworkModified && _artworkBytes!.isEmpty)) {
+    if (!_isArtworkMixed &&
+        (_artworkBytes == null || (_isArtworkModified && _artworkBytes!.isEmpty))) {
       await _pickArtwork();
       return;
     }
@@ -161,10 +310,15 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
             decoration: BoxDecoration(
-              color: isDark ? Colors.black.withValues(alpha: 0.88) : theme.colorScheme.surface.withValues(alpha: 0.95),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.88)
+                  : theme.colorScheme.surface.withValues(alpha: 0.95),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
               border: Border.all(
-                color: isDark ? Colors.white.withValues(alpha: 0.08) : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -183,13 +337,16 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                   ),
                   const SizedBox(height: 16),
                   ListTile(
-                    leading: Icon(Icons.photo_library_rounded, color: theme.colorScheme.primary),
+                    leading: Icon(Icons.photo_library_rounded,
+                        color: theme.colorScheme.primary),
                     title: Text(l10n.changeArtwork),
                     onTap: () => Navigator.of(context).pop('change'),
                   ),
                   ListTile(
-                    leading: const Icon(Icons.delete_rounded, color: Colors.redAccent),
-                    title: Text(l10n.clearArtwork, style: const TextStyle(color: Colors.redAccent)),
+                    leading:
+                        const Icon(Icons.delete_rounded, color: Colors.redAccent),
+                    title: Text(l10n.clearArtwork,
+                        style: const TextStyle(color: Colors.redAccent)),
                     onTap: () => Navigator.of(context).pop('clear'),
                   ),
                   ListTile(
@@ -211,7 +368,9 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
     } else if (action == 'clear') {
       setState(() {
         _artworkBytes = Uint8List(0);
+        _artworkPath = null;
         _isArtworkModified = true;
+        _isArtworkMixed = false;
       });
     }
   }
@@ -227,19 +386,15 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
   }
 
   Future<void> _save({required bool writeToFile}) async {
-    if (_isSaving || RemoteMediaResolver.isRemoteUri(widget.song.path)) return;
+    if (_isSaving || widget.effectiveSongs.isEmpty) return;
     final l10n = AppLocalizations.of(context)!;
 
-    setState(() {
-      _isSaving = true;
-      _errorMessage = null;
-    });
-
     final trackNumberText = _trackNumberController.text.trim();
-    final trackNumber = trackNumberText.isEmpty
+    final isTrackKeep = trackNumberText == keepTagPlaceholder;
+    final trackNumber = (trackNumberText.isEmpty || isTrackKeep)
         ? null
         : int.tryParse(trackNumberText);
-    if (trackNumberText.isNotEmpty && trackNumber == null) {
+    if (!isTrackKeep && trackNumberText.isNotEmpty && trackNumber == null) {
       setState(() {
         _isSaving = false;
         _errorMessage = l10n.trackNumberMustBeInteger;
@@ -247,31 +402,93 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
       return;
     }
 
-    final result = await MetadataHelper.saveSelectedSongMetadata(
-      filePath: widget.song.path,
-      title: _titleController.text.trim(),
-      artist: _artistController.text.trim(),
-      albumArtist: _albumArtistController.text.trim(),
-      album: _albumController.text.trim(),
-      trackNumber: trackNumber,
-      clearTrackNumber: trackNumberText.isEmpty,
-      artworkBytes: _isArtworkModified ? _artworkBytes : null,
-      existingMetadata: null,
-      writeToFile: writeToFile,
-      fallbackMediaUri: widget.song.mediaUri,
-    );
+    setState(() {
+      _isSaving = true;
+      _errorMessage = null;
+    });
 
-    if (result == null) {
-      final reason = MetadataHelper.lastWriteError;
-      final isOccupied = reason == 'file_occupied';
-      if (isOccupied && mounted) {
+    final titleText = _titleController.text.trim();
+    final isTitleKeep = titleText == keepTagPlaceholder;
+
+    final artistText = _artistController.text.trim();
+    final isArtistKeep = artistText == keepTagPlaceholder;
+
+    final albumArtistText = _albumArtistController.text.trim();
+    final isAlbumArtistKeep = albumArtistText == keepTagPlaceholder;
+
+    final albumText = _albumController.text.trim();
+    final isAlbumKeep = albumText == keepTagPlaceholder;
+
+    final updatedResults = <(SongMetadata, Uint8List?)>[];
+    String? firstFailureReason;
+    bool hasOccupiedError = false;
+
+    for (final song in widget.effectiveSongs) {
+      final songIsRemote = RemoteMediaResolver.isRemoteUri(song.path);
+      if (songIsRemote) continue;
+
+      final songTrackNumber =
+          isTrackKeep ? song.trackNumber : trackNumber;
+      final songClearTrackNumber = !isTrackKeep && trackNumberText.isEmpty;
+
+      final resolvedTitle = isTitleKeep
+          ? (song.title?.trim().isNotEmpty == true
+              ? song.title!.trim()
+              : song.displayName)
+          : titleText;
+      final resolvedArtist =
+          isArtistKeep ? (song.artist?.trim() ?? '') : artistText;
+      final resolvedAlbumArtist =
+          isAlbumArtistKeep ? song.albumArtist : albumArtistText;
+      final resolvedAlbum =
+          isAlbumKeep ? (song.album?.trim() ?? '') : albumText;
+
+      final canWriteThisFile = writeToFile && isMetadataWritable(song.path);
+
+      final result = await MetadataHelper.saveSelectedSongMetadata(
+        filePath: song.path,
+        title: resolvedTitle,
+        artist: resolvedArtist,
+        albumArtist: resolvedAlbumArtist,
+        album: resolvedAlbum,
+        trackNumber: songTrackNumber,
+        clearTrackNumber: songClearTrackNumber,
+        artworkBytes: _isArtworkModified ? _artworkBytes : null,
+        existingMetadata: null,
+        writeToFile: canWriteThisFile,
+        fallbackMediaUri: song.mediaUri,
+      );
+
+      if (result != null) {
+        updatedResults.add((
+          result.$1,
+          result.$2 ??
+              (_isArtworkModified ? _artworkBytes : song.artworkBytes),
+        ));
+      } else {
+        final reason = MetadataHelper.lastWriteError;
+        if (reason == 'file_occupied') {
+          hasOccupiedError = true;
+        }
+        firstFailureReason ??= reason;
+      }
+    }
+
+    if (updatedResults.isEmpty && widget.effectiveSongs.isNotEmpty) {
+      if (hasOccupiedError && mounted) {
         showToast(l10n.fileOccupiedByOtherApp);
       }
       setState(() {
         _isSaving = false;
         _errorMessage = writeToFile
-            ? (isOccupied ? l10n.fileOccupiedByOtherApp : (reason != null ? '${l10n.saveToSourceFileFailed}\n($reason)' : l10n.saveToSourceFileFailed))
-            : (reason != null ? '${l10n.saveFailed}\n($reason)' : l10n.saveFailed);
+            ? (hasOccupiedError
+                ? l10n.fileOccupiedByOtherApp
+                : (firstFailureReason != null
+                    ? '${l10n.saveToSourceFileFailed}\n($firstFailureReason)'
+                    : l10n.saveToSourceFileFailed))
+            : (firstFailureReason != null
+                ? '${l10n.saveFailed}\n($firstFailureReason)'
+                : l10n.saveFailed);
       });
       return;
     }
@@ -279,21 +496,32 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
     if (!mounted) return;
     Navigator.of(context).pop(
       SongTagEditResult(
-        metadata: result.$1,
-        artworkBytes: result.$2 ?? (_isArtworkModified ? _artworkBytes : widget.song.artworkBytes),
+        metadata: updatedResults.first.$1,
+        artworkBytes: updatedResults.first.$2,
         savedToSourceFile: writeToFile,
+        allUpdatedMetadata: updatedResults,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isRemote = RemoteMediaResolver.isRemoteUri(widget.song.path);
-    final canWriteToSourceFile = !isRemote && isMetadataWritable(widget.song.path);
+    final hasRemote =
+        widget.effectiveSongs.any((s) => RemoteMediaResolver.isRemoteUri(s.path));
+    final canWriteToSourceFile = !hasRemote &&
+        widget.effectiveSongs.any((s) => isMetadataWritable(s.path));
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    final headerTitle = isBatch
+        ? '${l10n.batchEditSongTagsTitle} (${widget.effectiveSongs.length})'
+        : l10n.editSongTagsTitle;
+
+    final headerDescription = isBatch
+        ? l10n.batchEditSongTagsDescription
+        : l10n.editSongTagsDescription;
 
     return SafeArea(
       top: false,
@@ -303,12 +531,16 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
             decoration: BoxDecoration(
-              color: isDark ? Colors.black.withValues(alpha: 0.86) : theme.colorScheme.surface.withValues(alpha: 0.95),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.86)
+                  : theme.colorScheme.surface.withValues(alpha: 0.95),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(32),
               ),
               border: Border.all(
-                color: isDark ? Colors.white.withValues(alpha: 0.08) : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -326,18 +558,22 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                l10n.editSongTagsTitle,
+                                headerTitle,
                                 style: TextStyle(
-                                  color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                                  color: isDark
+                                      ? Colors.white
+                                      : theme.colorScheme.onSurface,
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                l10n.editSongTagsDescription,
+                                headerDescription,
                                 style: TextStyle(
-                                  color: isDark ? Colors.white.withValues(alpha: 0.6) : theme.colorScheme.onSurfaceVariant,
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.6)
+                                      : theme.colorScheme.onSurfaceVariant,
                                   fontSize: 12,
                                   height: 1.35,
                                 ),
@@ -351,7 +587,9 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                               : () => Navigator.of(context).pop(),
                           icon: Icon(
                             Icons.close_rounded,
-                            color: isDark ? Colors.white70 : theme.colorScheme.onSurfaceVariant,
+                            color: isDark
+                                ? Colors.white70
+                                : theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -370,10 +608,14 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                                   width: 120,
                                   height: 120,
                                   decoration: BoxDecoration(
-                                    color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.06)
+                                        : Colors.black.withValues(alpha: 0.04),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08),
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.08)
+                                          : Colors.black.withValues(alpha: 0.08),
                                       width: 1,
                                     ),
                                   ),
@@ -384,19 +626,101 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                                             child: SizedBox(
                                               width: 24,
                                               height: 24,
-                                              child: CircularProgressIndicator(strokeWidth: 2),
+                                              child:
+                                                  CircularProgressIndicator(
+                                                      strokeWidth: 2),
                                             ),
                                           )
-                                        : _artworkPath != null && _artworkPath!.isNotEmpty
-                                            ? Image.file(
-                                                File(_artworkPath!),
-                                                fit: BoxFit.cover,
+                                        : _isArtworkModified &&
+                                                _artworkBytes != null &&
+                                                _artworkBytes!.isEmpty
+                                            ? Center(
+                                                child: Icon(
+                                                  Icons
+                                                      .image_not_supported_outlined,
+                                                  size: 40,
+                                                  color: isDark
+                                                      ? Colors.white.withValues(
+                                                          alpha: 0.3)
+                                                      : Colors.black.withValues(
+                                                          alpha: 0.3),
+                                                ),
                                               )
-                                            : Icon(
-                                                Icons.music_note_rounded,
-                                                size: 48,
-                                                color: isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.3),
-                                              ),
+                                            : _artworkPath != null &&
+                                                    _artworkPath!.isNotEmpty
+                                                ? Image.file(
+                                                    File(_artworkPath!),
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : _artworkBytes != null &&
+                                                        _artworkBytes!
+                                                            .isNotEmpty
+                                                    ? Image.memory(
+                                                        _artworkBytes!,
+                                                        fit: BoxFit.cover,
+                                                      )
+                                                    : _isArtworkMixed
+                                                        ? Center(
+                                                            child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Icon(
+                                                                  Icons
+                                                                      .collections_rounded,
+                                                                  size: 34,
+                                                                  color: isDark
+                                                                      ? Colors
+                                                                          .white
+                                                                          .withValues(
+                                                                              alpha:
+                                                                                  0.4)
+                                                                      : Colors
+                                                                          .black
+                                                                          .withValues(
+                                                                              alpha:
+                                                                                  0.4),
+                                                                ),
+                                                                const SizedBox(
+                                                                    height: 4),
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          8.0),
+                                                                  child: Text(
+                                                                    l10n.multipleArtworkKeep,
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          10,
+                                                                      color: isDark
+                                                                          ? Colors.white.withValues(alpha: 0.5)
+                                                                          : Colors.black.withValues(alpha: 0.5),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          )
+                                                        : Icon(
+                                                            Icons
+                                                                .music_note_rounded,
+                                                            size: 48,
+                                                            color: isDark
+                                                                ? Colors.white
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.3)
+                                                                : Colors.black
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.3),
+                                                          ),
                                   ),
                                 ),
                                 if (!_isSaving)
@@ -410,7 +734,8 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.25),
+                                            color: Colors.black
+                                                .withValues(alpha: 0.25),
                                             blurRadius: 4,
                                             offset: const Offset(0, 2),
                                           )
@@ -468,7 +793,11 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                         _buildReadonlyInfo(
                           context: context,
                           label: l10n.file,
-                          value: widget.song.path,
+                          value: isBatch
+                              ? '${widget.effectiveSongs.length} files selected'
+                              : (widget.effectiveSongs.isNotEmpty
+                                  ? widget.effectiveSongs.first.path
+                                  : ''),
                           icon: Icons.folder_open_rounded,
                         ),
                         const SizedBox(height: 10),
@@ -498,9 +827,14 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                           const SizedBox(height: 10),
                         ],
                         Text(
-                          l10n.leaveBlankDoesNotClearOriginalValue,
+                          isBatch
+                              ? l10n.keepFieldHint
+                              : l10n.leaveBlankDoesNotClearOriginalValue,
                           style: TextStyle(
-                            color: isDark ? Colors.white.withValues(alpha: 0.45) : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.45)
+                                : theme.colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.6),
                             fontSize: 12,
                             height: 1.4,
                           ),
@@ -514,14 +848,16 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         FilledButton.tonal(
-                          onPressed: _isSaving || isRemote
+                          onPressed: _isSaving || hasRemote
                               ? null
                               : () => _save(writeToFile: false),
                           child: Text(l10n.saveToApp),
                         ),
                         const SizedBox(height: 10),
                         FilledButton(
-                          onPressed: _isSaving || !canWriteToSourceFile || isRemote
+                          onPressed: _isSaving ||
+                                  !canWriteToSourceFile ||
+                                  hasRemote
                               ? null
                               : () => _save(writeToFile: true),
                           child: _isSaving
@@ -561,16 +897,29 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
       controller: controller,
       enabled: !_isSaving,
       keyboardType: keyboardType,
-      style: TextStyle(color: isDark ? Colors.white : theme.colorScheme.onSurface),
+      style: TextStyle(
+          color: isDark ? Colors.white : theme.colorScheme.onSurface),
       cursorColor: theme.colorScheme.primary,
       decoration: InputDecoration(
         labelText: label,
         helperText: helperText,
-        prefixIcon: Icon(icon, color: isDark ? Colors.white70 : theme.colorScheme.onSurfaceVariant),
-        labelStyle: TextStyle(color: isDark ? Colors.white.withValues(alpha: 0.75) : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.75)),
-        helperStyle: TextStyle(color: isDark ? Colors.white.withValues(alpha: 0.4) : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+        prefixIcon: Icon(icon,
+            color: isDark
+                ? Colors.white70
+                : theme.colorScheme.onSurfaceVariant),
+        labelStyle: TextStyle(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.75)
+                : theme.colorScheme.onSurfaceVariant
+                    .withValues(alpha: 0.75)),
+        helperStyle: TextStyle(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.4)
+                : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
         filled: true,
-        fillColor: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
+        fillColor: isDark
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.04),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -578,12 +927,15 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
-            color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.08),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.1),
+          borderSide:
+              BorderSide(color: theme.colorScheme.primary, width: 1.1),
         ),
       ),
     );
@@ -601,16 +953,24 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.04)
+            : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.06),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.black.withValues(alpha: 0.06),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: isDark ? Colors.white.withValues(alpha: 0.7) : theme.colorScheme.onSurfaceVariant, size: 18),
+          Icon(icon,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.7)
+                  : theme.colorScheme.onSurfaceVariant,
+              size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -619,7 +979,10 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                 Text(
                   label,
                   style: TextStyle(
-                    color: isDark ? Colors.white.withValues(alpha: 0.55) : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.55)
+                        : theme.colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.6),
                     fontSize: 11,
                   ),
                 ),
@@ -627,7 +990,9 @@ class _SongTagEditSheetState extends State<SongTagEditSheet> {
                 Text(
                   value,
                   style: TextStyle(
-                    color: isDark ? Colors.white.withValues(alpha: 0.86) : theme.colorScheme.onSurface,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.86)
+                        : theme.colorScheme.onSurface,
                     fontSize: 12,
                   ),
                 ),

@@ -2667,6 +2667,42 @@ abstract class AppLocalizations {
   /// **'保存失败，请稍后重试'**
   String get saveFailed;
 
+  /// No description provided for @batchEditSongTagsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'批量编辑歌曲标签'**
+  String get batchEditSongTagsTitle;
+
+  /// No description provided for @batchEditSongTagsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。'**
+  String get batchEditSongTagsDescription;
+
+  /// No description provided for @keepFieldHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'提示：值为 <keep> 的属性将保留每首歌曲的原值'**
+  String get keepFieldHint;
+
+  /// No description provided for @multipleArtworkKeep.
+  ///
+  /// In zh, this message translates to:
+  /// **'保留各歌曲原封面'**
+  String get multipleArtworkKeep;
+
+  /// No description provided for @batchSongTagsSavedToApp.
+  ///
+  /// In zh, this message translates to:
+  /// **'已将 {count} 首歌曲标签保存到 App'**
+  String batchSongTagsSavedToApp(int count);
+
+  /// No description provided for @batchSongTagsSavedToSourceFileAndApp.
+  ///
+  /// In zh, this message translates to:
+  /// **'已将 {count} 首歌曲标签保存到源文件和 App'**
+  String batchSongTagsSavedToSourceFileAndApp(int count);
+
   /// No description provided for @apiKeySaved.
   ///
   /// In zh, this message translates to:
