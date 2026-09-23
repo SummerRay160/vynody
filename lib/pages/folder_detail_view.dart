@@ -796,7 +796,7 @@ class _FolderDetailViewState extends ConsumerState<FolderDetailView> {
                                   widget.selectedSongPaths.isEmpty)
                               ? () => openFolderLocation(widget.selectedFolderPaths.first)
                               : null,
-                          openLocationLabel: (widget.selectedFolderPaths.length == 1 &&
+                          openLocationLabel: (widget.selectedFolderPaths.isNotEmpty &&
                                   widget.selectedSongPaths.isEmpty)
                               ? l10n.openFolderLocation
                               : null,

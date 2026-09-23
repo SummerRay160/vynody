@@ -233,27 +233,25 @@ class _LibrarySelectionPanelState extends ConsumerState<LibrarySelectionPanel> {
           ),
         );
         if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-          if (widget.onOpenLocation != null || hasFilePath) {
-            secondaryActions.add(
-              _buildSelectionActionButton(
-                context: context,
-                icon: Icons.folder_open_rounded,
-                label: widget.openLocationLabel ?? l10n.openFileLocation,
-                onPressed: canOpenLocation
-                    ? () async {
-                        if (widget.onOpenLocation != null) {
-                          widget.onOpenLocation!();
-                        } else {
-                          await openSongFileLocation(
-                            widget.selectedSongs.first.path,
-                          );
-                        }
-                        widget.onCancel();
+          secondaryActions.add(
+            _buildSelectionActionButton(
+              context: context,
+              icon: Icons.folder_open_rounded,
+              label: widget.openLocationLabel ?? l10n.openFileLocation,
+              onPressed: canOpenLocation
+                  ? () async {
+                      if (widget.onOpenLocation != null) {
+                        widget.onOpenLocation!();
+                      } else {
+                        await openSongFileLocation(
+                          widget.selectedSongs.first.path,
+                        );
                       }
-                    : null,
-              ),
-            );
-          }
+                      widget.onCancel();
+                    }
+                  : null,
+            ),
+          );
         } else {
           secondaryActions.add(
             _buildSelectionActionButton(
@@ -391,27 +389,25 @@ class _LibrarySelectionPanelState extends ConsumerState<LibrarySelectionPanel> {
           );
         }
         if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-          if (widget.onOpenLocation != null || hasFilePath) {
-            secondaryActions.add(
-              _buildSelectionActionButton(
-                context: context,
-                icon: Icons.folder_open_rounded,
-                label: widget.openLocationLabel ?? l10n.openFileLocation,
-                onPressed: canOpenLocation
-                    ? () async {
-                        if (widget.onOpenLocation != null) {
-                          widget.onOpenLocation!();
-                        } else {
-                          await openSongFileLocation(
-                            widget.selectedSongs.first.path,
-                          );
-                        }
-                        widget.onCancel();
+          secondaryActions.add(
+            _buildSelectionActionButton(
+              context: context,
+              icon: Icons.folder_open_rounded,
+              label: widget.openLocationLabel ?? l10n.openFileLocation,
+              onPressed: canOpenLocation
+                  ? () async {
+                      if (widget.onOpenLocation != null) {
+                        widget.onOpenLocation!();
+                      } else {
+                        await openSongFileLocation(
+                          widget.selectedSongs.first.path,
+                        );
                       }
-                    : null,
-              ),
-            );
-          }
+                      widget.onCancel();
+                    }
+                  : null,
+            ),
+          );
         } else {
           secondaryActions.add(
             _buildSelectionActionButton(
