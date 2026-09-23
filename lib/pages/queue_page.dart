@@ -432,7 +432,7 @@ class _QueuePageState extends ConsumerState<QueuePage>
             isDark,
             isShuffleRandomMode,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           Flexible(
             child: Text(
               '· $countAndDurationText',
@@ -781,7 +781,7 @@ class _QueuePageState extends ConsumerState<QueuePage>
                                           fontWeight: FontWeight.w800,
                                         ),
                                       ),
-                                      const SizedBox(height: 2),
+                                      const SizedBox(height: 4),
                                       subtitleWidget,
                                     ],
                                   ),
@@ -856,103 +856,80 @@ class _QueuePageState extends ConsumerState<QueuePage>
     bool isShuffleRandomMode,
   ) {
     String selectedText = '';
-    IconData selectedIcon = Icons.queue_music;
     if (_viewIndex == 0) {
       selectedText = AppLocalizations.of(context)!.queue;
-      selectedIcon = Icons.queue_music;
     } else if (_viewIndex == 1) {
       selectedText = AppLocalizations.of(context)!.randomHistory;
-      selectedIcon = Icons.history;
     } else if (_viewIndex == 2) {
       selectedText = AppLocalizations.of(context)!.randomQueue;
-      selectedIcon = Icons.shuffle;
     }
 
-    return Theme(
-      data: theme.copyWith(
-        hoverColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-      ),
-      child: PopupMenuButton<int>(
-        offset: const Offset(0, 8),
-        position: PopupMenuPosition.under,
-        tooltip: AppLocalizations.of(context)!.queue,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
-            width: 1,
-          ),
+    return PopupMenuButton<int>(
+      offset: const Offset(0, 4),
+      position: PopupMenuPosition.under,
+      tooltip: AppLocalizations.of(context)!.queue,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
+          width: 1,
         ),
-        color: isDark ? Colors.grey[900] : theme.colorScheme.surface,
-        elevation: 8,
-        onSelected: (val) {
-          setState(() {
-            _viewIndex = val;
-          });
-        },
-        itemBuilder: (context) => [
+      ),
+      color: isDark ? Colors.grey[900] : theme.colorScheme.surface,
+      elevation: 8,
+      onSelected: (val) {
+        setState(() {
+          _viewIndex = val;
+        });
+      },
+      itemBuilder: (context) => [
+        _buildPopupMenuItem(
+          context,
+          value: 0,
+          text: AppLocalizations.of(context)!.queue,
+          icon: Icons.queue_music,
+          isSelected: _viewIndex == 0,
+        ),
+        _buildPopupMenuItem(
+          context,
+          value: 1,
+          text: AppLocalizations.of(context)!.randomHistory,
+          icon: Icons.history,
+          isSelected: _viewIndex == 1,
+        ),
+        if (isShuffleRandomMode)
           _buildPopupMenuItem(
             context,
-            value: 0,
-            text: AppLocalizations.of(context)!.queue,
-            icon: Icons.queue_music,
-            isSelected: _viewIndex == 0,
+            value: 2,
+            text: AppLocalizations.of(context)!.randomQueue,
+            icon: Icons.shuffle,
+            isSelected: _viewIndex == 2,
           ),
-          _buildPopupMenuItem(
-            context,
-            value: 1,
-            text: AppLocalizations.of(context)!.randomHistory,
-            icon: Icons.history,
-            isSelected: _viewIndex == 1,
-          ),
-          if (isShuffleRandomMode)
-            _buildPopupMenuItem(
-              context,
-              value: 2,
-              text: AppLocalizations.of(context)!.randomQueue,
-              icon: Icons.shuffle,
-              isSelected: _viewIndex == 2,
-            ),
-        ],
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-          decoration: BoxDecoration(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.06)
-                : theme.colorScheme.primaryContainer.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: (isDark ? Colors.white : theme.colorScheme.primary).withValues(alpha: 0.12),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                selectedIcon,
-                size: 14,
-                color: isDark ? Colors.white70 : theme.colorScheme.primary,
-              ),
-              const SizedBox(width: 6),
-              Text(
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 2,
+          vertical: 2,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
                 selectedText,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                  color: isDark ? Colors.white : theme.colorScheme.onPrimaryContainer,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(width: 4),
-              Icon(
-                Icons.keyboard_arrow_down_rounded,
-                size: 16,
-                color: isDark ? Colors.white.withValues(alpha: 0.5) : theme.colorScheme.primary.withValues(alpha: 0.7),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 2),
+            Icon(
+              Icons.arrow_drop_down,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ],
         ),
       ),
     );
@@ -977,44 +954,31 @@ class _QueuePageState extends ConsumerState<QueuePage>
 
     return PopupMenuItem<int>(
       value: value,
-      height: 48,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? theme.colorScheme.primary.withValues(alpha: 0.12)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                size: 20,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 20,
+            color: getForegroundColor(),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 color: getForegroundColor(),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                text,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: getForegroundColor(),
-                ),
-              ),
+          ),
+          if (isSelected)
+            Icon(
+              Icons.check_rounded,
+              size: 18,
+              color: theme.colorScheme.primary,
             ),
-            if (isSelected)
-              Icon(
-                Icons.check_rounded,
-                size: 18,
-                color: theme.colorScheme.primary,
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }
