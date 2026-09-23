@@ -503,6 +503,7 @@ class SettingsService extends ChangeNotifier {
   static const double defaultPlaybackCustomImageBlurSigma = 0.0;
 
   // Visualizer styling keys
+  static const String _keyVisualizerEnabled = 'visualizer_enabled';
   static const String _keyVisualizerStyle = 'visualizer_style';
   static const String _keyVisColor = 'visualizer_color';
   static const String _keyVisOpacity = 'visualizer_opacity';
@@ -1143,6 +1144,13 @@ class SettingsService extends ChangeNotifier {
     defaultValue: '',
     prefs: _prefs,
     onChanged: notifyListeners,
+    customRead: (prefs, key, def) {
+      final value = prefs.getString(key);
+      if (value != null && value.isNotEmpty) return value;
+      final legacyCjk = prefs.getString(_keyLyricsCjkFontFamily);
+      if (legacyCjk != null && legacyCjk.isNotEmpty) return legacyCjk;
+      return def;
+    },
   );
 
   late final _lyricsLatinFontFamilyProperty = SettingProperty<String>(
@@ -1450,6 +1458,13 @@ class SettingsService extends ChangeNotifier {
       }
       _lastKnownCustomProviderName = normalized;
     },
+  );
+
+  late final _visualizerEnabledProperty = SettingProperty<bool>(
+    key: _keyVisualizerEnabled,
+    defaultValue: true,
+    prefs: _prefs,
+    onChanged: notifyListeners,
   );
 
   late final _visualizerStyleProperty = SettingProperty<VisualizerStyle>(
@@ -2598,6 +2613,10 @@ class SettingsService extends ChangeNotifier {
     }
     return _builtInAcoustidApiKey;
   }
+
+  bool get isVisualizerEnabled => _visualizerEnabledProperty.value;
+  set isVisualizerEnabled(bool value) =>
+      _visualizerEnabledProperty.value = value;
 
   VisualizerStyle get visualizerStyle => _visualizerStyleProperty.value;
   set visualizerStyle(VisualizerStyle value) =>

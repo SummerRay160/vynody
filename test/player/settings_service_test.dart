@@ -534,6 +534,21 @@ void main() {
 
       expect(settings.lyricsFontFamily, 'LXGW WenKai');
     });
+
+    test('isVisualizerEnabled defaults to true and persists changes', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final settings = SettingsService(prefs);
+
+      expect(settings.isVisualizerEnabled, isTrue);
+
+      settings.isVisualizerEnabled = false;
+      expect(settings.isVisualizerEnabled, isFalse);
+      expect(prefs.getBool('visualizer_enabled'), isFalse);
+
+      final reloadedSettings = SettingsService(prefs);
+      expect(reloadedSettings.isVisualizerEnabled, isFalse);
+    });
   });
 }
 

@@ -534,6 +534,7 @@ class VisualizerOptionsDialog extends ConsumerWidget {
                   audio.updateVisualOptions(
                     options.copyWith(aggregationMode: val),
                   );
+                  audio.saveVisualizerOptions();
                   setDialogState(() {});
                 }
               },

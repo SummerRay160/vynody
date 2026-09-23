@@ -170,6 +170,13 @@ class AudioService extends Notifier<AudioSnapshot> {
         settingsService.prefs.getDouble(_previousVolumeStorageKey) ?? 100.0;
     _isMuted = settingsService.prefs.getBool(_isMutedStorageKey) ?? false;
 
+    final isProUnlocked = ref.read(isProUnlockedProvider);
+    _userVisualizerEnabled =
+        isProUnlocked && settingsService.isVisualizerEnabled;
+    if (!isProUnlocked && settingsService.isVisualizerEnabled) {
+      settingsService.isVisualizerEnabled = false;
+    }
+
     final initialFadeEnabled = settingsService.enableFadeEffect;
     final streamCacheManager = AudioStreamCacheManager(
       maxCacheSizeBytesGetter: () => settingsService.remoteCacheMaxSizeBytes,
@@ -332,6 +339,13 @@ class AudioService extends Notifier<AudioSnapshot> {
         }
       }
 
+      final currentVisualizerEnabled =
+          ref.read(isProUnlockedProvider) && settingsService.isVisualizerEnabled;
+      if (_userVisualizerEnabled != currentVisualizerEnabled) {
+        _userVisualizerEnabled = currentVisualizerEnabled;
+        _updateEffectiveVisualizerState();
+      }
+
       unawaited(_refreshCurrentWaveform());
     };
     settingsService.addListener(_settingsListener);
@@ -398,6 +412,7 @@ class AudioService extends Notifier<AudioSnapshot> {
               });
         }
 
+        _updateEffectiveVisualizerState();
         _visualizerOptions.loadOptions().then((_) => notifyListeners());
         if (_disposed) return;
         _initializeMiniPlayerFftStream();
@@ -1524,6 +1539,7 @@ class AudioService extends Notifier<AudioSnapshot> {
 
   void setVisualizerEnabled(bool enabled) {
     _userVisualizerEnabled = enabled;
+    settingsService.isVisualizerEnabled = enabled;
     _updateEffectiveVisualizerState();
   }
 

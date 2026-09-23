@@ -1346,7 +1346,6 @@ class _MainLayoutState extends ConsumerState<MainLayout>
                                           _onDestinationSelected(index);
                                         },
                                         labelType: NavigationRailLabelType.none,
-                                        groupAlignment: -0.2,
                                         minWidth: 80,
                                         useIndicator: true,
                                         indicatorColor: Color.lerp(
