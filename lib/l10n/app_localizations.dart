@@ -2565,6 +2565,12 @@ abstract class AppLocalizations {
   /// **'获取key'**
   String get getKey;
 
+  /// No description provided for @editTagsAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑标签'**
+  String get editTagsAction;
+
   /// No description provided for @editSongTagsTitle.
   ///
   /// In zh, this message translates to:

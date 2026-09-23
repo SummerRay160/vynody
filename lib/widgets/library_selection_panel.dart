@@ -222,9 +222,7 @@ class _LibrarySelectionPanelState extends ConsumerState<LibrarySelectionPanel> {
           _buildSelectionActionButton(
             context: context,
             icon: Icons.edit_note_rounded,
-            label: isSingleSelected
-                ? l10n.editSongTagsTitle
-                : l10n.batchEditSongTagsTitle,
+            label: l10n.editTagsAction,
             onPressed: canEditTags
                 ? () async {
                     if (widget.onEditTags != null) {
@@ -426,9 +424,7 @@ class _LibrarySelectionPanelState extends ConsumerState<LibrarySelectionPanel> {
           _buildSelectionActionButton(
             context: context,
             icon: Icons.edit_note_rounded,
-            label: isSingleSelected
-                ? l10n.editSongTagsTitle
-                : l10n.batchEditSongTagsTitle,
+            label: l10n.editTagsAction,
             onPressed: canEditTags
                 ? () async {
                     if (widget.onEditTags != null) {

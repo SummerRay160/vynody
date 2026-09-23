@@ -1324,6 +1324,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get getKey => 'Get key';
 
   @override
+  String get editTagsAction => 'Edit Tags';
+
+  @override
   String get editSongTagsTitle => 'Edit Song Tags';
 
   @override

@@ -485,6 +485,7 @@
   "enterApiKey": "API 키를 입력해주세요.",
   "testingConnection": "연결 테스트 중...",
   "getKey": "키 받기",
+  "editTagsAction": "태그 편집",
   "editSongTagsTitle": "노래 태그 편집",
   "changeArtwork": "커버 변경",
   "clearArtwork": "커버 지우기",

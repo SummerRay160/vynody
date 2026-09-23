@@ -485,6 +485,7 @@
   "enterApiKey": "Veuillez saisir une clé API.",
   "testingConnection": "Test de connexion...",
   "getKey": "Obtenir une clé",
+  "editTagsAction": "Modifier les tags",
   "editSongTagsTitle": "Modifier les étiquettes de la chanson",
   "changeArtwork": "Changer la pochette",
   "clearArtwork": "Effacer la pochette",

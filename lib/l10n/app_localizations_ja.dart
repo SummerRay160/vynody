@@ -1297,6 +1297,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get getKey => 'キーを取得';
 
   @override
+  String get editTagsAction => 'タグを編集';
+
+  @override
   String get editSongTagsTitle => '楽曲タグを編集';
 
   @override

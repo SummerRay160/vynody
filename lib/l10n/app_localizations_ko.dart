@@ -1302,6 +1302,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get getKey => '키 받기';
 
   @override
+  String get editTagsAction => '태그 편집';
+
+  @override
   String get editSongTagsTitle => '노래 태그 편집';
 
   @override

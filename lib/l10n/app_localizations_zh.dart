@@ -1290,6 +1290,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get getKey => '获取key';
 
   @override
+  String get editTagsAction => '编辑标签';
+
+  @override
   String get editSongTagsTitle => '编辑歌曲标签';
 
   @override
@@ -6082,6 +6085,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get getKey => '取得 key';
+
+  @override
+  String get editTagsAction => '編輯標籤';
 
   @override
   String get editSongTagsTitle => '編輯歌曲標籤';

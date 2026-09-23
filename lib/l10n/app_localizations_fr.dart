@@ -1342,6 +1342,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get getKey => 'Obtenir une clé';
 
   @override
+  String get editTagsAction => 'Modifier les tags';
+
+  @override
   String get editSongTagsTitle => 'Modifier les étiquettes de la chanson';
 
   @override

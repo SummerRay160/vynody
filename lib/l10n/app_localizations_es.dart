@@ -1343,6 +1343,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get getKey => 'Obtener clave';
 
   @override
+  String get editTagsAction => 'Editar etiquetas';
+
+  @override
   String get editSongTagsTitle => 'Editar etiquetas de la canción';
 
   @override

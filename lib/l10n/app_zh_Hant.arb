@@ -405,6 +405,7 @@
   "enterApiKey": "請輸入 API key。",
   "testingConnection": "正在測試連線...",
   "getKey": "取得 key",
+  "editTagsAction": "編輯標籤",
   "editSongTagsTitle": "編輯歌曲標籤",
   "changeArtwork": "更換封面",
   "clearArtwork": "清除封面",

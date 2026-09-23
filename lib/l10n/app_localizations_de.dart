@@ -1342,6 +1342,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get getKey => 'Schlüssel besorgen';
 
   @override
+  String get editTagsAction => 'Tags bearbeiten';
+
+  @override
   String get editSongTagsTitle => 'Song-Tags bearbeiten';
 
   @override

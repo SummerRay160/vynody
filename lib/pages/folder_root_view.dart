@@ -250,9 +250,15 @@ class _FolderRootViewState extends ConsumerState<FolderRootView> {
       (sum, folder) => sum + scanner.getSongDurationForFolder(folder),
     );
 
-    // We pass stub lists to satisfy LibrarySelectionPanel length checks.
-    final selectedRootSongs = List.filled(widget.selectedRootPaths.length, MusicFile(path: '', name: ''));
-    final allRootSongs = List.filled(rootFolders.length, MusicFile(path: '', name: ''));
+    final selectedRootSongs = <MusicFile>[
+      for (final folder in rootFolders)
+        if (widget.selectedRootPaths.contains(folder.path))
+          ...folder.allSongs,
+    ];
+    final allRootSongs = <MusicFile>[
+      for (final folder in rootFolders)
+        ...folder.allSongs,
+    ];
 
     final representativeSong = () {
       if (Platform.isAndroid) {

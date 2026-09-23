@@ -485,6 +485,7 @@
   "enterApiKey": "APIキーを入力してください。",
   "testingConnection": "接続をテスト中...",
   "getKey": "キーを取得",
+  "editTagsAction": "タグを編集",
   "editSongTagsTitle": "楽曲タグを編集",
   "changeArtwork": "カバーを変更",
   "clearArtwork": "カバーをクリア",

@@ -493,6 +493,7 @@
   "enterApiKey": "Please enter an API key.",
   "testingConnection": "Testing connection...",
   "getKey": "Get key",
+  "editTagsAction": "Edit Tags",
   "editSongTagsTitle": "Edit Song Tags",
   "changeArtwork": "Change Cover",
   "clearArtwork": "Clear Cover",

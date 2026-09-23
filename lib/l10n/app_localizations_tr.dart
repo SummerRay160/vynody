@@ -1328,6 +1328,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get getKey => 'Anahtar al';
 
   @override
+  String get editTagsAction => 'Etiketleri Düzenle';
+
+  @override
   String get editSongTagsTitle => 'Şarkı Etiketlerini Düzenle';
 
   @override

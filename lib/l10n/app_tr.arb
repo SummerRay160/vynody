@@ -549,6 +549,7 @@
   "enterApiKey": "API anahtarınızı girin",
   "testingConnection": "Bağlantı test ediliyor...",
   "getKey": "Anahtar al",
+  "editTagsAction": "Etiketleri Düzenle",
   "editSongTagsTitle": "Şarkı Etiketlerini Düzenle",
   "changeArtwork": "Kapağı Değiştir",
   "clearArtwork": "Kapağı Temizle",
