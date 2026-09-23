@@ -13,9 +13,10 @@ def extract_changelog(version):
     with open(changelog_path, 'r', encoding='utf-8') as f:
         content = f.read()
         
-    # Match "### <version>" and capture content until the next "###" or EOF
+    # Match "### <version>" and capture content until the next version header (or ## header) or EOF.
+    # Note: we require whitespace after the hashes (\n###\s+|\n##\s+) so that subheadings like "#### 优化：" or "#### 修复：" are not prematurely matched.
     escaped_version = re.escape(version)
-    pattern = rf"###\s+{escaped_version}\s*\n([\s\S]*?)(?=\n###|$)"
+    pattern = rf"###\s+{escaped_version}\s*\n([\s\S]*?)(?=\n###\s+|\n##\s+|$)"
     match = re.search(pattern, content)
     
     if not match:
@@ -29,8 +30,8 @@ def translate_text(text, api_key, model="google/gemini-3.1-flash-lite"):
         return ""
         
     prompt = (
-        "You are a professional software release translator. Translate the following Chinese changelog list "
-        "into clear, natural, and professional English release notes. Keep the list format (using bullet points). "
+        "You are a professional software release translator. Translate the following Chinese changelog "
+        "into clear, natural, and professional English release notes. Keep markdown formatting and structure (including any subheadings like '#### Added:', '#### Improvements:', '#### Fixes:', and bullet points). "
         "Only return the final English translation, without any introduction, greetings, explanations, markdown code blocks, or other text.\n\n"
         f"Changelog:\n{text}"
     )
