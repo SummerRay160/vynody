@@ -1411,17 +1411,6 @@ class AudioService extends Notifier<AudioSnapshot> {
       _notifyIfNeeded(force: true);
     }
 
-    if (!_isTransitioning &&
-        _currentIndex >= 0 &&
-        _currentIndex < _queue.length &&
-        _queue[_currentIndex].path.isNotEmpty &&
-        !_queue[_currentIndex].path.startsWith('content://') &&
-        !RemoteMediaResolver.isRemoteUri(_queue[_currentIndex].path) &&
-        !(File(_queue[_currentIndex].path).existsSync())) {
-      unawaited(_skipMissingCurrentTrack());
-      return;
-    }
-
     _windowsIntegration?.updateTimeline(_position, _duration);
     _androidIntegration?.updateTimeline(_position, _duration);
     _darwinIntegration?.updateTimeline(_position, _duration);

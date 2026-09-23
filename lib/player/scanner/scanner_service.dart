@@ -82,6 +82,7 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
   final Map<String, int> _watchedFileMtimes = {};
   int _lastScanProgressEmitMs = 0;
   DateTime? _lastResumedSystemMediaScanAt;
+  DateTime? _lastResumedRootsScanAt;
 
   MusicFolder? _systemMediaFolder;
   bool _hasPermission = false;
@@ -4242,6 +4243,21 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
       );
       _pendingRootAvailabilityRescan = true;
       _scheduleRootAvailabilityRefresh();
+
+      final isMobile = !kIsWeb && (Platform.isIOS || Platform.isAndroid);
+      if (isMobile && _roots.rootPaths.isNotEmpty) {
+        final now = DateTime.now();
+        if (!_scanCoordinator.isScanning &&
+            (_lastResumedRootsScanAt == null ||
+                now.difference(_lastResumedRootsScanAt!) >
+                    const Duration(seconds: 30))) {
+          _lastResumedRootsScanAt = now;
+          debugPrint(
+            '[ScannerService] App resumed, scheduling background roots scan for mobile',
+          );
+          unawaited(scan());
+        }
+      }
 
       if (Platform.isAndroid && _hasPermission) {
         final now = DateTime.now();
