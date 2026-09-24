@@ -1302,6 +1302,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get getKey => '키 받기';
 
   @override
+  String get editTagsAction => '태그 편집';
+
+  @override
   String get editSongTagsTitle => '노래 태그 편집';
 
   @override
@@ -1309,6 +1312,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get clearArtwork => '커버 지우기';
+
+  @override
+  String get exportArtwork => '커버 내보내기';
+
+  @override
+  String get exportArtworkSuccess => '커버를 성공적으로 내보냈습니다';
+
+  @override
+  String get exportArtworkFailed => '커버 내보내기 실패';
 
   @override
   String get editSongTagsDescription => '앱에만 변경사항을 저장하거나 소스 파일에도 다시 쓸 수 있습니다.';
@@ -1353,6 +1365,29 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get saveFailed => '저장 실패. 나중에 다시 시도해주세요.';
+
+  @override
+  String get batchEditSongTagsTitle => '批量编辑歌曲标签';
+
+  @override
+  String get batchEditSongTagsDescription =>
+      '修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。';
+
+  @override
+  String get keepFieldHint => '提示：值为 <keep> 的属性将保留每首歌曲的原值';
+
+  @override
+  String get multipleArtworkKeep => '保留各歌曲原封面';
+
+  @override
+  String batchSongTagsSavedToApp(int count) {
+    return '已将 $count 首歌曲标签保存到 App';
+  }
+
+  @override
+  String batchSongTagsSavedToSourceFileAndApp(int count) {
+    return '已将 $count 首歌曲标签保存到源文件和 App';
+  }
 
   @override
   String apiKeySaved(Object provider) {

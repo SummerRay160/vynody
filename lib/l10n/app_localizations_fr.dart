@@ -1342,6 +1342,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get getKey => 'Obtenir une clé';
 
   @override
+  String get editTagsAction => 'Modifier les tags';
+
+  @override
   String get editSongTagsTitle => 'Modifier les étiquettes de la chanson';
 
   @override
@@ -1349,6 +1352,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get clearArtwork => 'Effacer la pochette';
+
+  @override
+  String get exportArtwork => 'Exporter la pochette';
+
+  @override
+  String get exportArtworkSuccess => 'Pochette exportée avec succès';
+
+  @override
+  String get exportArtworkFailed => 'Échec de l\'exportation de la pochette';
 
   @override
   String get editSongTagsDescription =>
@@ -1400,6 +1412,29 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get saveFailed =>
       'Échec de la sauvegarde. Veuillez réessayer plus tard.';
+
+  @override
+  String get batchEditSongTagsTitle => '批量编辑歌曲标签';
+
+  @override
+  String get batchEditSongTagsDescription =>
+      '修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。';
+
+  @override
+  String get keepFieldHint => '提示：值为 <keep> 的属性将保留每首歌曲的原值';
+
+  @override
+  String get multipleArtworkKeep => '保留各歌曲原封面';
+
+  @override
+  String batchSongTagsSavedToApp(int count) {
+    return '已将 $count 首歌曲标签保存到 App';
+  }
+
+  @override
+  String batchSongTagsSavedToSourceFileAndApp(int count) {
+    return '已将 $count 首歌曲标签保存到源文件和 App';
+  }
 
   @override
   String apiKeySaved(Object provider) {

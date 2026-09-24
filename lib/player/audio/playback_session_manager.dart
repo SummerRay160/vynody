@@ -4,6 +4,8 @@ import 'dart:io';
 
 import 'package:audio_core/audio_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:vynody/models/music_file.dart';
@@ -53,45 +55,112 @@ class PlaybackSessionData {
 }
 
 class PlaybackSessionManager {
-  static const _storageKey = 'playback_session_v1';
+  static const _legacyStorageKey = 'playback_session_v1';
+  static const _sessionFileName = 'playback_session.json';
   static const _autoSaveInterval = Duration(seconds: 2);
 
   Timer? _autoSaveTimer;
   bool _disposed = false;
 
-  Future<PlaybackSessionData?> loadFromPrefs(SharedPreferences prefs) async {
-    final rawSession = prefs.getString(_storageKey);
-    if (rawSession == null || rawSession.trim().isEmpty) {
-      return null;
+  static Future<File> get sessionFile async {
+    final dir = await getApplicationSupportDirectory();
+    return File(p.join(dir.path, _sessionFileName));
+  }
+
+  static Future<void> _writeAtomic(File file, String content) async {
+    final parent = file.parent;
+    if (!parent.existsSync()) {
+      await parent.create(recursive: true);
+    }
+    final tmpFile = File('${file.path}.tmp');
+    await tmpFile.writeAsString(content, flush: true);
+    if (await file.exists()) {
+      await file.delete();
+    }
+    await tmpFile.rename(file.path);
+  }
+
+  Future<PlaybackSessionData?> loadFromPrefs([SharedPreferences? prefs]) async {
+    // 1. Try reading from dedicated JSON file
+    try {
+      final file = await sessionFile;
+      if (await file.exists()) {
+        final rawSession = await file.readAsString();
+        if (rawSession.trim().isNotEmpty) {
+          final decoded = jsonDecode(rawSession);
+          if (decoded is Map) {
+            final session = _SessionState.fromJson(
+              decoded.map((key, value) => MapEntry(key.toString(), value)),
+            );
+            if (session.version == 1 && session.queue.isNotEmpty) {
+              if (prefs != null && prefs.containsKey(_legacyStorageKey)) {
+                await prefs.remove(_legacyStorageKey);
+              }
+              return session.toData();
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[PlaybackSessionManager] Failed to read session file: $e');
     }
 
-    final decoded = jsonDecode(rawSession);
-    if (decoded is! Map) {
-      await prefs.remove(_storageKey);
-      return null;
+    // 2. Fallback: migrate from legacy SharedPreferences key if present
+    if (prefs != null) {
+      try {
+        final rawSession = prefs.getString(_legacyStorageKey);
+        if (rawSession != null && rawSession.trim().isNotEmpty) {
+          final decoded = jsonDecode(rawSession);
+          if (decoded is Map) {
+            final session = _SessionState.fromJson(
+              decoded.map((key, value) => MapEntry(key.toString(), value)),
+            );
+            if (session.version == 1 && session.queue.isNotEmpty) {
+              final data = session.toData();
+              await saveToPrefs(prefs, data);
+              await prefs.remove(_legacyStorageKey);
+              return data;
+            }
+          }
+          await prefs.remove(_legacyStorageKey);
+        }
+      } catch (e) {
+        debugPrint('[PlaybackSessionManager] Failed to migrate session from prefs: $e');
+      }
     }
 
-    final session = _SessionState.fromJson(
-      decoded.map((key, value) => MapEntry(key.toString(), value)),
-    );
-    if (session.version != 1 || session.queue.isEmpty) {
-      await prefs.remove(_storageKey);
-      return null;
-    }
-
-    return session.toData();
+    return null;
   }
 
   Future<void> saveToPrefs(
-    SharedPreferences prefs,
+    SharedPreferences? prefs,
     PlaybackSessionData data,
   ) async {
-    final session = _SessionState.fromData(data);
-    await prefs.setString(_storageKey, jsonEncode(session.toJson()));
+    try {
+      final session = _SessionState.fromData(data);
+      final jsonString = jsonEncode(session.toJson());
+      final file = await sessionFile;
+      await _writeAtomic(file, jsonString);
+      if (prefs != null && prefs.containsKey(_legacyStorageKey)) {
+        await prefs.remove(_legacyStorageKey);
+      }
+    } catch (e) {
+      debugPrint('[PlaybackSessionManager] Failed to save session to file: $e');
+    }
   }
 
-  Future<void> clearFromPrefs(SharedPreferences prefs) async {
-    await prefs.remove(_storageKey);
+  Future<void> clearFromPrefs([SharedPreferences? prefs]) async {
+    try {
+      final file = await sessionFile;
+      if (await file.exists()) {
+        await file.delete();
+      }
+    } catch (e) {
+      debugPrint('[PlaybackSessionManager] Failed to delete session file: $e');
+    }
+    if (prefs != null && prefs.containsKey(_legacyStorageKey)) {
+      await prefs.remove(_legacyStorageKey);
+    }
   }
 
   void ensureAutoSaveTimer(VoidCallback onSave) {
@@ -146,18 +215,20 @@ class PlaybackSessionManager {
       return preferredIndex;
     }
 
-    for (var i = preferredIndex + 1; i < session.queue.length; i++) {
-      if (await songExists(session.queue[i].path)) {
-        return i;
+    // Probe immediate neighboring songs (up to ±5) without blocking on thousands of files
+    for (var offset = 1; offset <= 5; offset++) {
+      final nextIdx = preferredIndex + offset;
+      if (nextIdx < session.queue.length &&
+          await songExists(session.queue[nextIdx].path)) {
+        return nextIdx;
       }
-    }
-    for (var i = 0; i < preferredIndex; i++) {
-      if (await songExists(session.queue[i].path)) {
-        return i;
+      final prevIdx = preferredIndex - offset;
+      if (prevIdx >= 0 && await songExists(session.queue[prevIdx].path)) {
+        return prevIdx;
       }
     }
 
-    return -1;
+    return preferredIndex;
   }
 }
 

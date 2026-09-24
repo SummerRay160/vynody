@@ -81,7 +81,6 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
   final Set<String> _failedThumbnailPaths = <String>{};
   final Map<String, int> _watchedFileMtimes = {};
   int _lastScanProgressEmitMs = 0;
-  DateTime? _lastResumedSystemMediaScanAt;
 
   MusicFolder? _systemMediaFolder;
   bool _hasPermission = false;
@@ -4242,19 +4241,6 @@ class ScannerService extends ChangeNotifier with WidgetsBindingObserver {
       );
       _pendingRootAvailabilityRescan = true;
       _scheduleRootAvailabilityRefresh();
-
-      if (Platform.isAndroid && _hasPermission) {
-        final now = DateTime.now();
-        if (_lastResumedSystemMediaScanAt == null ||
-            now.difference(_lastResumedSystemMediaScanAt!) >
-                const Duration(seconds: 30)) {
-          _lastResumedSystemMediaScanAt = now;
-          debugPrint(
-            '[ScannerService] App resumed, scheduling background system media refresh',
-          );
-          unawaited(scanSystemMedia());
-        }
-      }
     }
   }
 

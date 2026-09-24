@@ -285,6 +285,24 @@ final isProUnlockedProvider = Provider<bool>((ref) {
   return license.isProUnlocked;
 });
 
+/// Provider for whether audio visualizer is effectively enabled (Pro unlocked & setting enabled).
+final effectiveVisualizerEnabledProvider = Provider<bool>((ref) {
+  final isProUnlocked = ref.watch(isProUnlockedProvider);
+  final isVisualizerSettingEnabled = ref.watch(
+    settingsServiceProvider.select((s) => s.isVisualizerEnabled),
+  );
+  return isProUnlocked && isVisualizerSettingEnabled;
+});
+
+/// Provider for whether audio equalizer is effectively enabled (Pro unlocked & setting enabled).
+final effectiveEqualizerEnabledProvider = Provider<bool>((ref) {
+  final isProUnlocked = ref.watch(isProUnlockedProvider);
+  final isEqualizerSettingEnabled = ref.watch(
+    settingsServiceProvider.select((s) => s.equalizerEnabled),
+  );
+  return isProUnlocked && isEqualizerSettingEnabled;
+});
+
 /// Provider for whether waveform progress bar is effectively enabled (Pro unlocked & setting enabled).
 final isEffectiveWaveformEnabledProvider = Provider<bool>((ref) {
   final isProUnlocked = ref.watch(isProUnlockedProvider);
@@ -304,6 +322,18 @@ final effectiveProgressBarStyleProvider = Provider<ProgressBarStyle>((ref) {
     return ProgressBarStyle.standard;
   }
   return style;
+});
+
+/// Provider for effective playback background type (falls back to 0 if Pro is locked and dynamic mesh / custom image background is selected).
+final effectivePlaybackBackgroundTypeProvider = Provider<int>((ref) {
+  final isProUnlocked = ref.watch(isProUnlockedProvider);
+  final rawBackgroundType = ref.watch(
+    settingsServiceProvider.select((s) => s.playbackBackgroundType),
+  );
+  if (!isProUnlocked && (rawBackgroundType == 1 || rawBackgroundType == 3)) {
+    return 0;
+  }
+  return rawBackgroundType;
 });
 
 /// Provider for whether WASAPI exclusive mode is effectively enabled (Windows, Pro unlocked & setting enabled).

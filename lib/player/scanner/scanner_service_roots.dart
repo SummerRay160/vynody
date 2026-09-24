@@ -91,6 +91,14 @@ class ScannerServiceRoots {
   Future<void> refreshRootWatchers() async {
     if (_isDisposed()) return;
 
+    if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+      for (final subscription in _rootWatchSubscriptions.values) {
+        await subscription.cancel();
+      }
+      _rootWatchSubscriptions.clear();
+      return;
+    }
+
     final desiredRoots = ScannerPathUtils.computeScanRoots(_rootPaths);
     debugPrint(
       '[ScannerServiceRoots] refreshRootWatchers desiredRoots=$desiredRoots',

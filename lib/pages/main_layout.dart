@@ -1220,17 +1220,7 @@ class _MainLayoutState extends ConsumerState<MainLayout>
         if (serverState.isRunning) {
           ref.read(sharingServerStateProvider.notifier).stop();
         }
-        if (Platform.isWindows &&
-            ref.read(settingsServiceProvider).windowsAudioOutputMode ==
-                'wasapi_exclusive') {
-          unawaited(
-            ref
-                .read(audioServiceProvider)
-                .updateWindowsAudioOutput(mode: 'shared'),
-          );
-        }
         final audio = ref.read(audioServiceProvider);
-        unawaited(audio.setEqualizerEnabled(false));
         unawaited(audio.setPlaybackSpeed(1.0));
       } else if (lanEnabled && !serverState.isRunning) {
         ref.read(sharingServerStateProvider.notifier).start();

@@ -8,14 +8,14 @@ class RemoteServerStorage {
   static const String _securePasswordPrefix = 'vynody_server_pwd_';
 
   final SharedPreferences _prefs;
-  final FlutterSecureStorage _secureStorage;
+  final AppSecureStorage _secureStorage;
   static final Map<String, String> _passwordCache = {};
 
   RemoteServerStorage({
     required SharedPreferences prefs,
-    FlutterSecureStorage? secureStorage,
+    AppSecureStorage? secureStorage,
   })  : _prefs = prefs,
-        _secureStorage = secureStorage ?? appSecureStorage;
+        _secureStorage = secureStorage ?? AppSecureStorage(prefs);
 
   /// Loads all saved remote servers.
   List<RemoteServer> loadServers() {

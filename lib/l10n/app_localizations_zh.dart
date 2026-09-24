@@ -1290,6 +1290,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get getKey => '获取key';
 
   @override
+  String get editTagsAction => '编辑标签';
+
+  @override
   String get editSongTagsTitle => '编辑歌曲标签';
 
   @override
@@ -1297,6 +1300,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get clearArtwork => '清除封面';
+
+  @override
+  String get exportArtwork => '导出封面';
+
+  @override
+  String get exportArtworkSuccess => '封面已成功导出';
+
+  @override
+  String get exportArtworkFailed => '导出封面失败';
 
   @override
   String get editSongTagsDescription => '修改后可以只保存到 App，也可以同步写回源文件。';
@@ -1339,6 +1351,29 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get saveFailed => '保存失败，请稍后重试';
+
+  @override
+  String get batchEditSongTagsTitle => '批量编辑歌曲标签';
+
+  @override
+  String get batchEditSongTagsDescription =>
+      '修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。';
+
+  @override
+  String get keepFieldHint => '提示：值为 <keep> 的属性将保留每首歌曲的原值';
+
+  @override
+  String get multipleArtworkKeep => '保留各歌曲原封面';
+
+  @override
+  String batchSongTagsSavedToApp(int count) {
+    return '已将 $count 首歌曲标签保存到 App';
+  }
+
+  @override
+  String batchSongTagsSavedToSourceFileAndApp(int count) {
+    return '已将 $count 首歌曲标签保存到源文件和 App';
+  }
 
   @override
   String apiKeySaved(Object provider) {
@@ -6052,6 +6087,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get getKey => '取得 key';
 
   @override
+  String get editTagsAction => '編輯標籤';
+
+  @override
   String get editSongTagsTitle => '編輯歌曲標籤';
 
   @override
@@ -6059,6 +6097,15 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get clearArtwork => '清除封面';
+
+  @override
+  String get exportArtwork => '匯出封面';
+
+  @override
+  String get exportArtworkSuccess => '封面已成功匯出';
+
+  @override
+  String get exportArtworkFailed => '匯出封面失敗';
 
   @override
   String get editSongTagsDescription => '修改後可以只儲存到 App，也可以同步寫回來源檔案。';
@@ -6101,6 +6148,29 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get saveFailed => '儲存失敗，請稍後重試';
+
+  @override
+  String get batchEditSongTagsTitle => '批量編輯歌曲標籤';
+
+  @override
+  String get batchEditSongTagsDescription =>
+      '修改後可以只儲存到 App，也可以同步寫回來源檔案。值為 <keep> 的欄位將保持原值。';
+
+  @override
+  String get keepFieldHint => '提示：值為 <keep> 的屬性將保留每首歌曲的原值';
+
+  @override
+  String get multipleArtworkKeep => '保留各歌曲原封面';
+
+  @override
+  String batchSongTagsSavedToApp(int count) {
+    return '已將 $count 首歌曲標籤儲存到 App';
+  }
+
+  @override
+  String batchSongTagsSavedToSourceFileAndApp(int count) {
+    return '已將 $count 首歌曲標籤儲存到來源檔案和 App';
+  }
 
   @override
   String apiKeySaved(Object provider) {

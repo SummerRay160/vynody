@@ -9,12 +9,12 @@ AppLocalizations _l10n() => currentAppL10n;
 class OpenRouterApiKeyService {
   OpenRouterApiKeyService({
     NetworkClient? client,
-    FlutterSecureStorage? storage,
+    AppSecureStorage? storage,
   }) : _client = client ?? NetworkClient.instance,
        _storage = storage ?? appSecureStorage;
 
   final NetworkClient _client;
-  final FlutterSecureStorage _storage;
+  final AppSecureStorage _storage;
 
   Future<String?> loadApiKey() async {
     try {

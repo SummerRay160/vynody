@@ -9,6 +9,8 @@ import 'package:vynody/player/audio/playback_source.dart';
 import 'package:vynody/utils/song_context_menu_utils.dart';
 import '../widgets/library_selection_scope.dart';
 import 'package:vynody/utils/app_snack_bar.dart';
+import 'package:vynody/dialogs/song_tag_edit_dialog.dart';
+import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
 import '../dialogs/transcode_dialog.dart';
 import 'app_context_menu.dart';
 
@@ -31,6 +33,9 @@ Future<String?> showFolderContextMenu({
       (Platform.isWindows || Platform.isMacOS || Platform.isLinux) &&
       folder.path.trim().isNotEmpty &&
       folder.path != 'system';
+
+  final canEditTags = songs.isNotEmpty &&
+      songs.any((s) => !RemoteMediaResolver.isRemoteUri(s.path));
 
   final selectLabel = l10n.selectFolders;
   final removeLabel = l10n.removeDirectory;
@@ -69,6 +74,15 @@ Future<String?> showFolderContextMenu({
       label: l10n.addToPlaylist,
       icon: Icons.playlist_add_rounded,
       enabled: songs.isNotEmpty,
+      context: context,
+    ),
+    buildContextMenuItem<String>(
+      value: 'edit_tags',
+      label: songs.length > 1
+          ? '${l10n.batchEditSongTagsTitle} (${songs.length})'
+          : l10n.editSongTagsTitle,
+      icon: Icons.edit_note_rounded,
+      enabled: canEditTags,
       context: context,
     ),
     buildContextMenuItem<String>(
@@ -142,6 +156,9 @@ Future<String?> showFolderBottomSheet(
       (Platform.isWindows || Platform.isMacOS || Platform.isLinux) &&
       folder.path.trim().isNotEmpty &&
       folder.path != 'system';
+
+  final canEditTags = songs.isNotEmpty &&
+      songs.any((s) => !RemoteMediaResolver.isRemoteUri(s.path));
 
   final selectLabel = l10n.selectFolders;
   final removeLabel = l10n.removeDirectory;
@@ -280,6 +297,15 @@ Future<String?> showFolderBottomSheet(
                           ),
                           _buildFolderBottomSheetItem(
                             context: context,
+                            value: 'edit_tags',
+                            label: songs.length > 1
+                                ? '${l10n.batchEditSongTagsTitle} (${songs.length})'
+                                : l10n.editSongTagsTitle,
+                            icon: Icons.edit_note_rounded,
+                            enabled: canEditTags,
+                          ),
+                          _buildFolderBottomSheetItem(
+                            context: context,
                             value: 'transcode',
                             label: l10n.transcodeAction,
                             icon: Icons.sync_rounded,
@@ -386,6 +412,15 @@ Future<void> _handleFolderMenuAction({
       break;
     case 'add_to_playlist':
       await showAddSongsToPlaylistDialog(context, playlistService, songs);
+      break;
+    case 'edit_tags':
+      final result = await showSongTagEditSheet(
+        context,
+        songs: songs,
+      );
+      if (result != null && context.mounted) {
+        await applySongTagEditResult(context, ref, result);
+      }
       break;
     case 'transcode':
       await showTranscodeDialog(context, songs: songs);

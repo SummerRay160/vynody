@@ -40,7 +40,7 @@ import '../../utils/selection_utils.dart';
 import '../../utils/song_locator_helper.dart';
 import '../../widgets/folder_nav_bar_scaffold.dart';
 
-class WebDavBrowserPage extends ConsumerStatefulWidget {
+class RemoteFolderBrowserPage extends ConsumerStatefulWidget {
   final RemoteServer server;
   final String password;
   final String? initialPath;
@@ -48,7 +48,7 @@ class WebDavBrowserPage extends ConsumerStatefulWidget {
   final bool wrapWithMiniPlayer;
   final String? highlightedSongPath;
 
-  const WebDavBrowserPage({
+  const RemoteFolderBrowserPage({
     super.key,
     required this.server,
     required this.password,
@@ -59,10 +59,12 @@ class WebDavBrowserPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<WebDavBrowserPage> createState() => _WebDavBrowserPageState();
+  ConsumerState<RemoteFolderBrowserPage> createState() =>
+      _RemoteFolderBrowserPageState();
 }
 
-class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
+class _RemoteFolderBrowserPageState
+    extends ConsumerState<RemoteFolderBrowserPage> {
   late final RemoteDirectoryClient _client;
   late String _rootPath;
   late String _currentPath;
@@ -153,7 +155,7 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
   }
 
   @override
-  void didUpdateWidget(WebDavBrowserPage oldWidget) {
+  void didUpdateWidget(RemoteFolderBrowserPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.highlightedSongPath != null &&
         widget.highlightedSongPath != oldWidget.highlightedSongPath) {
@@ -1201,12 +1203,7 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
     final isAudioPlaying = ref.watch(audioIsPlayingProvider);
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
-    final double headerHeight = 64.0 +
-        (MediaQuery.of(context).padding.top > 0
-            ? MediaQuery.of(context).padding.top
-            : ((Platform.isMacOS || Platform.isWindows || Platform.isLinux)
-                ? 24.0
-                : 0.0));
+    final double headerHeight = FolderNavBarScaffold.getBarHeight(context);
     final bottomOffset = MiniPlayerUiTuning.getListBottomPadding(
       context,
       hasPlayingMusic: currentMusic != null,
@@ -1972,7 +1969,7 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
           widget.server.name,
           style: TextStyle(
             fontSize: 14,
-            fontWeight: segments.isEmpty ? FontWeight.bold : FontWeight.w500,
+            fontWeight: FontWeight.w500,
             color: style.folderTextColor,
             shadows: style.shadows,
           ),
@@ -1980,82 +1977,24 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
       ],
     );
 
-    if (segments.isEmpty) {
+    items.add(
+      FolderBreadcrumbItem(
+        style: style,
+        onTap: segments.isEmpty ? null : () => _navigateToBreadcrumb(-1),
+        child: rootContent,
+      ),
+    );
+
+    for (int i = 0; i < segments.length; i++) {
+      final isLast = i == segments.length - 1;
+      items.add(FolderBreadcrumbSeparator(style: style));
       items.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-          child: rootContent,
+        FolderBreadcrumbItem(
+          style: style,
+          label: segments[i],
+          onTap: isLast ? null : () => _navigateToBreadcrumb(i),
         ),
       );
-    } else {
-      items.add(
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: () => _navigateToBreadcrumb(-1),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-              child: rootContent,
-            ),
-          ),
-        ),
-      );
-
-      for (int i = 0; i < segments.length; i++) {
-        final isLast = i == segments.length - 1;
-        items.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Icon(
-              Icons.chevron_right_rounded,
-              size: 16,
-              color: style.chevronColor,
-              shadows: style.shadows,
-            ),
-          ),
-        );
-
-        if (isLast) {
-          items.add(
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-              child: Text(
-                segments[i],
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: style.folderTextColor,
-                  shadows: style.shadows,
-                ),
-              ),
-            ),
-          );
-        } else {
-          items.add(
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(8),
-                onTap: () => _navigateToBreadcrumb(i),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-                  child: Text(
-                    segments[i],
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: style.folderTextColor,
-                      shadows: style.shadows,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
-      }
     }
 
     return items;
@@ -2070,13 +2009,8 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
     int activeDownloadsCount,
   ) {
     if (style.isPortrait) {
-      return PopupMenuButton<String>(
-        icon: Icon(
-          Icons.more_vert_rounded,
-          size: 20,
-          color: style.iconColor,
-          shadows: style.shadows,
-        ),
+      return FolderNavActionMenu<String>(
+        style: style,
         onSelected: (value) {
           if (value == 'locate') {
             _locateCurrentSong();
@@ -2174,7 +2108,8 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (currentMusic != null) ...[
-            IconButton(
+            FolderNavIconButton(
+              style: style,
               tooltip: l10n.locateCurrentSong,
               icon: Icon(
                 Icons.my_location_rounded,
@@ -2185,7 +2120,8 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
               onPressed: _locateCurrentSong,
             ),
           ],
-          IconButton(
+          FolderNavIconButton(
+            style: style,
             tooltip: l10n.sortBy,
             icon: Icon(
               Icons.sort_rounded,
@@ -2195,7 +2131,8 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
             ),
             onPressed: () => _showSortDialog(context),
           ),
-          IconButton(
+          FolderNavIconButton(
+            style: style,
             tooltip: switch (settings.folderViewMode) {
               FolderViewMode.list => l10n.hybridView,
               FolderViewMode.hybrid => l10n.gridView,
@@ -2219,7 +2156,8 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
               };
             },
           ),
-          IconButton(
+          FolderNavIconButton(
+            style: style,
             tooltip: l10n.refreshResults,
             icon: Icon(
               Icons.refresh_rounded,
@@ -2230,17 +2168,17 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
             onPressed: () =>
                 _loadDirectory(_currentPath, forceRefresh: true),
           ),
-          IconButton(
+          FolderNavIconButton(
+            style: style,
             tooltip: l10n.downloadManager,
-            icon: Badge(
-              isLabelVisible: activeDownloadsCount > 0,
-              label: Text('$activeDownloadsCount'),
-              child: Icon(
-                Icons.download_rounded,
-                size: 20,
-                color: style.iconColor,
-                shadows: style.shadows,
-              ),
+            badge: activeDownloadsCount > 0
+                ? Text('$activeDownloadsCount')
+                : null,
+            icon: Icon(
+              Icons.download_rounded,
+              size: 20,
+              color: style.iconColor,
+              shadows: style.shadows,
             ),
             onPressed: () {
               Navigator.of(context, rootNavigator: true).push(
@@ -2273,35 +2211,13 @@ class _WebDavBrowserPageState extends ConsumerState<WebDavBrowserPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Material(
-          color: Colors.transparent,
-          child: InkResponse(
-            radius: 18,
-            highlightShape: BoxShape.circle,
-            onTap: _handleGoToFoldersRoot,
-            child: Tooltip(
-              message: l10n.backToRootDirectory,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Icon(
-                  Icons.home_rounded,
-                  size: 20,
-                  color: style.iconColor,
-                  shadows: style.shadows,
-                ),
-              ),
-            ),
-          ),
+        FolderBreadcrumbItem(
+          style: style,
+          icon: Icons.home_rounded,
+          tooltip: l10n.backToRootDirectory,
+          onTap: _handleGoToFoldersRoot,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Icon(
-            Icons.chevron_right_rounded,
-            size: 16,
-            color: style.chevronColor,
-            shadows: style.shadows,
-          ),
-        ),
+        FolderBreadcrumbSeparator(style: style),
       ],
     );
   }

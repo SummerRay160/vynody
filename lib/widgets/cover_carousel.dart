@@ -78,6 +78,7 @@ class _CoverCarouselState extends State<CoverCarousel>
   }
 
   bool _isPlaylistSame(List<MusicFile> list1, List<MusicFile> list2) {
+    if (identical(list1, list2)) return true;
     if (list1.length != list2.length) return false;
     for (int i = 0; i < list1.length; i++) {
       if (list1[i].path != list2[i].path) return false;
@@ -344,8 +345,14 @@ class _CoverCarouselState extends State<CoverCarousel>
 
     // Prune _loadedCoversByPath to release memory of non-visible/far covers
     if (_loadedCoversByPath.length > 20) {
-      final activePaths = widget.playlist.map((s) => s.path).toSet();
-      _loadedCoversByPath.removeWhere((path, _) => !activePaths.contains(path));
+      final visiblePaths = <String>{};
+      for (final idx in [center - 2, center - 1, center, center + 1, center + 2]) {
+        final actualIdx = _indexOverrides[idx] ?? idx;
+        if (actualIdx >= 0 && actualIdx < widget.playlist.length) {
+          visiblePaths.add(widget.playlist[actualIdx].path);
+        }
+      }
+      _loadedCoversByPath.removeWhere((path, _) => !visiblePaths.contains(path));
     }
 
     final List<int> indices = [];

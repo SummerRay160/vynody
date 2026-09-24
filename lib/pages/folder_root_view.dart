@@ -250,9 +250,15 @@ class _FolderRootViewState extends ConsumerState<FolderRootView> {
       (sum, folder) => sum + scanner.getSongDurationForFolder(folder),
     );
 
-    // We pass stub lists to satisfy LibrarySelectionPanel length checks.
-    final selectedRootSongs = List.filled(widget.selectedRootPaths.length, MusicFile(path: '', name: ''));
-    final allRootSongs = List.filled(rootFolders.length, MusicFile(path: '', name: ''));
+    final selectedRootSongs = <MusicFile>[
+      for (final folder in rootFolders)
+        if (widget.selectedRootPaths.contains(folder.path))
+          ...folder.allSongs,
+    ];
+    final allRootSongs = <MusicFile>[
+      for (final folder in rootFolders)
+        ...folder.allSongs,
+    ];
 
     final representativeSong = () {
       if (Platform.isAndroid) {
@@ -301,7 +307,7 @@ class _FolderRootViewState extends ConsumerState<FolderRootView> {
         matchedSongs.isNotEmpty ? 16.0 : rootListBottomPadding;
 
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-    final double headerHeight = 64.0 + (MediaQuery.of(context).padding.top > 0 ? MediaQuery.of(context).padding.top : ((Platform.isMacOS || Platform.isWindows || Platform.isLinux) ? 24.0 : 0.0));
+    final double headerHeight = FolderNavBarScaffold.getBarHeight(context);
 
     final rootList = RefreshIndicator(
       edgeOffset: headerHeight,

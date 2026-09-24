@@ -28,7 +28,7 @@ import 'remote/remote_library_page.dart';
 import 'remote/remote_album_detail_page.dart';
 import 'remote/remote_artist_detail_page.dart';
 import 'remote/remote_playlist_detail_page.dart';
-import 'remote/webdav_browser_page.dart';
+import 'remote/remote_folder_browser_page.dart';
 
 class FoldersPage extends ConsumerStatefulWidget {
   final Future<void> Function()? onOpenPlayback;
@@ -716,8 +716,8 @@ class FoldersPageState extends ConsumerState<FoldersPage> {
 
         pages.add(
           _buildPage(
-            key: ValueKey('webdav-root-${activeRemoteSession.server.id}'),
-            child: WebDavBrowserPage(
+            key: ValueKey('remote-folder-root-${activeRemoteSession.server.id}'),
+            child: RemoteFolderBrowserPage(
               server: activeRemoteSession.server,
               password: activeRemoteSession.password,
               initialPath: rootPath,
@@ -735,8 +735,8 @@ class FoldersPageState extends ConsumerState<FoldersPage> {
           pages.add(
             _buildPage(
               key: ValueKey(
-                  'webdav-page-${activeRemoteSession.server.id}-$currentPath-$i'),
-              child: WebDavBrowserPage(
+                  'remote-folder-page-${activeRemoteSession.server.id}-$currentPath-$i'),
+              child: RemoteFolderBrowserPage(
                 server: activeRemoteSession.server,
                 password: activeRemoteSession.password,
                 initialPath: currentPath,

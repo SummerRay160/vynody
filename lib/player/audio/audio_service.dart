@@ -173,9 +173,6 @@ class AudioService extends Notifier<AudioSnapshot> {
     final isProUnlocked = ref.read(isProUnlockedProvider);
     _userVisualizerEnabled =
         isProUnlocked && settingsService.isVisualizerEnabled;
-    if (!isProUnlocked && settingsService.isVisualizerEnabled) {
-      settingsService.isVisualizerEnabled = false;
-    }
 
     final initialFadeEnabled = settingsService.enableFadeEffect;
     final streamCacheManager = AudioStreamCacheManager(
@@ -252,6 +249,37 @@ class AudioService extends Notifier<AudioSnapshot> {
       final shouldThrottle =
           _isWindowMinimized && !settingsService.enableDesktopLyrics;
       _player.setBackgroundThrottled(shouldThrottle);
+    });
+
+    ref.listen<bool>(isProUnlockedProvider, (previous, isUnlocked) {
+      if (_disposed || previous == isUnlocked) return;
+      final currentVisualizerEnabled =
+          isUnlocked && settingsService.isVisualizerEnabled;
+      if (_userVisualizerEnabled != currentVisualizerEnabled) {
+        _userVisualizerEnabled = currentVisualizerEnabled;
+        _updateEffectiveVisualizerState();
+      }
+      final currentEqualizerEnabled =
+          isUnlocked && settingsService.equalizerEnabled;
+      unawaited(_player.setEqualizerEnabled(currentEqualizerEnabled));
+      if (Platform.isWindows) {
+        final isExclusive = isUnlocked &&
+            settingsService.windowsAudioOutputMode == 'wasapi_exclusive';
+        final devId = settingsService.windowsAudioDeviceId.trim().isEmpty
+            ? null
+            : settingsService.windowsAudioDeviceId.trim();
+        unawaited(
+          _player.setAudioOutputMode(
+            mode: isExclusive
+                ? AudioOutputMode.wasapiExclusive
+                : AudioOutputMode.shared,
+            deviceId: devId,
+            releaseOnPause: settingsService.wasapiReleaseOnPause,
+            bitPerfect: settingsService.wasapiBitPerfect,
+          ),
+        );
+      }
+      notifyListeners();
     });
     _visualizerOptions = VisualizerOptionsService(
       controller: _player,
@@ -356,9 +384,6 @@ class AudioService extends Notifier<AudioSnapshot> {
         final bandCount = settingsService.equalizerBandCount;
         final isProUnlocked = ref.read(isProUnlockedProvider);
         final savedEnabled = isProUnlocked && settingsService.equalizerEnabled;
-        if (!isProUnlocked && settingsService.equalizerEnabled) {
-          settingsService.equalizerEnabled = false;
-        }
         final savedGains = settingsService.equalizerGains;
         final savedPreamp = settingsService.equalizerPreamp;
         final savedBassBoost = settingsService.equalizerBassBoost;
@@ -478,16 +503,6 @@ class AudioService extends Notifier<AudioSnapshot> {
       _queue
         ..clear()
         ..addAll(session.queue);
-
-      if (Platform.isIOS || Platform.isMacOS) {
-        for (final song in _queue) {
-          if (!RemoteMediaResolver.isRemoteUri(song.path)) {
-            await _player.registerPersistentAccess(path: song.path);
-            await _player.beginScopedAccess(path: song.path);
-          }
-        }
-      }
-
       _position = Duration.zero;
       _duration = Duration.zero;
       _isPlaying = false;
@@ -513,6 +528,12 @@ class AudioService extends Notifier<AudioSnapshot> {
           await PlaybackSessionManager.resolveRestoredQueueIndex(session);
       if (restoredIndex >= 0) {
         _currentIndex = restoredIndex;
+        final currentSong = _queue[restoredIndex];
+        if ((Platform.isIOS || Platform.isMacOS) &&
+            !RemoteMediaResolver.isRemoteUri(currentSong.path)) {
+          await _player.registerPersistentAccess(path: currentSong.path);
+          await _player.beginScopedAccess(path: currentSong.path);
+        }
         try {
           await _player.playlist.setActivePlaylist(
             _player.playlist.queuePlaylistId,
@@ -545,7 +566,6 @@ class AudioService extends Notifier<AudioSnapshot> {
         _position = restorePosition;
         _isPlaying = false;
 
-        final currentSong = _queue[restoredIndex];
         final duration = _duration > Duration.zero
             ? _duration
             : Duration(milliseconds: currentSong.durationMillis ?? 0);
@@ -1411,17 +1431,6 @@ class AudioService extends Notifier<AudioSnapshot> {
       _notifyIfNeeded(force: true);
     }
 
-    if (!_isTransitioning &&
-        _currentIndex >= 0 &&
-        _currentIndex < _queue.length &&
-        _queue[_currentIndex].path.isNotEmpty &&
-        !_queue[_currentIndex].path.startsWith('content://') &&
-        !RemoteMediaResolver.isRemoteUri(_queue[_currentIndex].path) &&
-        !(File(_queue[_currentIndex].path).existsSync())) {
-      unawaited(_skipMissingCurrentTrack());
-      return;
-    }
-
     _windowsIntegration?.updateTimeline(_position, _duration);
     _androidIntegration?.updateTimeline(_position, _duration);
     _darwinIntegration?.updateTimeline(_position, _duration);
@@ -1538,8 +1547,9 @@ class AudioService extends Notifier<AudioSnapshot> {
   }
 
   void setVisualizerEnabled(bool enabled) {
-    _userVisualizerEnabled = enabled;
     settingsService.isVisualizerEnabled = enabled;
+    final isProUnlocked = ref.read(isProUnlockedProvider);
+    _userVisualizerEnabled = enabled && isProUnlocked;
     _updateEffectiveVisualizerState();
   }
 
@@ -1741,8 +1751,9 @@ class AudioService extends Notifier<AudioSnapshot> {
     if (value && !ref.read(isProUnlockedProvider)) {
       return;
     }
-    await _player.setEqualizerEnabled(value);
     settingsService.equalizerEnabled = value;
+    final isProUnlocked = ref.read(isProUnlockedProvider);
+    await _player.setEqualizerEnabled(value && isProUnlocked);
     notifyListeners();
   }
 
@@ -2621,12 +2632,12 @@ class AudioService extends Notifier<AudioSnapshot> {
     final safeIndex = startIndex.clamp(0, songs.length - 1);
     final tracks = songs.map(_audioTrackForSong).toList(growable: false);
 
+    final current = songs[safeIndex];
+
     if (Platform.isIOS || Platform.isMacOS) {
-      for (final song in songs) {
-        if (!RemoteMediaResolver.isRemoteUri(song.path)) {
-          await _player.registerPersistentAccess(path: song.path);
-          await _player.beginScopedAccess(path: song.path);
-        }
+      if (!RemoteMediaResolver.isRemoteUri(current.path)) {
+        await _player.registerPersistentAccess(path: current.path);
+        await _player.beginScopedAccess(path: current.path);
       }
     }
 
@@ -2646,7 +2657,6 @@ class AudioService extends Notifier<AudioSnapshot> {
       autoPlay: true,
     );
 
-    final current = songs[safeIndex];
     _currentIndex = safeIndex;
     await _syncCurrentPlaybackSong(current);
     await _player.player.setVolume(_volume / 100.0);

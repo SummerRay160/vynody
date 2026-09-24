@@ -1030,9 +1030,13 @@
   "enterApiKey": "请输入 API key。",
   "testingConnection": "正在测试连接...",
   "getKey": "获取key",
+  "editTagsAction": "编辑标签",
   "editSongTagsTitle": "编辑歌曲标签",
   "changeArtwork": "更换封面",
   "clearArtwork": "清除封面",
+  "exportArtwork": "导出封面",
+  "exportArtworkSuccess": "封面已成功导出",
+  "exportArtworkFailed": "导出封面失败",
   "editSongTagsDescription": "修改后可以只保存到 App，也可以同步写回源文件。",
   "artistLabel": "艺术家",
   "albumArtistLabel": "专辑艺术家",
@@ -1047,6 +1051,26 @@
   "saveToSourceFileFailed": "保存到源文件失败，请确认文件格式支持写入且文件未被占用",
   "fileOccupiedByOtherApp": "文件被其他 App 占用，无法写入",
   "saveFailed": "保存失败，请稍后重试",
+  "batchEditSongTagsTitle": "批量编辑歌曲标签",
+  "batchEditSongTagsDescription": "修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。",
+  "keepFieldHint": "提示：值为 <keep> 的属性将保留每首歌曲的原值",
+  "multipleArtworkKeep": "保留各歌曲原封面",
+  "batchSongTagsSavedToApp": "已将 {count} 首歌曲标签保存到 App",
+  "@batchSongTagsSavedToApp": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "batchSongTagsSavedToSourceFileAndApp": "已将 {count} 首歌曲标签保存到源文件和 App",
+  "@batchSongTagsSavedToSourceFileAndApp": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "apiKeySaved": "{provider} API Key 已保存",
   "@apiKeySaved": {
     "placeholders": {

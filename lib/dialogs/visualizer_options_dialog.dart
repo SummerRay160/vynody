@@ -571,51 +571,81 @@ class VisualizerOptionsDialog extends ConsumerWidget {
           const SizedBox(height: 12),
           _buildSectionCard(
             context: context,
-            child: ListTile(
-              contentPadding: isPortrait
-                  ? EdgeInsets.zero
-                  : const EdgeInsets.symmetric(horizontal: 12),
-              leading: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.linear_scale_rounded,
-                  color: theme.colorScheme.primary,
-                  size: 20,
+            padding: EdgeInsets.zero,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(18),
+                onTap: () async {
+                  await showProgressBarStyleDialog(context, ref, settings);
+                  setDialogState(() {});
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color:
+                              theme.colorScheme.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.linear_scale_rounded,
+                          color: theme.colorScheme.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l10n.progressBarStyle,
+                              style: TextStyle(
+                                color: isDark
+                                    ? Colors.white
+                                    : theme.colorScheme.onSurface,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              getProgressBarStyleLabel(
+                                l10n,
+                                (isProUnlocked ||
+                                        settings.progressBarStyle ==
+                                            ProgressBarStyle.standard)
+                                    ? settings.progressBarStyle
+                                    : ProgressBarStyle.standard,
+                              ),
+                              style: TextStyle(
+                                color: isDark
+                                    ? Colors.white70
+                                    : theme.colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: theme.colorScheme.onSurface
+                            .withValues(alpha: isDark ? 0.5 : 0.4),
+                        size: 20,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              title: Text(
-                l10n.progressBarStyle,
-                style: TextStyle(
-                  color: isDark ? Colors.white : theme.colorScheme.onSurface,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              subtitle: Text(
-                getProgressBarStyleLabel(
-                  l10n,
-                  (isProUnlocked ||
-                          settings.progressBarStyle ==
-                              ProgressBarStyle.standard)
-                      ? settings.progressBarStyle
-                      : ProgressBarStyle.standard,
-                ),
-                style: TextStyle(
-                  color: isDark
-                      ? Colors.white70
-                      : theme.colorScheme.onSurfaceVariant,
-                  fontSize: 12,
-                ),
-              ),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () async {
-                await showProgressBarStyleDialog(context, ref, settings);
-                setDialogState(() {});
-              },
             ),
           ),
           const SizedBox(height: 16),
@@ -1627,13 +1657,14 @@ class VisualizerOptionsDialog extends ConsumerWidget {
   Widget _buildSectionCard({
     required BuildContext context,
     required Widget child,
+    EdgeInsetsGeometry? padding,
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: padding ?? const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark
             ? Colors.white.withValues(alpha: 0.04)

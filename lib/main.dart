@@ -614,8 +614,7 @@ class _MyAppState extends ConsumerState<MyApp>
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsServiceProvider);
     final themeColor = settings.themeColor;
-    Widget app = OKToast(
-      child: MaterialApp(
+    Widget app = MaterialApp(
         title: 'Vynody',
         locale: settings.effectiveLocale,
         theme: _buildTheme(Brightness.light, themeColor),
@@ -625,10 +624,20 @@ class _MyAppState extends ConsumerState<MyApp>
           final theme = Theme.of(context);
           final isDark = theme.brightness == Brightness.dark;
           final scale = settings.uiScale;
+          final mediaQuery = MediaQuery.of(context);
+          final isLandscape =
+              mediaQuery.orientation == Orientation.landscape ||
+              mediaQuery.size.width > mediaQuery.size.height;
+          final toastPosition = isLandscape
+              ? const ToastPosition(align: Alignment.topRight, offset: 24.0)
+              : ToastPosition(
+                  align: Alignment.topCenter,
+                  offset: (mediaQuery.padding.top + 16.0).clamp(44.0, 80.0),
+                );
+
           Widget content = child ?? const SizedBox.shrink();
 
           if (scale != 1.0) {
-            final mediaQuery = MediaQuery.of(context);
             final scaledSize = mediaQuery.size / scale;
             content = MediaQuery(
               data: mediaQuery.copyWith(
@@ -655,7 +664,7 @@ class _MyAppState extends ConsumerState<MyApp>
             );
           }
 
-          return AnnotatedRegion<SystemUiOverlayStyle>(
+          final appContent = AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               statusBarIconBrightness: isDark
@@ -687,6 +696,53 @@ class _MyAppState extends ConsumerState<MyApp>
               ),
             ),
           );
+
+          return OKToast(
+            backgroundColor: const Color(0xEB1C1D22),
+            radius: 18.0,
+            textPadding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 11.0,
+            ),
+            textStyle: const TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFFF2F2F5),
+              height: 1.3,
+              letterSpacing: 0.15,
+            ),
+            position: toastPosition,
+            duration: const Duration(milliseconds: 2200),
+            animationDuration: const Duration(milliseconds: 220),
+            animationCurve: Curves.easeOutCubic,
+            dismissOtherOnShow: true,
+            movingOnWindowChange: true,
+            animationBuilder: (context, child, controller, percent) {
+              final curved = CurvedAnimation(
+                parent: controller,
+                curve: Curves.easeOutCubic,
+                reverseCurve: Curves.easeInCubic,
+              );
+              final slideOffset = isLandscape
+                  ? const Offset(0.06, -0.04)
+                  : const Offset(0.0, -0.08);
+
+              return FadeTransition(
+                opacity: curved,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: slideOffset,
+                    end: Offset.zero,
+                  ).animate(curved),
+                  child: ScaleTransition(
+                    scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                    child: child,
+                  ),
+                ),
+              );
+            },
+            child: appContent,
+          );
         },
         localizationsDelegates: const [
           AppLocalizations.delegate,
@@ -697,8 +753,7 @@ class _MyAppState extends ConsumerState<MyApp>
         supportedLocales: AppLocalizations.supportedLocales,
         home: MainLayout(args: widget.args),
         navigatorKey: navigatorKey,
-      ),
-    );
+      );
 
     if (Platform.isLinux) {
       final double radius = (_isMaximized || _isFullScreen)

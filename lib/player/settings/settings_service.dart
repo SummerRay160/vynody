@@ -1991,51 +1991,42 @@ class SettingsService extends ChangeNotifier {
     String key,
     String defaultValue,
   ) {
-    return _secureApiKeys[key] ?? prefs.getString(key) ?? defaultValue;
+    return _secureApiKeys[key] ??
+        _secureStorage?.readSync(key: key) ??
+        AppSecureStorage(prefs).readSync(key: key) ??
+        defaultValue;
   }
 
   void _writeSecureApiKey(SharedPreferences prefs, String key, String value) {
     final normalized = value.trim();
-    if (_secureStorage == null) {
-      if (normalized.isEmpty) {
-        unawaited(prefs.remove(key));
-      } else {
-        unawaited(prefs.setString(key, normalized));
-      }
-      return;
-    }
+    final storage = _secureStorage ?? AppSecureStorage(prefs);
 
     if (normalized.isEmpty) {
       _secureApiKeys.remove(key);
-      unawaited(_secureStorage.delete(key: key).catchError((_) {}));
+      unawaited(storage.delete(key: key).catchError((_) {}));
     } else {
       _secureApiKeys[key] = normalized;
       unawaited(
-        _secureStorage.write(key: key, value: normalized).catchError((_) {}),
+        storage.write(key: key, value: normalized).catchError((_) {}),
       );
     }
-    unawaited(prefs.remove(key));
   }
 
   SettingsService(
     this._prefs, {
-    FlutterSecureStorage? secureStorage,
+    AppSecureStorage? secureStorage,
     Map<String, String> secureApiKeys = const <String, String>{},
-  }) : _secureStorage = secureStorage,
+  }) : _secureStorage = secureStorage ?? AppSecureStorage(_prefs),
        _secureApiKeys = Map<String, String>.from(secureApiKeys),
        _shortcutBindings = _loadShortcutBindings(_prefs) {
     _lastKnownCustomProviderName =
         _prefs.getString(customProviderNameStorageKey)?.trim() ?? '';
     LocalizedText.overrideLanguageCode =
         _prefs.getString(_keyLocale) ?? 'system';
-    if (defaultTargetPlatform == TargetPlatform.linux &&
-        _enableDesktopLyricsProperty.value) {
-      _enableDesktopLyricsProperty.value = false;
-    }
     _syncProxyToManager();
   }
 
-  final FlutterSecureStorage? _secureStorage;
+  final AppSecureStorage? _secureStorage;
   final Map<String, String> _secureApiKeys;
 
   AppProxyMode get proxyMode => _proxyModeProperty.value;
@@ -3302,29 +3293,15 @@ class SettingsService extends ChangeNotifier {
 
   static Future<SettingsService> init() async {
     final prefs = await SharedPreferences.getInstance();
-    const secureStorage = appSecureStorage;
+    final secureStorage = AppSecureStorage(prefs);
     final secureApiKeys = <String, String>{};
     for (final key in _apiKeyStorageKeys) {
       try {
         final secureValue = (await secureStorage.read(key: key))?.trim();
-        final legacyValue = prefs.getString(key)?.trim();
         if (secureValue != null && secureValue.isNotEmpty) {
           secureApiKeys[key] = secureValue;
-        } else if (legacyValue != null && legacyValue.isNotEmpty) {
-          secureApiKeys[key] = legacyValue;
-          try {
-            await secureStorage.write(key: key, value: legacyValue);
-          } catch (_) {}
         }
-        if (legacyValue != null) {
-          await prefs.remove(key);
-        }
-      } catch (_) {
-        final legacyValue = prefs.getString(key)?.trim();
-        if (legacyValue != null && legacyValue.isNotEmpty) {
-          secureApiKeys[key] = legacyValue;
-        }
-      }
+      } catch (_) {}
     }
     return SettingsService(
       prefs,
@@ -3415,7 +3392,6 @@ class SettingsService extends ChangeNotifier {
           : _enableDesktopLyricsProperty.value;
   set enableDesktopLyrics(bool value) {
     if (defaultTargetPlatform == TargetPlatform.linux) {
-      _enableDesktopLyricsProperty.value = false;
       return;
     }
     _enableDesktopLyricsProperty.value = value;

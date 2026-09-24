@@ -1,10 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vynody/player/audio/equalizer_presets.dart';
 import 'package:vynody/player/settings/settings_service.dart';
+import 'package:vynody/utils/secure_storage.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -232,8 +232,7 @@ void main() {
   });
 
   group('SettingsService - Secure API Key Storage & Migration', () {
-    test('migrates legacy SharedPreferences API keys to secure storage on init', () async {
-      FlutterSecureStorage.setMockInitialValues({});
+    test('reads legacy plaintext SharedPreferences API keys on init', () async {
       SharedPreferences.setMockInitialValues({
         'gemini_api_key': 'legacy-gemini-key',
         'openrouter_api_key': 'legacy-openrouter-key',
@@ -246,18 +245,13 @@ void main() {
       expect(settings.hasCustomGoogleAiStudioApiKey, isTrue);
       expect(settings.hasCustomOpenRouterApiKey, isTrue);
 
-      // Verify that legacy keys are removed from SharedPreferences
-      expect(settings.prefs.containsKey('gemini_api_key'), isFalse);
-      expect(settings.prefs.containsKey('openrouter_api_key'), isFalse);
-
       // Verify secure storage contains the values
-      const secureStorage = FlutterSecureStorage();
+      final secureStorage = AppSecureStorage(settings.prefs);
       expect(await secureStorage.read(key: 'gemini_api_key'), 'legacy-gemini-key');
       expect(await secureStorage.read(key: 'openrouter_api_key'), 'legacy-openrouter-key');
     });
 
     test('updating and clearing API keys updates secure storage', () async {
-      FlutterSecureStorage.setMockInitialValues({});
       SharedPreferences.setMockInitialValues({});
 
       final settings = await SettingsService.init();
@@ -269,7 +263,7 @@ void main() {
       expect(settings.doubaoApiKey, 'new-doubao-key');
       expect(settings.hasCustomDoubaoApiKey, isTrue);
 
-      const secureStorage = FlutterSecureStorage();
+      final secureStorage = AppSecureStorage(settings.prefs);
       expect(await secureStorage.read(key: 'doubao_api_key'), 'new-doubao-key');
 
       settings.doubaoApiKey = '';

@@ -1,8 +1,11 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vynody/player/audio/audio_riverpod.dart';
 import 'package:vynody/player/pro/app_channel.dart';
 import 'package:vynody/player/pro/pro_license_service.dart';
 import 'package:vynody/player/pro/pro_models.dart';
+import 'package:vynody/player/settings/settings_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -54,5 +57,51 @@ void main() {
       expect(ProFeature.dynamicMeshBackground.icon, isNotNull);
       expect(ProFeature.customImageBackground.icon, isNotNull);
     });
+
+    test('Effective settings providers correctly gate features without altering persistent storage', () async {
+      SharedPreferences.setMockInitialValues({
+        'visualizer_enabled': true,
+        'equalizer_enabled': true,
+        'playback_background_type': 1, // dynamic mesh
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final settings = SettingsService(prefs);
+
+      // 1. Pro Unlocked container
+      final unlockedContainer = ProviderContainer(
+        overrides: [
+          settingsServiceProvider.overrideWith((ref) => SettingsService(prefs)),
+          isProUnlockedProvider.overrideWithValue(true),
+        ],
+      );
+
+      expect(unlockedContainer.read(effectiveVisualizerEnabledProvider), isTrue);
+      expect(unlockedContainer.read(effectiveEqualizerEnabledProvider), isTrue);
+      expect(unlockedContainer.read(effectivePlaybackBackgroundTypeProvider), 1);
+
+      // 2. Pro Locked container
+      final lockedContainer = ProviderContainer(
+        overrides: [
+          settingsServiceProvider.overrideWith((ref) => SettingsService(prefs)),
+          isProUnlockedProvider.overrideWithValue(false),
+        ],
+      );
+
+      expect(lockedContainer.read(effectiveVisualizerEnabledProvider), isFalse);
+      expect(lockedContainer.read(effectiveEqualizerEnabledProvider), isFalse);
+      expect(lockedContainer.read(effectivePlaybackBackgroundTypeProvider), 0);
+
+      // Verify underlying persistent storage remains unmodified
+      expect(settings.isVisualizerEnabled, isTrue);
+      expect(settings.equalizerEnabled, isTrue);
+      expect(settings.playbackBackgroundType, 1);
+      expect(prefs.getBool('visualizer_enabled'), isTrue);
+      expect(prefs.getBool('equalizer_enabled'), isTrue);
+      expect(prefs.getInt('playback_background_type'), 1);
+
+      unlockedContainer.dispose();
+      lockedContainer.dispose();
+    });
   });
 }
+

@@ -493,9 +493,13 @@
   "enterApiKey": "Please enter an API key.",
   "testingConnection": "Testing connection...",
   "getKey": "Get key",
+  "editTagsAction": "Edit Tags",
   "editSongTagsTitle": "Edit Song Tags",
   "changeArtwork": "Change Cover",
   "clearArtwork": "Clear Cover",
+  "exportArtwork": "Export Cover",
+  "exportArtworkSuccess": "Cover exported successfully",
+  "exportArtworkFailed": "Failed to export cover",
   "editSongTagsDescription": "You can save changes only in the app, or write them back to the source file as well.",
   "artistLabel": "Artist",
   "albumArtistLabel": "Album Artist",
@@ -510,6 +514,26 @@
   "saveToSourceFileFailed": "Failed to save to the source file. Please make sure the file format supports writing and the file is not in use.",
   "fileOccupiedByOtherApp": "The file is occupied by another app and cannot be written",
   "saveFailed": "Save failed. Please try again later.",
+  "batchEditSongTagsTitle": "Batch Edit Song Tags",
+  "batchEditSongTagsDescription": "You can save changes only in the app, or write them back to source files. Fields with <keep> will retain their original values.",
+  "keepFieldHint": "Tip: fields with <keep> will retain their original values.",
+  "multipleArtworkKeep": "Keep individual covers",
+  "batchSongTagsSavedToApp": "Saved tags for {count} songs to App",
+  "@batchSongTagsSavedToApp": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "batchSongTagsSavedToSourceFileAndApp": "Saved tags for {count} songs to source files and App",
+  "@batchSongTagsSavedToSourceFileAndApp": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "apiKeySaved": "{provider} API key saved",
   "@apiKeySaved": {
     "placeholders": {

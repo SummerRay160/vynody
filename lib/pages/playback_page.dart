@@ -837,14 +837,7 @@ class _PlaybackPageState extends ConsumerState<PlaybackPage> {
     final isVisualizerEnabled = ref.watch(audioIsVisualizerEnabledProvider);
     final isTransitioning = ref.watch(audioIsTransitioningProvider);
     final shouldDrawVisualizer = isVisualizerEnabled && !isTransitioning;
-    final rawBackgroundType = ref.watch(
-      settingsServiceProvider.select((s) => s.playbackBackgroundType),
-    );
-    final isProUnlocked = ref.watch(isProUnlockedProvider);
-    final backgroundType =
-        (!isProUnlocked && (rawBackgroundType == 1 || rawBackgroundType == 3))
-            ? 0
-            : rawBackgroundType;
+    final backgroundType = ref.watch(effectivePlaybackBackgroundTypeProvider);
 
     return Listener(
       onPointerDown: (event) {

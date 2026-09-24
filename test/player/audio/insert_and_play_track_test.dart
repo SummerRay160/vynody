@@ -3,6 +3,7 @@ import 'package:audio_core/src/audio_engine/audio_engine_interface.dart';
 import 'package:audio_core/src/player_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+// ignore: invalid_use_of_internal_member
 class FakeAudioParent implements AudioVisualizerParent {
   AudioTrack? lastLoadedTrack;
   bool? lastAutoPlay;
