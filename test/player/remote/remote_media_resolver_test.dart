@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:audio_core/audio_core.dart';
@@ -37,7 +36,6 @@ void main() {
 
   setUp(() async {
     HttpOverrides.global = null;
-    FlutterSecureStorage.setMockInitialValues({});
     SharedPreferences.setMockInitialValues({});
     prefs = await SharedPreferences.getInstance();
     storage = RemoteServerStorage(prefs: prefs);

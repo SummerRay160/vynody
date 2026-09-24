@@ -7,12 +7,12 @@ import 'package:vynody/utils/localized_text.dart';
 AppLocalizations _l10n() => currentAppL10n;
 
 class AIApiKeyService {
-  AIApiKeyService({NetworkClient? client, FlutterSecureStorage? storage})
+  AIApiKeyService({NetworkClient? client, AppSecureStorage? storage})
     : _client = client ?? NetworkClient.instance,
       _storage = storage ?? appSecureStorage;
 
   final NetworkClient _client;
-  final FlutterSecureStorage _storage;
+  final AppSecureStorage _storage;
 
   Future<String?> loadApiKey() async {
     try {

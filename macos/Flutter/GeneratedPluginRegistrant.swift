@@ -17,7 +17,6 @@ import file_picker
 import file_selector_macos
 import flutter_desktop_lyrics
 import flutter_desktop_tray
-import flutter_secure_storage_macos
 import in_app_purchase_storekit
 import mobile_storage_listener
 import package_info_plus
@@ -42,7 +41,6 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
   FlutterDesktopLyricsPlugin.register(with: registry.registrar(forPlugin: "FlutterDesktopLyricsPlugin"))
   FlutterTrayPlugin.register(with: registry.registrar(forPlugin: "FlutterTrayPlugin"))
-  FlutterSecureStoragePlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStoragePlugin"))
   InAppPurchasePlugin.register(with: registry.registrar(forPlugin: "InAppPurchasePlugin"))
   MobileStorageListenerPlugin.register(with: registry.registrar(forPlugin: "MobileStorageListenerPlugin"))
   FPPPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))
