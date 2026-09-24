@@ -568,7 +568,7 @@ class _AddEditRemoteServerDialogState
                           SwitchListTile(
                             contentPadding: EdgeInsets.zero,
                             title: Text(l10n.ignoreSsl),
-                            subtitle: const Text('For self-signed or internal SSL certs'),
+                            subtitle: Text(l10n.ignoreSslDescription),
                             value: _ignoreSsl,
                             onChanged: (val) {
                               setState(() {

@@ -95,7 +95,7 @@ class PlaybackAlbumArt extends ConsumerWidget {
           AppSnackBar.show(
             context,
             ref,
-            const SnackBar(content: Text('Failed to copy cover')),
+            SnackBar(content: Text(l10n.copyCoverFailed)),
           );
         }
       }

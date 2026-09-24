@@ -1414,26 +1414,27 @@ class AppLocalizationsFr extends AppLocalizations {
       'Échec de la sauvegarde. Veuillez réessayer plus tard.';
 
   @override
-  String get batchEditSongTagsTitle => '批量编辑歌曲标签';
+  String get batchEditSongTagsTitle => 'Modifier les balises par lot';
 
   @override
   String get batchEditSongTagsDescription =>
-      '修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。';
+      'Vous pouvez enregistrer les modifications uniquement dans l\'application ou les réécrire dans les fichiers source. Les champs avec <keep> conservent leurs valeurs.';
 
   @override
-  String get keepFieldHint => '提示：值为 <keep> 的属性将保留每首歌曲的原值';
+  String get keepFieldHint =>
+      'Astuce : les champs avec <keep> conservent leurs valeurs d\'origine.';
 
   @override
-  String get multipleArtworkKeep => '保留各歌曲原封面';
+  String get multipleArtworkKeep => 'Conserver les pochettes individuelles';
 
   @override
   String batchSongTagsSavedToApp(int count) {
-    return '已将 $count 首歌曲标签保存到 App';
+    return 'Balises enregistrées pour $count morceaux dans l\'application';
   }
 
   @override
   String batchSongTagsSavedToSourceFileAndApp(int count) {
-    return '已将 $count 首歌曲标签保存到源文件和 App';
+    return 'Balises enregistrées pour $count morceaux dans les fichiers source et l\'application';
   }
 
   @override
@@ -5047,68 +5048,169 @@ class AppLocalizationsFr extends AppLocalizations {
       'Veuillez entrer une adresse et un port de proxy valides';
 
   @override
-  String get sortPlaylists => '播放列表排序';
+  String get sortPlaylists => 'Trier les playlists';
 
   @override
-  String get sortRecentlyUpdated => '最近更新';
+  String get sortRecentlyUpdated => 'Récemment mis à jour';
 
   @override
-  String get sortRecentlyCreated => '最近创建';
+  String get sortRecentlyCreated => 'Récemment créé';
 
   @override
-  String get sortCustom => '自定义排序';
+  String get sortCustom => 'Ordre personnalisé';
 
   @override
-  String get addToMediaLibrary => '加入媒体库索引';
+  String get addToMediaLibrary => 'Ajouter à la bibliothèque multimédia';
 
   @override
-  String get removeFromMediaLibrary => '从媒体库索引移除';
+  String get removeFromMediaLibrary => 'Retirer de la bibliothèque multimédia';
 
   @override
-  String get addedToMediaLibrary => '已加入媒体库索引，正在后台扫描...';
+  String get addedToMediaLibrary =>
+      'Ajouté à la bibliothèque multimédia, analyse en arrière-plan...';
 
   @override
-  String get removedFromMediaLibrary => '已从媒体库索引移除';
+  String get removedFromMediaLibrary => 'Retiré de la bibliothèque multimédia';
 
   @override
-  String get indexingRemoteFolders => '正在索引远程目录...';
+  String get indexingRemoteFolders => 'Indexation des dossiers distants...';
 
   @override
-  String get remoteMediaFolders => '远程网络目录';
+  String get remoteMediaFolders => 'Dossiers réseau distants';
 
   @override
-  String get remoteFolderAlreadyIndexed => '该目录已在媒体库索引中';
+  String get remoteFolderAlreadyIndexed =>
+      'Le dossier est déjà indexé dans la bibliothèque';
 
   @override
-  String get remoteLibraryBadge => '云端';
+  String get remoteLibraryBadge => 'Cloud';
 
   @override
-  String get remoteLibraryTooltip => '来自远程媒体库';
+  String get remoteLibraryTooltip =>
+      'Depuis la bibliothèque multimédia distante';
 
   @override
-  String get remoteSourceTitle => '远程媒体来源';
+  String get remoteSourceTitle => 'Source multimédia distante';
 
   @override
-  String get remoteServer => '服务器';
+  String get remoteServer => 'Serveur';
 
   @override
-  String get remoteChannel => '渠道类型';
+  String get remoteChannel => 'Type de canal';
 
   @override
-  String get remoteFolder => '所在文件夹';
+  String get remoteFolder => 'Dossier distant';
 
   @override
-  String get remoteFilePath => '远程路径';
+  String get remoteFilePath => 'Chemin distant';
 
   @override
-  String get copyPath => '复制路径';
+  String get copyPath => 'Copier le chemin';
 
   @override
-  String get pathCopied => '已复制路径到剪贴板';
+  String get pathCopied => 'Chemin copié dans le presse-papiers';
 
   @override
-  String get viewInRemoteFolder => '在网络目录中查看';
+  String get viewInRemoteFolder => 'Afficher dans le dossier distant';
 
   @override
-  String get remoteServerNotFound => '未找到关联的媒体服务器';
+  String get remoteServerNotFound => 'Serveur multimédia associé introuvable';
+
+  @override
+  String get visualizerCapDropSpeed => 'Vitesse de chute des barres';
+
+  @override
+  String get desktopLyrics => 'Paroles sur le bureau';
+
+  @override
+  String get enableDesktopLyrics => 'Activer les paroles sur le bureau';
+
+  @override
+  String get enableDesktopLyricsDescription =>
+      'Afficher des paroles flottantes translucides toujours au premier plan';
+
+  @override
+  String get lockDesktopLyrics => 'Verrouiller la position des paroles';
+
+  @override
+  String get lockDesktopLyricsDescription =>
+      'Verrouille la position de la fenêtre ; survolez pour afficher les commandes';
+
+  @override
+  String get desktopLyricsShowTranslation =>
+      'Afficher la traduction / paroles sur deux lignes';
+
+  @override
+  String get desktopLyricsShowTranslationDescription =>
+      'Si le morceau a une traduction, afficher les deux lignes simultanément';
+
+  @override
+  String get desktopLyricsShowBackground => 'Arrière-plan sombre permanent';
+
+  @override
+  String get desktopLyricsShowBackgroundDescription =>
+      'Affiche un fond de capsule translucide pour améliorer la lisibilité sur les fonds clairs';
+
+  @override
+  String desktopLyricsFontSize(int size) {
+    return 'Taille de police des paroles ($size px)';
+  }
+
+  @override
+  String get noTranslationAiPrompt =>
+      'Aucune traduction disponible pour ce morceau. Générer la traduction avec l\'IA ?';
+
+  @override
+  String get noKaraokeAiPrompt =>
+      'Ce morceau n\'a pas de paroles mot à mot. Les convertir en karaoké mot à mot avec l\'IA ?';
+
+  @override
+  String get wordByWordLyricsEnabled => 'Paroles mot à mot activées';
+
+  @override
+  String get wordByWordLyricsDisabled => 'Paroles mot à mot désactivées';
+
+  @override
+  String get ignoreSslDescription =>
+      'Pour les certificats SSL auto-signés ou internes';
+
+  @override
+  String get copyCoverFailed => 'Échec de la copie de la pochette';
+
+  @override
+  String get folderIsEmpty => 'Le dossier est vide';
+
+  @override
+  String get openDesktopLyrics => 'Ouvrir les paroles sur le bureau';
+
+  @override
+  String get closeDesktopLyrics => 'Fermer les paroles sur le bureau';
+
+  @override
+  String get unlockDesktopLyrics =>
+      'Déverrouiller les paroles sur le bureau (activer le déplacement)';
+
+  @override
+  String get lockDesktopLyricsTray =>
+      'Verrouiller les paroles sur le bureau (position fixe)';
+
+  @override
+  String get msStoreLaunchFailed =>
+      'Échec du lancement du Microsoft Store. Veuillez rechercher et acheter dans le Store.';
+
+  @override
+  String get storeConnectFailed =>
+      'Impossible de se connecter au magasin d\'applications. Veuillez vérifier le réseau et réessayer.';
+
+  @override
+  String get msStoreSyncSuccess =>
+      'État de l\'achat et de la licence Microsoft Store synchronisé';
+
+  @override
+  String get allProFeaturesUnlocked =>
+      'Aucun échange requis pour la version actuelle. Toutes les fonctionnalités Pro sont débloquées.';
+
+  @override
+  String get cannotConnectToMediaServer =>
+      'Impossible de se connecter au serveur multimédia. Veuillez vérifier si le service est actif.';
 }

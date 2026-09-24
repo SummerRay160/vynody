@@ -176,7 +176,7 @@ class IapService extends ChangeNotifier {
         return true;
       } catch (e) {
         debugPrint('[IAP] buyPro Windows error: $e');
-        showToast('唤起微软商店失败，请前往商店搜索购买');
+        showToast(currentAppL10n.msStoreLaunchFailed);
         return false;
       }
     }
@@ -189,7 +189,7 @@ class IapService extends ChangeNotifier {
     }
 
     if (product == null) {
-      showToast('无法连接应用商店获取商品信息，请检查网络后重试');
+      showToast(currentAppL10n.storeConnectFailed);
       return false;
     }
 
@@ -208,7 +208,7 @@ class IapService extends ChangeNotifier {
         isPurchasing: false,
         errorMessage: e.toString(),
       ));
-      showToast('发起购买失败: $e');
+      showToast(currentAppL10n.iapPurchaseCancelledOrFailed(e.toString()));
       return false;
     }
   }
@@ -228,7 +228,7 @@ class IapService extends ChangeNotifier {
       } catch (_) {}
       if (!silent) {
         _updateState(_state.copyWith(isRestoring: false));
-        showToast('已同步微软商店购买与授权状态');
+        showToast(currentAppL10n.msStoreSyncSuccess);
       }
       return;
     }
@@ -247,7 +247,7 @@ class IapService extends ChangeNotifier {
           isRestoring: false,
           errorMessage: e.toString(),
         ));
-        showToast('恢复购买失败: $e');
+        showToast(currentAppL10n.iapPurchaseCancelledOrFailed(e.toString()));
       }
     } finally {
       if (!silent) {
@@ -283,7 +283,7 @@ class IapService extends ChangeNotifier {
   /// Open the native store redemption interface or store redemption page.
   Future<void> redeemCode() async {
     if (AppChannel.isGitHubRelease) {
-      showToast('当前版本无需兑换，所有 Pro 功能已完全开放');
+      showToast(currentAppL10n.allProFeaturesUnlocked);
       return;
     }
 

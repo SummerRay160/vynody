@@ -5045,4 +5045,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get remoteServerNotFound => 'Associated remote server not found';
+
+  @override
+  String get visualizerCapDropSpeed => 'Cap Fall Speed';
+
+  @override
+  String get desktopLyrics => 'Desktop Lyrics';
+
+  @override
+  String get enableDesktopLyrics => 'Enable Desktop Lyrics';
+
+  @override
+  String get enableDesktopLyricsDescription =>
+      'Display floating translucent lyrics always on top on desktop';
+
+  @override
+  String get lockDesktopLyrics => 'Lock Lyrics Position';
+
+  @override
+  String get lockDesktopLyricsDescription =>
+      'Lock window position and disable dragging; hover to show controls and unlock';
+
+  @override
+  String get desktopLyricsShowTranslation =>
+      'Show Translation / Dual-Line Lyrics';
+
+  @override
+  String get desktopLyricsShowTranslationDescription =>
+      'If current song has translation, display both lines simultaneously in desktop lyrics';
+
+  @override
+  String get desktopLyricsShowBackground => 'Persistent Dark Background';
+
+  @override
+  String get desktopLyricsShowBackgroundDescription =>
+      'Show a translucent pill background under desktop lyrics to improve readability on bright wallpapers';
+
+  @override
+  String desktopLyricsFontSize(int size) {
+    return 'Lyrics Font Size ($size px)';
+  }
+
+  @override
+  String get noTranslationAiPrompt =>
+      'Current song has no translation. Generate translation using AI?';
+
+  @override
+  String get noKaraokeAiPrompt =>
+      'Current song has no word-by-word lyrics. Convert to word-by-word/karaoke lyrics using AI?';
+
+  @override
+  String get wordByWordLyricsEnabled => 'Word-by-word lyrics enabled';
+
+  @override
+  String get wordByWordLyricsDisabled => 'Word-by-word lyrics disabled';
+
+  @override
+  String get ignoreSslDescription => 'For self-signed or internal SSL certs';
+
+  @override
+  String get copyCoverFailed => 'Failed to copy cover';
+
+  @override
+  String get folderIsEmpty => 'Folder is empty';
+
+  @override
+  String get openDesktopLyrics => 'Open Desktop Lyrics';
+
+  @override
+  String get closeDesktopLyrics => 'Close Desktop Lyrics';
+
+  @override
+  String get unlockDesktopLyrics => 'Unlock Desktop Lyrics (Enable Dragging)';
+
+  @override
+  String get lockDesktopLyricsTray => 'Lock Desktop Lyrics (Fixed Position)';
+
+  @override
+  String get msStoreLaunchFailed =>
+      'Failed to launch Microsoft Store. Please search and purchase in the store.';
+
+  @override
+  String get storeConnectFailed =>
+      'Unable to connect to app store for product details. Please check network and retry.';
+
+  @override
+  String get msStoreSyncSuccess =>
+      'Synchronized Microsoft Store purchase and license status';
+
+  @override
+  String get allProFeaturesUnlocked =>
+      'No redemption needed for current version. All Pro features are fully unlocked.';
+
+  @override
+  String get cannotConnectToMediaServer =>
+      'Cannot connect to media library server. Please check if the service is running.';
 }

@@ -843,13 +843,14 @@ class LyricsSection extends ConsumerWidget {
     BuildContext context,
     SettingsService settings,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return SettingsGroupCard(
-      title: '桌面歌词',
+      title: l10n.desktopLyrics,
       icon: Icons.subtitles_rounded,
       children: [
         SwitchListTile(
-          title: const Text('启用桌面歌词'),
-          subtitle: const Text('在操作系统桌面上显示置顶半透明悬浮歌词'),
+          title: Text(l10n.enableDesktopLyrics),
+          subtitle: Text(l10n.enableDesktopLyricsDescription),
           value: settings.enableDesktopLyrics,
           onChanged: (val) {
             settings.enableDesktopLyrics = val;
@@ -857,31 +858,35 @@ class LyricsSection extends ConsumerWidget {
         ),
         if (settings.enableDesktopLyrics) ...[
           SwitchListTile(
-            title: const Text('锁定歌词位置'),
-            subtitle: const Text('开启后固定歌词窗口位置禁止拖拽移动；悬停依然可呼出控制条及解锁'),
+            title: Text(l10n.lockDesktopLyrics),
+            subtitle: Text(l10n.lockDesktopLyricsDescription),
             value: settings.desktopLyricsLocked,
             onChanged: (val) {
               settings.desktopLyricsLocked = val;
             },
           ),
           SwitchListTile(
-            title: const Text('显示翻译 / 双行歌词'),
-            subtitle: const Text('若当前歌曲包含翻译，则在桌面歌词中以双行形式同时展示'),
+            title: Text(l10n.desktopLyricsShowTranslation),
+            subtitle: Text(l10n.desktopLyricsShowTranslationDescription),
             value: settings.desktopLyricsShowTranslation,
             onChanged: (val) {
               settings.desktopLyricsShowTranslation = val;
             },
           ),
           SwitchListTile(
-            title: const Text('常驻暗色背景'),
-            subtitle: const Text('在桌面歌词底层常驻显示半透明胶囊背景，改善浅色壁纸或复杂窗口下的文字可读性'),
+            title: Text(l10n.desktopLyricsShowBackground),
+            subtitle: Text(l10n.desktopLyricsShowBackgroundDescription),
             value: settings.desktopLyricsShowBackground,
             onChanged: (val) {
               settings.desktopLyricsShowBackground = val;
             },
           ),
           ListTile(
-            title: Text('歌词字号大小 (${settings.desktopLyricsFontSize.toInt()} px)'),
+            title: Text(
+              l10n.desktopLyricsFontSize(
+                settings.desktopLyricsFontSize.toInt(),
+              ),
+            ),
             subtitle: Slider(
               value: settings.desktopLyricsFontSize.clamp(16.0, 56.0),
               min: 16.0,

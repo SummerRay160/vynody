@@ -1413,26 +1413,27 @@ class AppLocalizationsEs extends AppLocalizations {
   String get saveFailed => 'Error al guardar. Intenta de nuevo más tarde.';
 
   @override
-  String get batchEditSongTagsTitle => '批量编辑歌曲标签';
+  String get batchEditSongTagsTitle => 'Edición por lotes de etiquetas';
 
   @override
   String get batchEditSongTagsDescription =>
-      '修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。';
+      'Puede guardar cambios solo en la app o escribirlos en los archivos de origen. Los campos con <keep> conservarán sus valores originales.';
 
   @override
-  String get keepFieldHint => '提示：值为 <keep> 的属性将保留每首歌曲的原值';
+  String get keepFieldHint =>
+      'Consejo: los campos con <keep> conservarán sus valores originales.';
 
   @override
-  String get multipleArtworkKeep => '保留各歌曲原封面';
+  String get multipleArtworkKeep => 'Mantener portadas individuales';
 
   @override
   String batchSongTagsSavedToApp(int count) {
-    return '已将 $count 首歌曲标签保存到 App';
+    return 'Etiquetas guardadas para $count canciones en la app';
   }
 
   @override
   String batchSongTagsSavedToSourceFileAndApp(int count) {
-    return '已将 $count 首歌曲标签保存到源文件和 App';
+    return 'Etiquetas guardadas para $count canciones en archivos de origen y app';
   }
 
   @override
@@ -5051,68 +5052,170 @@ class AppLocalizationsEs extends AppLocalizations {
       'Ingresa una dirección de proxy y un puerto válidos';
 
   @override
-  String get sortPlaylists => '播放列表排序';
+  String get sortPlaylists => 'Ordenar listas de reproducción';
 
   @override
-  String get sortRecentlyUpdated => '最近更新';
+  String get sortRecentlyUpdated => 'Recientemente actualizado';
 
   @override
-  String get sortRecentlyCreated => '最近创建';
+  String get sortRecentlyCreated => 'Creado recientemente';
 
   @override
-  String get sortCustom => '自定义排序';
+  String get sortCustom => 'Orden personalizado';
 
   @override
-  String get addToMediaLibrary => '加入媒体库索引';
+  String get addToMediaLibrary => 'Añadir a la biblioteca multimedia';
 
   @override
-  String get removeFromMediaLibrary => '从媒体库索引移除';
+  String get removeFromMediaLibrary => 'Eliminar de la biblioteca multimedia';
 
   @override
-  String get addedToMediaLibrary => '已加入媒体库索引，正在后台扫描...';
+  String get addedToMediaLibrary =>
+      'Añadido a la biblioteca multimedia, escaneando en segundo plano...';
 
   @override
-  String get removedFromMediaLibrary => '已从媒体库索引移除';
+  String get removedFromMediaLibrary => 'Eliminado de la biblioteca multimedia';
 
   @override
-  String get indexingRemoteFolders => '正在索引远程目录...';
+  String get indexingRemoteFolders => 'Indexando carpetas remotas...';
 
   @override
-  String get remoteMediaFolders => '远程网络目录';
+  String get remoteMediaFolders => 'Carpetas de red remotas';
 
   @override
-  String get remoteFolderAlreadyIndexed => '该目录已在媒体库索引中';
+  String get remoteFolderAlreadyIndexed =>
+      'La carpeta ya está indexada en la biblioteca';
 
   @override
-  String get remoteLibraryBadge => '云端';
+  String get remoteLibraryBadge => 'Nube';
 
   @override
-  String get remoteLibraryTooltip => '来自远程媒体库';
+  String get remoteLibraryTooltip => 'De biblioteca multimedia remota';
 
   @override
-  String get remoteSourceTitle => '远程媒体来源';
+  String get remoteSourceTitle => 'Fuente de medios remota';
 
   @override
-  String get remoteServer => '服务器';
+  String get remoteServer => 'Servidor';
 
   @override
-  String get remoteChannel => '渠道类型';
+  String get remoteChannel => 'Tipo de canal';
 
   @override
-  String get remoteFolder => '所在文件夹';
+  String get remoteFolder => 'Carpeta remota';
 
   @override
-  String get remoteFilePath => '远程路径';
+  String get remoteFilePath => 'Ruta remota';
 
   @override
-  String get copyPath => '复制路径';
+  String get copyPath => 'Copiar ruta';
 
   @override
-  String get pathCopied => '已复制路径到剪贴板';
+  String get pathCopied => 'Ruta copiada al portapapeles';
 
   @override
-  String get viewInRemoteFolder => '在网络目录中查看';
+  String get viewInRemoteFolder => 'Ver en carpeta remota';
 
   @override
-  String get remoteServerNotFound => '未找到关联的媒体服务器';
+  String get remoteServerNotFound =>
+      'Servidor de medios asociado no encontrado';
+
+  @override
+  String get visualizerCapDropSpeed => 'Velocidad de caída de tapas';
+
+  @override
+  String get desktopLyrics => 'Letras de escritorio';
+
+  @override
+  String get enableDesktopLyrics => 'Habilitar letras de escritorio';
+
+  @override
+  String get enableDesktopLyricsDescription =>
+      'Mostrar letras flotantes translúcidas siempre en primer plano';
+
+  @override
+  String get lockDesktopLyrics => 'Bloquear posición de letras';
+
+  @override
+  String get lockDesktopLyricsDescription =>
+      'Fija la posición de la ventana e impide moverla; pasa el cursor para controles';
+
+  @override
+  String get desktopLyricsShowTranslation =>
+      'Mostrar traducción / letras de dos líneas';
+
+  @override
+  String get desktopLyricsShowTranslationDescription =>
+      'Si la canción tiene traducción, muestra ambas líneas en las letras de escritorio';
+
+  @override
+  String get desktopLyricsShowBackground => 'Fondo oscuro persistente';
+
+  @override
+  String get desktopLyricsShowBackgroundDescription =>
+      'Muestra un fondo translúcido tipo cápsula para mejorar la legibilidad sobre fondos claros';
+
+  @override
+  String desktopLyricsFontSize(int size) {
+    return 'Tamaño de fuente de letras ($size px)';
+  }
+
+  @override
+  String get noTranslationAiPrompt =>
+      'La canción actual no tiene traducción. ¿Generar traducción con IA?';
+
+  @override
+  String get noKaraokeAiPrompt =>
+      'La canción actual no tiene letras palabra por palabra. ¿Convertir a letras sincronizadas/karaoke con IA?';
+
+  @override
+  String get wordByWordLyricsEnabled => 'Letras palabra por palabra activadas';
+
+  @override
+  String get wordByWordLyricsDisabled =>
+      'Letras palabra por palabra desactivadas';
+
+  @override
+  String get ignoreSslDescription =>
+      'Para certificados SSL autofirmados o internos';
+
+  @override
+  String get copyCoverFailed => 'Error al copiar la portada';
+
+  @override
+  String get folderIsEmpty => 'La carpeta está vacía';
+
+  @override
+  String get openDesktopLyrics => 'Abrir letras de escritorio';
+
+  @override
+  String get closeDesktopLyrics => 'Cerrar letras de escritorio';
+
+  @override
+  String get unlockDesktopLyrics =>
+      'Desbloquear letras de escritorio (habilitar arrastre)';
+
+  @override
+  String get lockDesktopLyricsTray =>
+      'Bloquear letras de escritorio (posición fija)';
+
+  @override
+  String get msStoreLaunchFailed =>
+      'No se pudo abrir Microsoft Store. Busque y compre en la tienda.';
+
+  @override
+  String get storeConnectFailed =>
+      'No se puede conectar a la tienda de aplicaciones. Compruebe la conexión e inténtelo de nuevo.';
+
+  @override
+  String get msStoreSyncSuccess =>
+      'Estado de compra y licencia de Microsoft Store sincronizado';
+
+  @override
+  String get allProFeaturesUnlocked =>
+      'No es necesario canjear en la versión actual. Todas las funciones Pro están desbloqueadas.';
+
+  @override
+  String get cannotConnectToMediaServer =>
+      'No se puede conectar al servidor de medios. Compruebe si el servicio está activo.';
 }

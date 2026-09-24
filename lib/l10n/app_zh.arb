@@ -1195,7 +1195,7 @@
   "musicBrainzEmptyMoreCompleteHint": "可以稍后重试，或者确认当前歌曲标题/艺人信息是否更完整。",
   "retry": "重试",
   "noMatchingRelease": "没有找到匹配的 release",
-  "noMatchingResults": "没有找到匹配结果",
+  "noMatchingResults": "未找到匹配结果",
   "networkConnectionFailed": "网络连接失败",
   "searchAgain": "重新搜索",
   "acoustidRecognitionRecords": "AcoustID 识别记录",
@@ -2636,7 +2636,6 @@
   },
   "starredSongsOnly": "已收藏",
   "loadMore": "加载更多",
-  "closeSearch": "关闭搜索",
   "filterArtists": "筛选艺术家...",
   "searchPlaylists": "搜索歌单...",
   "searchRemoteHint": "搜索歌曲、专辑、艺术家...",
@@ -2678,7 +2677,6 @@
   "noMatchingPlaylists": "没有匹配的歌单",
   "noPlaylistSelected": "未选择歌单",
   "typeToSearch": "输入内容以开始搜索",
-  "noMatchingResults": "未找到匹配结果",
   "albumNotFound": "未找到专辑详情",
   "playingTracksCount": "正在播放 {count} 首歌曲",
   "@playingTracksCount": {
@@ -3041,5 +3039,118 @@
   "copyPath": "复制路径",
   "pathCopied": "已复制路径到剪贴板",
   "viewInRemoteFolder": "在网络目录中查看",
-  "remoteServerNotFound": "未找到关联的媒体服务器"
+  "remoteServerNotFound": "未找到关联的媒体服务器",
+  "visualizerCapDropSpeed": "浮帽下落速度",
+  "@visualizerCapDropSpeed": {
+    "description": "Visualizer floating bars cap falling speed"
+  },
+  "desktopLyrics": "桌面歌词",
+  "@desktopLyrics": {
+    "description": "Desktop lyrics section title"
+  },
+  "enableDesktopLyrics": "启用桌面歌词",
+  "@enableDesktopLyrics": {
+    "description": "Toggle to enable desktop lyrics"
+  },
+  "enableDesktopLyricsDescription": "在操作系统桌面上显示置顶半透明悬浮歌词",
+  "@enableDesktopLyricsDescription": {
+    "description": "Description for enabling desktop lyrics"
+  },
+  "lockDesktopLyrics": "锁定歌词位置",
+  "@lockDesktopLyrics": {
+    "description": "Lock desktop lyrics window position"
+  },
+  "lockDesktopLyricsDescription": "开启后固定歌词窗口位置禁止拖拽移动；悬停依然可呼出控制条及解锁",
+  "@lockDesktopLyricsDescription": {
+    "description": "Description for locking desktop lyrics position"
+  },
+  "desktopLyricsShowTranslation": "显示翻译 / 双行歌词",
+  "@desktopLyricsShowTranslation": {
+    "description": "Option to display translation in desktop lyrics"
+  },
+  "desktopLyricsShowTranslationDescription": "若当前歌曲包含翻译，则在桌面歌词中以双行形式同时展示",
+  "@desktopLyricsShowTranslationDescription": {
+    "description": "Description for showing translation in desktop lyrics"
+  },
+  "desktopLyricsShowBackground": "常驻暗色背景",
+  "@desktopLyricsShowBackground": {
+    "description": "Option for persistent dark capsule background on desktop lyrics"
+  },
+  "desktopLyricsShowBackgroundDescription": "在桌面歌词底层常驻显示半透明胶囊背景，改善浅色壁纸或复杂窗口下的文字可读性",
+  "@desktopLyricsShowBackgroundDescription": {
+    "description": "Description for persistent dark background"
+  },
+  "desktopLyricsFontSize": "歌词字号大小 ({size} px)",
+  "@desktopLyricsFontSize": {
+    "description": "Desktop lyrics font size label with px",
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "noTranslationAiPrompt": "当前歌曲暂无翻译，是否使用 AI 生成翻译？",
+  "@noTranslationAiPrompt": {
+    "description": "Prompt asking user if they want to translate lyrics using AI"
+  },
+  "noKaraokeAiPrompt": "当前歌曲暂无逐字歌词，是否使用 AI 转换为逐字/卡拉OK歌词？",
+  "@noKaraokeAiPrompt": {
+    "description": "Prompt asking user if they want to convert to word-by-word lyrics using AI"
+  },
+  "wordByWordLyricsEnabled": "已开启逐字歌词",
+  "@wordByWordLyricsEnabled": {
+    "description": "Toast message when word-by-word lyrics is turned on"
+  },
+  "wordByWordLyricsDisabled": "已关闭逐字歌词",
+  "@wordByWordLyricsDisabled": {
+    "description": "Toast message when word-by-word lyrics is turned off"
+  },
+  "ignoreSslDescription": "适用于自签名证书或内网 SSL 证书",
+  "@ignoreSslDescription": {
+    "description": "Description for ignore SSL option"
+  },
+  "copyCoverFailed": "复制封面失败",
+  "@copyCoverFailed": {
+    "description": "Toast message when copying album art fails"
+  },
+  "folderIsEmpty": "文件夹为空",
+  "@folderIsEmpty": {
+    "description": "Placeholder text when a folder contains no files"
+  },
+  "openDesktopLyrics": "开启桌面歌词",
+  "@openDesktopLyrics": {
+    "description": "Tray menu item to open desktop lyrics"
+  },
+  "closeDesktopLyrics": "关闭桌面歌词",
+  "@closeDesktopLyrics": {
+    "description": "Tray menu item to close desktop lyrics"
+  },
+  "unlockDesktopLyrics": "解锁桌面歌词 (恢复拖拽)",
+  "@unlockDesktopLyrics": {
+    "description": "Tray menu item to unlock desktop lyrics position"
+  },
+  "lockDesktopLyricsTray": "锁定桌面歌词 (固定位置)",
+  "@lockDesktopLyricsTray": {
+    "description": "Tray menu item to lock desktop lyrics position"
+  },
+  "msStoreLaunchFailed": "唤起微软商店失败，请前往商店搜索购买",
+  "@msStoreLaunchFailed": {
+    "description": "Error toast when launching Microsoft Store fails"
+  },
+  "storeConnectFailed": "无法连接应用商店获取商品信息，请检查网络后重试",
+  "@storeConnectFailed": {
+    "description": "Error toast when fetching store product details fails"
+  },
+  "msStoreSyncSuccess": "已同步微软商店购买与授权状态",
+  "@msStoreSyncSuccess": {
+    "description": "Toast when Microsoft Store license status is synced"
+  },
+  "allProFeaturesUnlocked": "当前版本无需兑换，所有 Pro 功能已完全开放",
+  "@allProFeaturesUnlocked": {
+    "description": "Toast message when all pro features are free"
+  },
+  "cannotConnectToMediaServer": "无法连接到媒体库服务器，请检查服务是否开启",
+  "@cannotConnectToMediaServer": {
+    "description": "Error message when connecting to remote media server fails"
+  }
 }

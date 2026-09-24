@@ -1364,26 +1364,26 @@ class AppLocalizationsJa extends AppLocalizations {
   String get saveFailed => '保存に失敗しました。後でもう一度お試しください。';
 
   @override
-  String get batchEditSongTagsTitle => '批量编辑歌曲标签';
+  String get batchEditSongTagsTitle => '楽曲タグの一括編集';
 
   @override
   String get batchEditSongTagsDescription =>
-      '修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。';
+      '変更はアプリ内のみに保存するか、元ファイルに書き戻すことができます。<keep> のフィールドは元の値を保持します。';
 
   @override
-  String get keepFieldHint => '提示：值为 <keep> 的属性将保留每首歌曲的原值';
+  String get keepFieldHint => 'ヒント: <keep> の属性は各曲の元の値を保持します';
 
   @override
-  String get multipleArtworkKeep => '保留各歌曲原封面';
+  String get multipleArtworkKeep => '各曲の元のカバーを保持';
 
   @override
   String batchSongTagsSavedToApp(int count) {
-    return '已将 $count 首歌曲标签保存到 App';
+    return '$count 曲のタグをアプリに保存しました';
   }
 
   @override
   String batchSongTagsSavedToSourceFileAndApp(int count) {
-    return '已将 $count 首歌曲标签保存到源文件和 App';
+    return '$count 曲のタグを元ファイルとアプリに保存しました';
   }
 
   @override
@@ -4813,68 +4813,159 @@ class AppLocalizationsJa extends AppLocalizations {
   String get proxyHostPortInvalid => '有効なプロキシアドレスとポートを入力してください';
 
   @override
-  String get sortPlaylists => '播放列表排序';
+  String get sortPlaylists => 'プレイリストの並び替え';
 
   @override
   String get sortRecentlyUpdated => '最近更新';
 
   @override
-  String get sortRecentlyCreated => '最近创建';
+  String get sortRecentlyCreated => '最近作成';
 
   @override
-  String get sortCustom => '自定义排序';
+  String get sortCustom => 'カスタム順';
 
   @override
-  String get addToMediaLibrary => '加入媒体库索引';
+  String get addToMediaLibrary => 'メディアライブラリに追加';
 
   @override
-  String get removeFromMediaLibrary => '从媒体库索引移除';
+  String get removeFromMediaLibrary => 'メディアライブラリから削除';
 
   @override
-  String get addedToMediaLibrary => '已加入媒体库索引，正在后台扫描...';
+  String get addedToMediaLibrary => 'メディアライブラリに追加しました。バックグラウンドでスキャン中...';
 
   @override
-  String get removedFromMediaLibrary => '已从媒体库索引移除';
+  String get removedFromMediaLibrary => 'メディアライブラリから削除しました';
 
   @override
-  String get indexingRemoteFolders => '正在索引远程目录...';
+  String get indexingRemoteFolders => 'リモートフォルダーをインデックス中...';
 
   @override
-  String get remoteMediaFolders => '远程网络目录';
+  String get remoteMediaFolders => 'リモートネットワークフォルダー';
 
   @override
-  String get remoteFolderAlreadyIndexed => '该目录已在媒体库索引中';
+  String get remoteFolderAlreadyIndexed => 'このフォルダーは既にメディアライブラリに登録されています';
 
   @override
-  String get remoteLibraryBadge => '云端';
+  String get remoteLibraryBadge => 'クラウド';
 
   @override
-  String get remoteLibraryTooltip => '来自远程媒体库';
+  String get remoteLibraryTooltip => 'リモートメディアライブラリより';
 
   @override
-  String get remoteSourceTitle => '远程媒体来源';
+  String get remoteSourceTitle => 'リモートメディアソース';
 
   @override
-  String get remoteServer => '服务器';
+  String get remoteServer => 'サーバー';
 
   @override
-  String get remoteChannel => '渠道类型';
+  String get remoteChannel => 'チャンネルタイプ';
 
   @override
-  String get remoteFolder => '所在文件夹';
+  String get remoteFolder => '所属フォルダー';
 
   @override
-  String get remoteFilePath => '远程路径';
+  String get remoteFilePath => 'リモートパス';
 
   @override
-  String get copyPath => '复制路径';
+  String get copyPath => 'パスをコピー';
 
   @override
-  String get pathCopied => '已复制路径到剪贴板';
+  String get pathCopied => 'パスをクリップボードにコピーしました';
 
   @override
-  String get viewInRemoteFolder => '在网络目录中查看';
+  String get viewInRemoteFolder => 'ネットワークフォルダーで表示';
 
   @override
-  String get remoteServerNotFound => '未找到关联的媒体服务器';
+  String get remoteServerNotFound => '関連するメディアサーバーが見つかりません';
+
+  @override
+  String get visualizerCapDropSpeed => 'キャップ落下速度';
+
+  @override
+  String get desktopLyrics => 'デスクトップ歌詞';
+
+  @override
+  String get enableDesktopLyrics => 'デスクトップ歌詞を有効化';
+
+  @override
+  String get enableDesktopLyricsDescription => 'デスクトップ上に最前面の半透明フローティング歌詞を表示';
+
+  @override
+  String get lockDesktopLyrics => '歌詞の位置を固定';
+
+  @override
+  String get lockDesktopLyricsDescription =>
+      '歌詞ウィンドウの位置を固定してドラッグを無効化。ホバーで操作バーを表示してロック解除可能';
+
+  @override
+  String get desktopLyricsShowTranslation => '翻訳 / 2行歌詞を表示';
+
+  @override
+  String get desktopLyricsShowTranslationDescription =>
+      '現在の楽曲に翻訳がある場合、デスクトップ歌詞に2行で同時に表示します';
+
+  @override
+  String get desktopLyricsShowBackground => '常にダーク背景を表示';
+
+  @override
+  String get desktopLyricsShowBackgroundDescription =>
+      'デスクトップ歌詞の背面に半透明のカプセル背景を常時表示し、明るい壁紙での視認性を向上させます';
+
+  @override
+  String desktopLyricsFontSize(int size) {
+    return '歌詞フォントサイズ ($size px)';
+  }
+
+  @override
+  String get noTranslationAiPrompt => '現在の曲に翻訳がありません。AIで翻訳を生成しますか？';
+
+  @override
+  String get noKaraokeAiPrompt =>
+      '現在の曲に同期歌詞（単語単位）がありません。AIで単語単位/カラオケ歌詞に変換しますか？';
+
+  @override
+  String get wordByWordLyricsEnabled => '単語単位の歌詞を有効にしました';
+
+  @override
+  String get wordByWordLyricsDisabled => '単語単位の歌詞を無効にしました';
+
+  @override
+  String get ignoreSslDescription => '自己署名または内部SSL証明書用';
+
+  @override
+  String get copyCoverFailed => 'カバーのコピーに失敗しました';
+
+  @override
+  String get folderIsEmpty => 'フォルダーは空です';
+
+  @override
+  String get openDesktopLyrics => 'デスクトップ歌詞を開く';
+
+  @override
+  String get closeDesktopLyrics => 'デスクトップ歌詞を閉じる';
+
+  @override
+  String get unlockDesktopLyrics => 'デスクトップ歌詞のロック解除 (ドラッグ可能)';
+
+  @override
+  String get lockDesktopLyricsTray => 'デスクトップ歌詞を固定 (位置固定)';
+
+  @override
+  String get msStoreLaunchFailed =>
+      'Microsoft Storeの起動に失敗しました。ストアで検索して購入してください。';
+
+  @override
+  String get storeConnectFailed =>
+      'アプリストアに接続して商品情報を取得できませんでした。ネットワークを確認して再試行してください。';
+
+  @override
+  String get msStoreSyncSuccess => 'Microsoft Storeの購入およびライセンス状態を同期しました';
+
+  @override
+  String get allProFeaturesUnlocked =>
+      '現在のバージョンでは引き換えは不要です。すべてのPro機能が解放されています。';
+
+  @override
+  String get cannotConnectToMediaServer =>
+      'メディアライブラリサーバーに接続できません。サービスが起動しているか確認してください。';
 }

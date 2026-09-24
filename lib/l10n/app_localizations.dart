@@ -8955,6 +8955,168 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'未找到关联的媒体服务器'**
   String get remoteServerNotFound;
+
+  /// Visualizer floating bars cap falling speed
+  ///
+  /// In zh, this message translates to:
+  /// **'浮帽下落速度'**
+  String get visualizerCapDropSpeed;
+
+  /// Desktop lyrics section title
+  ///
+  /// In zh, this message translates to:
+  /// **'桌面歌词'**
+  String get desktopLyrics;
+
+  /// Toggle to enable desktop lyrics
+  ///
+  /// In zh, this message translates to:
+  /// **'启用桌面歌词'**
+  String get enableDesktopLyrics;
+
+  /// Description for enabling desktop lyrics
+  ///
+  /// In zh, this message translates to:
+  /// **'在操作系统桌面上显示置顶半透明悬浮歌词'**
+  String get enableDesktopLyricsDescription;
+
+  /// Lock desktop lyrics window position
+  ///
+  /// In zh, this message translates to:
+  /// **'锁定歌词位置'**
+  String get lockDesktopLyrics;
+
+  /// Description for locking desktop lyrics position
+  ///
+  /// In zh, this message translates to:
+  /// **'开启后固定歌词窗口位置禁止拖拽移动；悬停依然可呼出控制条及解锁'**
+  String get lockDesktopLyricsDescription;
+
+  /// Option to display translation in desktop lyrics
+  ///
+  /// In zh, this message translates to:
+  /// **'显示翻译 / 双行歌词'**
+  String get desktopLyricsShowTranslation;
+
+  /// Description for showing translation in desktop lyrics
+  ///
+  /// In zh, this message translates to:
+  /// **'若当前歌曲包含翻译，则在桌面歌词中以双行形式同时展示'**
+  String get desktopLyricsShowTranslationDescription;
+
+  /// Option for persistent dark capsule background on desktop lyrics
+  ///
+  /// In zh, this message translates to:
+  /// **'常驻暗色背景'**
+  String get desktopLyricsShowBackground;
+
+  /// Description for persistent dark background
+  ///
+  /// In zh, this message translates to:
+  /// **'在桌面歌词底层常驻显示半透明胶囊背景，改善浅色壁纸或复杂窗口下的文字可读性'**
+  String get desktopLyricsShowBackgroundDescription;
+
+  /// Desktop lyrics font size label with px
+  ///
+  /// In zh, this message translates to:
+  /// **'歌词字号大小 ({size} px)'**
+  String desktopLyricsFontSize(int size);
+
+  /// Prompt asking user if they want to translate lyrics using AI
+  ///
+  /// In zh, this message translates to:
+  /// **'当前歌曲暂无翻译，是否使用 AI 生成翻译？'**
+  String get noTranslationAiPrompt;
+
+  /// Prompt asking user if they want to convert to word-by-word lyrics using AI
+  ///
+  /// In zh, this message translates to:
+  /// **'当前歌曲暂无逐字歌词，是否使用 AI 转换为逐字/卡拉OK歌词？'**
+  String get noKaraokeAiPrompt;
+
+  /// Toast message when word-by-word lyrics is turned on
+  ///
+  /// In zh, this message translates to:
+  /// **'已开启逐字歌词'**
+  String get wordByWordLyricsEnabled;
+
+  /// Toast message when word-by-word lyrics is turned off
+  ///
+  /// In zh, this message translates to:
+  /// **'已关闭逐字歌词'**
+  String get wordByWordLyricsDisabled;
+
+  /// Description for ignore SSL option
+  ///
+  /// In zh, this message translates to:
+  /// **'适用于自签名证书或内网 SSL 证书'**
+  String get ignoreSslDescription;
+
+  /// Toast message when copying album art fails
+  ///
+  /// In zh, this message translates to:
+  /// **'复制封面失败'**
+  String get copyCoverFailed;
+
+  /// Placeholder text when a folder contains no files
+  ///
+  /// In zh, this message translates to:
+  /// **'文件夹为空'**
+  String get folderIsEmpty;
+
+  /// Tray menu item to open desktop lyrics
+  ///
+  /// In zh, this message translates to:
+  /// **'开启桌面歌词'**
+  String get openDesktopLyrics;
+
+  /// Tray menu item to close desktop lyrics
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭桌面歌词'**
+  String get closeDesktopLyrics;
+
+  /// Tray menu item to unlock desktop lyrics position
+  ///
+  /// In zh, this message translates to:
+  /// **'解锁桌面歌词 (恢复拖拽)'**
+  String get unlockDesktopLyrics;
+
+  /// Tray menu item to lock desktop lyrics position
+  ///
+  /// In zh, this message translates to:
+  /// **'锁定桌面歌词 (固定位置)'**
+  String get lockDesktopLyricsTray;
+
+  /// Error toast when launching Microsoft Store fails
+  ///
+  /// In zh, this message translates to:
+  /// **'唤起微软商店失败，请前往商店搜索购买'**
+  String get msStoreLaunchFailed;
+
+  /// Error toast when fetching store product details fails
+  ///
+  /// In zh, this message translates to:
+  /// **'无法连接应用商店获取商品信息，请检查网络后重试'**
+  String get storeConnectFailed;
+
+  /// Toast when Microsoft Store license status is synced
+  ///
+  /// In zh, this message translates to:
+  /// **'已同步微软商店购买与授权状态'**
+  String get msStoreSyncSuccess;
+
+  /// Toast message when all pro features are free
+  ///
+  /// In zh, this message translates to:
+  /// **'当前版本无需兑换，所有 Pro 功能已完全开放'**
+  String get allProFeaturesUnlocked;
+
+  /// Error message when connecting to remote media server fails
+  ///
+  /// In zh, this message translates to:
+  /// **'无法连接到媒体库服务器，请检查服务是否开启'**
+  String get cannotConnectToMediaServer;
 }
 
 class _AppLocalizationsDelegate

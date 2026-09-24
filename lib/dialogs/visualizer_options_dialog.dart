@@ -249,7 +249,6 @@ class VisualizerOptionsDialog extends ConsumerWidget {
     StateSetter setDialogState,
   ) {
     final options = ref.watch(audioCurrentVisualizerOptionsProvider);
-    final isZh = Localizations.localeOf(context).languageCode == 'zh';
 
     return _buildSectionCard(
       context: context,
@@ -288,7 +287,7 @@ class VisualizerOptionsDialog extends ConsumerWidget {
           if (settings.visualizerStyle == VisualizerStyle.floatingBars)
             _buildOptionSlider(
               context,
-              label: isZh ? '浮帽下落速度 (Cap Speed)' : 'Cap Fall Speed',
+              label: AppLocalizations.of(context)!.visualizerCapDropSpeed,
               value: settings.visualizerCapDropSpeed,
               min: 0.05,
               max: 1.0,
