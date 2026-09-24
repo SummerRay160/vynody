@@ -73,8 +73,8 @@ void main() {
       final lastWordLine1 = line1.words!.last;
       expect(lastWordLine1.text.trim(), 'city');
       // city starts at 00:09.52 (9520ms), next line at 00:09.87 (9870ms).
-      // availableMs = 350ms. Since 350 > 200, adjustedMs = 350 - 40 = 310ms.
-      expect(lastWordLine1.durationMs, 310);
+      // availableMs = 350ms < 1000ms, so duration is capped at 350ms.
+      expect(lastWordLine1.durationMs, 350);
 
       final line2 = parsed[1];
       expect(line2.words, isNotNull);
@@ -388,6 +388,32 @@ Third line of song
             reason: 'word $i timestamp');
         expect(line.words![i].durationMs, expected[i].$3, reason: 'word $i duration');
       }
+    });
+
+    test('keeps lines with only a line timestamp (no word tags) in awlrc payload', () {
+      // 间奏等只有行时间戳、没有 <offset,duration> 逐字标签的行不应被丢弃
+      const word = '[00:01.500]<0,300>前<300,500>奏\n'
+          '[00:10.000]（间奏 / 吉他独奏）\n'
+          '[00:20.000]<0,400>主<400,600>歌';
+      final lxLyrics = '[awlrc:awlrc:${base64Encode(utf8.encode(word))}]';
+
+      final parsed = LrcUtils.parseTimedLyrics(lxLyrics);
+
+      expect(parsed.length, 3);
+
+      expect(parsed[0].timestamp, const Duration(milliseconds: 1500));
+      expect(parsed[0].text, '前奏');
+      expect(parsed[0].words, isNotNull);
+      expect(parsed[0].words!.length, 2);
+
+      expect(parsed[1].timestamp, const Duration(seconds: 10));
+      expect(parsed[1].text, '（间奏 / 吉他独奏）');
+      expect(parsed[1].words, isNull);
+
+      expect(parsed[2].timestamp, const Duration(seconds: 20));
+      expect(parsed[2].text, '主歌');
+      expect(parsed[2].words, isNotNull);
+      expect(parsed[2].words!.length, 2);
     });
 
     test('pairs tlrc payload as translation', () {
