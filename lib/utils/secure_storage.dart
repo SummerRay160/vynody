@@ -1,16 +1,35 @@
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Lightweight and cross-platform secure storage backed by [SharedPreferences]
-/// with in-app obfuscation/encryption.
+/// with in-app obfuscation/encryption and backward-compatibility migration
+/// from legacy [FlutterSecureStorage].
 ///
 /// Eliminates macOS keychain password dialogs, keychain-access-groups
 /// entitlements, and native codesigning friction while keeping sensitive
 /// values (API keys, passwords, tokens) safely encrypted at rest.
 class AppSecureStorage {
   final SharedPreferences? _prefs;
+  final FlutterSecureStorage? _legacyStorage;
 
-  const AppSecureStorage([this._prefs]);
+  const AppSecureStorage([
+    this._prefs,
+    this._legacyStorage,
+  ]);
+
+  static const FlutterSecureStorage _defaultLegacyStorage = FlutterSecureStorage(
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+    ),
+    mOptions: MacOsOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+      useDataProtectionKeyChain: false,
+    ),
+  );
+
+  FlutterSecureStorage get _effectiveLegacyStorage =>
+      _legacyStorage ?? _defaultLegacyStorage;
 
   static const String _prefix = 'enc:v1:';
   static const List<int> _saltBytes = [
@@ -55,14 +74,38 @@ class AppSecureStorage {
   }
 
   /// Reads a decrypted value for the given [key].
+  ///
+  /// If the value is not present in the new encrypted storage,
+  /// it automatically checks legacy [FlutterSecureStorage], migrates
+  /// the value to encrypted preferences, and cleans up the legacy entry.
   Future<String?> read({required String key}) async {
     final prefs = await _getPrefs();
     final raw = prefs.getString(key);
-    if (raw == null) return null;
-    return decrypt(raw);
+    if (raw != null) {
+      return decrypt(raw);
+    }
+
+    // Attempt transparent migration from legacy flutter_secure_storage
+    try {
+      final legacyValue = await _effectiveLegacyStorage.read(key: key);
+      if (legacyValue != null && legacyValue.isNotEmpty) {
+        // Save to modern encrypted storage
+        await write(key: key, value: legacyValue);
+        // Best-effort cleanup of legacy key to avoid leaving stale items
+        try {
+          await _effectiveLegacyStorage.delete(key: key);
+        } catch (_) {}
+        return legacyValue;
+      }
+    } catch (_) {
+      // Best effort; ignore legacy storage errors
+    }
+
+    return null;
   }
 
   /// Synchronous read if a [SharedPreferences] instance was provided.
+  /// Note: Only checks the current encrypted preferences.
   String? readSync({required String key}) {
     if (_prefs == null) return null;
     final raw = _prefs.getString(key);
@@ -77,22 +120,33 @@ class AppSecureStorage {
     await prefs.setString(key, encrypted);
   }
 
-  /// Deletes the value for the given [key].
+  /// Deletes the value for the given [key] from both modern and legacy storage.
   Future<void> delete({required String key}) async {
     final prefs = await _getPrefs();
     await prefs.remove(key);
+    try {
+      await _effectiveLegacyStorage.delete(key: key);
+    } catch (_) {}
   }
 
-  /// Checks if [key] exists.
+  /// Checks if [key] exists in either modern or legacy storage.
   Future<bool> containsKey({required String key}) async {
     final prefs = await _getPrefs();
-    return prefs.containsKey(key);
+    if (prefs.containsKey(key)) return true;
+    try {
+      return await _effectiveLegacyStorage.containsKey(key: key);
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Deletes all keys (note: use with care).
   Future<void> deleteAll() async {
     final prefs = await _getPrefs();
     await prefs.clear();
+    try {
+      await _effectiveLegacyStorage.deleteAll();
+    } catch (_) {}
   }
 }
 
