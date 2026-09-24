@@ -1,3 +1,8 @@
+param (
+    [Alias("Local")]
+    [switch]$Sign = $false
+)
+
 # Clean up debug JIT cache (kernel_blob.bin ~105MB) from previous flutter run
 Remove-Item -Force -ErrorAction SilentlyContinue "build/flutter_assets/kernel_blob.bin", "build/windows/x64/runner/Release/data/flutter_assets/kernel_blob.bin"
 
@@ -18,3 +23,11 @@ foreach ($dll in $dlls) {
 }
 
 dart run msix:create --build-windows false
+
+# Only sign when requested for local testing
+if ($Sign) {
+    powershell -ExecutionPolicy Bypass -File .\sign_msix.ps1
+} else {
+    Write-Host "Built unsigned MSIX ready for Microsoft Store submission."
+    Write-Host "Tip: Run '.\build_msix.ps1 -Sign' (or '-Local') to build and sign for local testing."
+}
