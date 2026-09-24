@@ -167,6 +167,7 @@ class PlaylistService extends ChangeNotifier {
   /// 初始化，加载保存的播放列表
   Future<void> _init() async {
     await _loadPlaylists();
+    if (_disposed) return;
     // 确保内置列表始终存在，并保持在普通列表之后。
     final hasDefault = _playlists.any((p) => p.id == 'default');
     final hasFavorites = _playlists.any((p) => p.id == favoritePlaylistId);
@@ -190,7 +191,9 @@ class PlaylistService extends ChangeNotifier {
             !_playlists.any((p) => p.id == _currentPlaylistId))) {
       _currentPlaylistId = _playlists.first.id;
     }
+    if (_disposed) return;
     await _savePlaylists();
+    if (_disposed) return;
     notifyListeners();
   }
 
@@ -267,12 +270,16 @@ class PlaylistService extends ChangeNotifier {
       if (!parent.existsSync()) {
         await parent.create(recursive: true);
       }
-      final tmpFile = File('${file.path}.tmp');
+      final tmpFile = File('${file.path}.${DateTime.now().microsecondsSinceEpoch}.tmp');
       await tmpFile.writeAsString(jsonString, flush: true);
       if (await file.exists()) {
-        await file.delete();
+        try {
+          await file.delete();
+        } catch (_) {}
       }
-      await tmpFile.rename(file.path);
+      if (await tmpFile.exists()) {
+        await tmpFile.rename(file.path);
+      }
 
       final prefs = await SharedPreferences.getInstance();
       if (prefs.containsKey(_legacyStorageKey)) {
@@ -699,5 +706,21 @@ class PlaylistService extends ChangeNotifier {
     if (changed) {
       notifyListeners();
     }
+  }
+
+  bool _disposed = false;
+  bool get isDisposed => _disposed;
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) {
+      super.notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }

@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:vynody/l10n/app_localizations.dart';
@@ -28,9 +31,23 @@ import 'package:vynody/player/pro/pro_license_service.dart';
 
 import 'helpers/mobile_screenshot_harness.dart';
 
+class FakePathProviderPlatform extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
+  final Directory tempDir;
+  FakePathProviderPlatform(this.tempDir);
+
+  @override
+  Future<String?> getApplicationSupportPath() async => tempDir.path;
+
+  @override
+  Future<String?> getApplicationDocumentsPath() async => tempDir.path;
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  late Directory testTempDir;
   late TestSettingsService settingsService;
   late ({
     List<MusicFile> songs,
@@ -46,8 +63,13 @@ void main() {
   late MockScannerService scannerService;
   late PlaylistService playlistService;
 
-  setUp(() async {
+  setUpAll(() async {
+    testTempDir = Directory.systemTemp.createTempSync('views_layout_smoke_test_');
+    PathProviderPlatform.instance = FakePathProviderPlatform(testTempDir);
     await loadMobileTestFonts();
+  });
+
+  setUp(() async {
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
       const MethodChannel('window_manager'),
@@ -173,6 +195,14 @@ void main() {
     await playlistService.createPlaylist('Favorites');
     final p = playlistService.playlists.first;
     await playlistService.addSongsToPlaylist(p.id, demoData.songs.take(3).toList());
+  });
+
+  tearDownAll(() {
+    try {
+      if (testTempDir.existsSync()) {
+        testTempDir.deleteSync(recursive: true);
+      }
+    } catch (_) {}
   });
 
   Widget createTestWidget({
