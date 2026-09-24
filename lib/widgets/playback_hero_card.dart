@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -181,6 +182,26 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
       setState(() {
         _isPortraitLyricsControlsExpanded = false;
       });
+    }
+  }
+
+  void _handleLyricsScrollDelta(double delta) {
+    if (delta > 0) {
+      if (_lyricsScrollDeltaAccumulator < 0) {
+        _lyricsScrollDeltaAccumulator = 0.0;
+      }
+      _lyricsScrollDeltaAccumulator += delta;
+      if (_lyricsScrollDeltaAccumulator >= _kLyricsCollapseThreshold) {
+        _collapsePortraitLyricsControls();
+      }
+    } else if (delta < 0) {
+      if (_lyricsScrollDeltaAccumulator > 0) {
+        _lyricsScrollDeltaAccumulator = 0.0;
+      }
+      _lyricsScrollDeltaAccumulator += delta;
+      if (_lyricsScrollDeltaAccumulator <= -_kLyricsExpandThreshold) {
+        _expandPortraitLyricsControls();
+      }
     }
   }
 
@@ -456,50 +477,44 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
                         ? 0.0
                         : (tLyrics * portraitControlsExpandProgress);
 
-                    return NotificationListener<ScrollNotification>(
-                      onNotification: (notification) {
+                    return Listener(
+                      onPointerSignal: (pointerSignal) {
                         if (!effectiveIsLandscape &&
                             effectiveIsLyricsMode &&
                             settings.lyricsStyle == LyricsStyle.apple &&
                             expandPortraitLyricsControlsOnScroll) {
-                          if (notification is ScrollStartNotification) {
-                            _lyricsScrollDeltaAccumulator = 0.0;
-                          } else if (notification is ScrollUpdateNotification) {
-                            if (notification.dragDetails != null &&
-                                notification.scrollDelta != null) {
-                              final double delta = notification.scrollDelta!;
-                              if (delta > 0) {
-                                if (_lyricsScrollDeltaAccumulator < 0) {
-                                  _lyricsScrollDeltaAccumulator = 0.0;
-                                }
-                                _lyricsScrollDeltaAccumulator += delta;
-                                if (_lyricsScrollDeltaAccumulator >=
-                                    _kLyricsCollapseThreshold) {
-                                  _collapsePortraitLyricsControls();
-                                }
-                              } else if (delta < 0) {
-                                if (_lyricsScrollDeltaAccumulator > 0) {
-                                  _lyricsScrollDeltaAccumulator = 0.0;
-                                }
-                                _lyricsScrollDeltaAccumulator += delta;
-                                if (_lyricsScrollDeltaAccumulator <=
-                                    -_kLyricsExpandThreshold) {
-                                  _expandPortraitLyricsControls();
-                                }
-                              }
-                            }
-                          } else if (notification is ScrollEndNotification) {
-                            _lyricsScrollDeltaAccumulator = 0.0;
-                          } else if (notification is UserScrollNotification) {
-                            if (notification.direction ==
-                                ScrollDirection.idle) {
-                              _lyricsScrollDeltaAccumulator = 0.0;
-                            }
+                          if (pointerSignal is PointerScrollEvent) {
+                            _handleLyricsScrollDelta(
+                                pointerSignal.scrollDelta.dy);
                           }
                         }
-                        return false;
                       },
-                      child: SizedBox(
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (notification) {
+                          if (!effectiveIsLandscape &&
+                              effectiveIsLyricsMode &&
+                              settings.lyricsStyle == LyricsStyle.apple &&
+                              expandPortraitLyricsControlsOnScroll) {
+                            if (notification is ScrollStartNotification) {
+                              _lyricsScrollDeltaAccumulator = 0.0;
+                            } else if (notification is ScrollUpdateNotification) {
+                              if (notification.dragDetails != null &&
+                                  notification.scrollDelta != null) {
+                                _handleLyricsScrollDelta(
+                                    notification.scrollDelta!);
+                              }
+                            } else if (notification is ScrollEndNotification) {
+                              _lyricsScrollDeltaAccumulator = 0.0;
+                            } else if (notification is UserScrollNotification) {
+                              if (notification.direction ==
+                                  ScrollDirection.idle) {
+                                _lyricsScrollDeltaAccumulator = 0.0;
+                              }
+                            }
+                          }
+                          return false;
+                        },
+                        child: SizedBox(
                         width: width,
                         height: height,
                         child: Stack(
@@ -803,8 +818,9 @@ class _PlaybackHeroCardState extends ConsumerState<PlaybackHeroCard> {
                           ],
                         ),
                       ),
-                    );
-                  },
+                    ),
+                  );
+                },
                 );
               },
             );
