@@ -43,6 +43,7 @@ import 'package:vynody/player/audio/queue_background_processor.dart';
 import 'package:vynody/player/library/library_insights_service.dart';
 import 'package:vynody/player/lyrics/lyrics_riverpod.dart';
 import 'package:vynody/player/remote/remote_server_riverpod.dart';
+import 'package:vynody/utils/localized_text.dart';
 import 'package:vynody/player/remote/proxy/remote_media_resolver.dart';
 import 'package:vynody/player/pro/pro_license_service.dart';
 
@@ -1316,7 +1317,7 @@ class AudioService extends Notifier<AudioSnapshot> {
         if (_playbackSessionReady &&
             currentMusic != null &&
             RemoteMediaResolver.isRemoteUri(currentMusic!.path)) {
-          _showRemotePlaybackError('无法连接到媒体库服务器，请检查服务是否开启');
+          _showRemotePlaybackError(currentAppL10n.cannotConnectToMediaServer);
         }
       }
     } else {

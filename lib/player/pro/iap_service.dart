@@ -176,7 +176,7 @@ class IapService extends ChangeNotifier {
         return true;
       } catch (e) {
         debugPrint('[IAP] buyPro Windows error: $e');
-        showToast('唤起微软商店失败，请前往商店搜索购买');
+        showToast(currentAppL10n.msStoreLaunchFailed);
         return false;
       }
     }
@@ -189,7 +189,7 @@ class IapService extends ChangeNotifier {
     }
 
     if (product == null) {
-      showToast('无法连接应用商店获取商品信息，请检查网络后重试');
+      showToast(currentAppL10n.storeConnectFailed);
       return false;
     }
 
@@ -208,51 +208,82 @@ class IapService extends ChangeNotifier {
         isPurchasing: false,
         errorMessage: e.toString(),
       ));
-      showToast('发起购买失败: $e');
+      showToast(currentAppL10n.iapPurchaseCancelledOrFailed(e.toString()));
       return false;
     }
   }
 
+  DateTime? _lastSyncTime;
+
   /// Restore previously purchased items.
-  Future<void> restorePurchases() async {
-    if (_state.isRestoring) return;
+  Future<void> restorePurchases({bool silent = false}) async {
+    if (_state.isRestoring || _state.isPurchasing) return;
 
     if (Platform.isWindows) {
-      _updateState(_state.copyWith(isRestoring: true, clearError: true));
+      if (!silent) {
+        _updateState(_state.copyWith(isRestoring: true, clearError: true));
+      }
       try {
         await _ref.read(proLicenseServiceProvider).refreshLicense();
       } catch (_) {}
-      _updateState(_state.copyWith(isRestoring: false));
-      showToast('已同步微软商店购买与授权状态');
+      if (!silent) {
+        _updateState(_state.copyWith(isRestoring: false));
+        showToast(currentAppL10n.msStoreSyncSuccess);
+      }
       return;
     }
 
-    _updateState(_state.copyWith(isRestoring: true, clearError: true));
+    if (!silent) {
+      _updateState(_state.copyWith(isRestoring: true, clearError: true));
+    }
 
     try {
       await _iap.restorePurchases();
       // Note: restorePurchases triggers purchaseStream, where items are handled.
     } catch (e) {
       debugPrint('[IAP] restorePurchases exception: $e');
-      _updateState(_state.copyWith(
-        isRestoring: false,
-        errorMessage: e.toString(),
-      ));
-      showToast('恢复购买失败: $e');
+      if (!silent) {
+        _updateState(_state.copyWith(
+          isRestoring: false,
+          errorMessage: e.toString(),
+        ));
+        showToast(currentAppL10n.iapPurchaseCancelledOrFailed(e.toString()));
+      }
     } finally {
-      // Allow a brief delay for transactions to propagate before clearing restoring status
-      Future.delayed(const Duration(seconds: 2), () {
-        if (_state.isRestoring) {
-          _updateState(_state.copyWith(isRestoring: false));
-        }
-      });
+      if (!silent) {
+        // Allow a brief delay for transactions to propagate before clearing restoring status
+        Future.delayed(const Duration(seconds: 2), () {
+          if (_state.isRestoring) {
+            _updateState(_state.copyWith(isRestoring: false));
+          }
+        });
+      }
+    }
+  }
+
+  /// Silently check & sync purchases on app resume or after redeem sheet.
+  Future<void> syncPurchasesSilently() async {
+    if (AppChannel.isGitHubRelease) return;
+
+    // Throttle to avoid duplicate requests within 6 seconds
+    final now = DateTime.now();
+    if (_lastSyncTime != null && now.difference(_lastSyncTime!) < const Duration(seconds: 6)) {
+      return;
+    }
+    _lastSyncTime = now;
+
+    try {
+      debugPrint('[IAP] Silently syncing purchases on resume/redeem...');
+      await restorePurchases(silent: true);
+    } catch (e) {
+      debugPrint('[IAP] Silent sync error: $e');
     }
   }
 
   /// Open the native store redemption interface or store redemption page.
   Future<void> redeemCode() async {
     if (AppChannel.isGitHubRelease) {
-      showToast('当前版本无需兑换，所有 Pro 功能已完全开放');
+      showToast(currentAppL10n.allProFeaturesUnlocked);
       return;
     }
 
@@ -261,6 +292,9 @@ class IapService extends ChangeNotifier {
         final InAppPurchaseStoreKitPlatformAddition iosPlatform =
             _iap.getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
         await iosPlatform.presentCodeRedemptionSheet();
+        // Schedule silent syncs after presenting the sheet in case the user completes redemption
+        Future.delayed(const Duration(seconds: 2), () => syncPurchasesSilently());
+        Future.delayed(const Duration(seconds: 5), () => syncPurchasesSilently());
         return;
       } catch (e) {
         debugPrint('[IAP] presentCodeRedemptionSheet failed: $e');

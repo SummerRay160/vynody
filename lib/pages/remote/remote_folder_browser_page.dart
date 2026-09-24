@@ -1390,7 +1390,7 @@ class _RemoteFolderBrowserPageState
                     FilledButton(
                       onPressed: () =>
                           _loadDirectory(_currentPath, forceRefresh: true),
-                      child: const Text('Retry'),
+                      child: Text(l10n.retry),
                     ),
                   ],
                 ),
@@ -1425,9 +1425,9 @@ class _RemoteFolderBrowserPageState
                 topHeader: isPortrait ? SizedBox(height: headerHeight) : null,
               ),
             ),
-            const SliverFillRemaining(
+            SliverFillRemaining(
               hasScrollBody: false,
-              child: Center(child: Text('Folder is empty')),
+              child: Center(child: Text(l10n.folderIsEmpty)),
             ),
           ],
         ),

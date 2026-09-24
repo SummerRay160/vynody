@@ -1413,26 +1413,27 @@ class AppLocalizationsDe extends AppLocalizations {
       'Speichern fehlgeschlagen. Bitte später erneut versuchen.';
 
   @override
-  String get batchEditSongTagsTitle => '批量编辑歌曲标签';
+  String get batchEditSongTagsTitle => 'Song-Tags stapelweise bearbeiten';
 
   @override
   String get batchEditSongTagsDescription =>
-      '修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。';
+      'Änderungen können nur in der App gespeichert oder in die Quelldateien geschrieben werden. Felder mit <keep> behalten ihren ursprünglichen Wert.';
 
   @override
-  String get keepFieldHint => '提示：值为 <keep> 的属性将保留每首歌曲的原值';
+  String get keepFieldHint =>
+      'Tipp: Felder mit <keep> behalten ihren ursprünglichen Wert.';
 
   @override
-  String get multipleArtworkKeep => '保留各歌曲原封面';
+  String get multipleArtworkKeep => 'Individuelle Cover behalten';
 
   @override
   String batchSongTagsSavedToApp(int count) {
-    return '已将 $count 首歌曲标签保存到 App';
+    return 'Tags für $count Titel in App gespeichert';
   }
 
   @override
   String batchSongTagsSavedToSourceFileAndApp(int count) {
-    return '已将 $count 首歌曲标签保存到源文件和 App';
+    return 'Tags für $count Titel in Quelldateien und App gespeichert';
   }
 
   @override
@@ -5037,68 +5038,168 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bitte geben Sie eine gültige Proxy-Adresse und einen gültigen Port ein';
 
   @override
-  String get sortPlaylists => '播放列表排序';
+  String get sortPlaylists => 'Wiedergabelisten sortieren';
 
   @override
-  String get sortRecentlyUpdated => '最近更新';
+  String get sortRecentlyUpdated => 'Kürzlich aktualisiert';
 
   @override
-  String get sortRecentlyCreated => '最近创建';
+  String get sortRecentlyCreated => 'Kürzlich erstellt';
 
   @override
-  String get sortCustom => '自定义排序';
+  String get sortCustom => 'Benutzerdefinierte Reihenfolge';
 
   @override
-  String get addToMediaLibrary => '加入媒体库索引';
+  String get addToMediaLibrary => 'Zur Medienbibliothek hinzufügen';
 
   @override
-  String get removeFromMediaLibrary => '从媒体库索引移除';
+  String get removeFromMediaLibrary => 'Aus Medienbibliothek entfernen';
 
   @override
-  String get addedToMediaLibrary => '已加入媒体库索引，正在后台扫描...';
+  String get addedToMediaLibrary =>
+      'Zur Medienbibliothek hinzugefügt, Scan läuft im Hintergrund...';
 
   @override
-  String get removedFromMediaLibrary => '已从媒体库索引移除';
+  String get removedFromMediaLibrary => 'Aus der Medienbibliothek entfernt';
 
   @override
-  String get indexingRemoteFolders => '正在索引远程目录...';
+  String get indexingRemoteFolders => 'Remote-Ordner werden indiziert...';
 
   @override
-  String get remoteMediaFolders => '远程网络目录';
+  String get remoteMediaFolders => 'Remote-Netzwerkordner';
 
   @override
-  String get remoteFolderAlreadyIndexed => '该目录已在媒体库索引中';
+  String get remoteFolderAlreadyIndexed =>
+      'Ordner ist bereits in der Medienbibliothek indiziert';
 
   @override
-  String get remoteLibraryBadge => '云端';
+  String get remoteLibraryBadge => 'Cloud';
 
   @override
-  String get remoteLibraryTooltip => '来自远程媒体库';
+  String get remoteLibraryTooltip => 'Aus Remote-Medienbibliothek';
 
   @override
-  String get remoteSourceTitle => '远程媒体来源';
+  String get remoteSourceTitle => 'Remote-Medienquelle';
 
   @override
-  String get remoteServer => '服务器';
+  String get remoteServer => 'Server';
 
   @override
-  String get remoteChannel => '渠道类型';
+  String get remoteChannel => 'Kanaltyp';
 
   @override
-  String get remoteFolder => '所在文件夹';
+  String get remoteFolder => 'Remote-Ordner';
 
   @override
-  String get remoteFilePath => '远程路径';
+  String get remoteFilePath => 'Remote-Pfad';
 
   @override
-  String get copyPath => '复制路径';
+  String get copyPath => 'Pfad kopieren';
 
   @override
-  String get pathCopied => '已复制路径到剪贴板';
+  String get pathCopied => 'Pfad in die Zwischenablage kopiert';
 
   @override
-  String get viewInRemoteFolder => '在网络目录中查看';
+  String get viewInRemoteFolder => 'Im Remote-Ordner anzeigen';
 
   @override
-  String get remoteServerNotFound => '未找到关联的媒体服务器';
+  String get remoteServerNotFound => 'Zugehöriger Medienserver nicht gefunden';
+
+  @override
+  String get visualizerCapDropSpeed => 'Deckel-Fallgeschwindigkeit';
+
+  @override
+  String get desktopLyrics => 'Desktop-Songtexte';
+
+  @override
+  String get enableDesktopLyrics => 'Desktop-Songtexte aktivieren';
+
+  @override
+  String get enableDesktopLyricsDescription =>
+      'Schwebende, durchscheinende Songtexte immer im Vordergrund anzeigen';
+
+  @override
+  String get lockDesktopLyrics => 'Songtext-Position sperren';
+
+  @override
+  String get lockDesktopLyricsDescription =>
+      'Fensterposition fixieren und Verschieben deaktivieren; Hovern blendet Steuerung ein';
+
+  @override
+  String get desktopLyricsShowTranslation =>
+      'Übersetzung / zweizeilige Songtexte anzeigen';
+
+  @override
+  String get desktopLyricsShowTranslationDescription =>
+      'Zeigt beide Zeilen gleichzeitig an, wenn eine Übersetzung vorhanden ist';
+
+  @override
+  String get desktopLyricsShowBackground => 'Dauerhafter dunkler Hintergrund';
+
+  @override
+  String get desktopLyricsShowBackgroundDescription =>
+      'Zeigt einen halbtransparenten Kapselhintergrund an, um die Lesbarkeit bei hellen Hintergrundbildern zu verbessern';
+
+  @override
+  String desktopLyricsFontSize(int size) {
+    return 'Songtext-Schriftgröße ($size px)';
+  }
+
+  @override
+  String get noTranslationAiPrompt =>
+      'Für dieses Lied ist keine Übersetzung vorhanden. Mit KI übersetzen?';
+
+  @override
+  String get noKaraokeAiPrompt =>
+      'Dieses Lied hat keine wortweisen Songtexte. Mit KI in Wort-für-Wort-/Karaoke-Texte umwandeln?';
+
+  @override
+  String get wordByWordLyricsEnabled => 'Wortweise Songtexte aktiviert';
+
+  @override
+  String get wordByWordLyricsDisabled => 'Wortweise Songtexte deaktiviert';
+
+  @override
+  String get ignoreSslDescription =>
+      'Für selbstsignierte oder interne SSL-Zertifikate';
+
+  @override
+  String get copyCoverFailed => 'Cover konnte nicht kopiert werden';
+
+  @override
+  String get folderIsEmpty => 'Ordner ist leer';
+
+  @override
+  String get openDesktopLyrics => 'Desktop-Songtexte öffnen';
+
+  @override
+  String get closeDesktopLyrics => 'Desktop-Songtexte schließen';
+
+  @override
+  String get unlockDesktopLyrics =>
+      'Desktop-Songtexte entsperren (Verschieben aktivieren)';
+
+  @override
+  String get lockDesktopLyricsTray =>
+      'Desktop-Songtexte sperren (Feste Position)';
+
+  @override
+  String get msStoreLaunchFailed =>
+      'Microsoft Store konnte nicht geöffnet werden. Bitte im Store suchen und kaufen.';
+
+  @override
+  String get storeConnectFailed =>
+      'Verbindung zum App Store fehlgeschlagen. Bitte Netzwerk prüfen und erneut versuchen.';
+
+  @override
+  String get msStoreSyncSuccess =>
+      'Kauf- und Lizenzstatus im Microsoft Store synchronisiert';
+
+  @override
+  String get allProFeaturesUnlocked =>
+      'Keine Einlösung erforderlich. Alle Pro-Funktionen sind freigeschaltet.';
+
+  @override
+  String get cannotConnectToMediaServer =>
+      'Verbindung zum Medienserver fehlgeschlagen. Bitte prüfen, ob der Dienst läuft.';
 }

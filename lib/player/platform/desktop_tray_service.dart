@@ -215,15 +215,15 @@ class DesktopTrayService with WindowListener {
           ft.MenuItem(
             id: _idToggleDesktopLyrics,
             label: settingsService.enableDesktopLyrics
-                ? '关闭桌面歌词'
-                : '开启桌面歌词',
+                ? l10n.closeDesktopLyrics
+                : l10n.openDesktopLyrics,
           ),
           if (settingsService.enableDesktopLyrics)
             ft.MenuItem(
               id: _idToggleDesktopLyricsLock,
               label: settingsService.desktopLyricsLocked
-                  ? '解锁桌面歌词 (恢复拖拽)'
-                  : '锁定桌面歌词 (固定位置)',
+                  ? l10n.unlockDesktopLyrics
+                  : l10n.lockDesktopLyricsTray,
             ),
         ],
         ft.MenuItem.separator(_idSeparator),

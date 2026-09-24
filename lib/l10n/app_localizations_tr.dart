@@ -1399,26 +1399,27 @@ class AppLocalizationsTr extends AppLocalizations {
       'Kaydetme başarısız oldu. Lütfen daha sonra tekrar deneyin.';
 
   @override
-  String get batchEditSongTagsTitle => '批量编辑歌曲标签';
+  String get batchEditSongTagsTitle => 'Şarkı Etiketlerini Toplu Düzenle';
 
   @override
   String get batchEditSongTagsDescription =>
-      '修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。';
+      'Değişiklikleri yalnızca uygulamaya kaydedebilir veya kaynak dosyalara yazabilirsiniz. <keep> içeren alanlar orijinal değerlerini korur.';
 
   @override
-  String get keepFieldHint => '提示：值为 <keep> 的属性将保留每首歌曲的原值';
+  String get keepFieldHint =>
+      'İpucu: <keep> içeren alanlar orijinal değerlerini korur.';
 
   @override
-  String get multipleArtworkKeep => '保留各歌曲原封面';
+  String get multipleArtworkKeep => 'Ayrı kapakları koru';
 
   @override
   String batchSongTagsSavedToApp(int count) {
-    return '已将 $count 首歌曲标签保存到 App';
+    return '$count şarkının etiketi uygulamaya kaydedildi';
   }
 
   @override
   String batchSongTagsSavedToSourceFileAndApp(int count) {
-    return '已将 $count 首歌曲标签保存到源文件和 App';
+    return '$count şarkının etiketi kaynak dosyalara ve uygulamaya kaydedildi';
   }
 
   @override
@@ -4999,68 +5000,169 @@ class AppLocalizationsTr extends AppLocalizations {
       'Lütfen geçerli bir proxy adresi ve bağlantı noktası girin';
 
   @override
-  String get sortPlaylists => '播放列表排序';
+  String get sortPlaylists => 'Çalma Listelerini Sırala';
 
   @override
-  String get sortRecentlyUpdated => '最近更新';
+  String get sortRecentlyUpdated => 'Son Güncellenenler';
 
   @override
-  String get sortRecentlyCreated => '最近创建';
+  String get sortRecentlyCreated => 'Son Oluşturulanlar';
 
   @override
-  String get sortCustom => '自定义排序';
+  String get sortCustom => 'Özel Sıralama';
 
   @override
-  String get addToMediaLibrary => '加入媒体库索引';
+  String get addToMediaLibrary => 'Medya Kitaplığına Ekle';
 
   @override
-  String get removeFromMediaLibrary => '从媒体库索引移除';
+  String get removeFromMediaLibrary => 'Medya Kitaplığından Kaldır';
 
   @override
-  String get addedToMediaLibrary => '已加入媒体库索引，正在后台扫描...';
+  String get addedToMediaLibrary =>
+      'Medya kitaplığına eklendi, arka planda taranıyor...';
 
   @override
-  String get removedFromMediaLibrary => '已从媒体库索引移除';
+  String get removedFromMediaLibrary => 'Medya kitaplığından kaldırıldı';
 
   @override
-  String get indexingRemoteFolders => '正在索引远程目录...';
+  String get indexingRemoteFolders => 'Uzak klasörler dizine ekleniyor...';
 
   @override
-  String get remoteMediaFolders => '远程网络目录';
+  String get remoteMediaFolders => 'Uzak Ağ Klasörleri';
 
   @override
-  String get remoteFolderAlreadyIndexed => '该目录已在媒体库索引中';
+  String get remoteFolderAlreadyIndexed =>
+      'Klasör zaten medya kitaplığında dizine eklenmiş';
 
   @override
-  String get remoteLibraryBadge => '云端';
+  String get remoteLibraryBadge => 'Bulut';
 
   @override
-  String get remoteLibraryTooltip => '来自远程媒体库';
+  String get remoteLibraryTooltip => 'Uzak medya kitaplığından';
 
   @override
-  String get remoteSourceTitle => '远程媒体来源';
+  String get remoteSourceTitle => 'Uzak Medya Kaynağı';
 
   @override
-  String get remoteServer => '服务器';
+  String get remoteServer => 'Sunucu';
 
   @override
-  String get remoteChannel => '渠道类型';
+  String get remoteChannel => 'Kanal Türü';
 
   @override
-  String get remoteFolder => '所在文件夹';
+  String get remoteFolder => 'Uzak Klasör';
 
   @override
-  String get remoteFilePath => '远程路径';
+  String get remoteFilePath => 'Uzak Yol';
 
   @override
-  String get copyPath => '复制路径';
+  String get copyPath => 'Yolu Kopyala';
 
   @override
-  String get pathCopied => '已复制路径到剪贴板';
+  String get pathCopied => 'Yol panoya kopyalandı';
 
   @override
-  String get viewInRemoteFolder => '在网络目录中查看';
+  String get viewInRemoteFolder => 'Uzak Klasörde Görüntüle';
 
   @override
-  String get remoteServerNotFound => '未找到关联的媒体服务器';
+  String get remoteServerNotFound => 'İlişkili uzak sunucu bulunamadı';
+
+  @override
+  String get visualizerCapDropSpeed => 'Kapak Düşme Hızı';
+
+  @override
+  String get desktopLyrics => 'Masaüstü Sözleri';
+
+  @override
+  String get enableDesktopLyrics => 'Masaüstü Sözlerini Etkinleştir';
+
+  @override
+  String get enableDesktopLyricsDescription =>
+      'Masaüstünde her zaman üstte duran yarı saydam kayan sözler göster';
+
+  @override
+  String get lockDesktopLyrics => 'Söz Konumunu Kilitle';
+
+  @override
+  String get lockDesktopLyricsDescription =>
+      'Pencere konumunu sabitleyin ve sürüklemeyi kapatın; kontroller için üzerine gelin';
+
+  @override
+  String get desktopLyricsShowTranslation =>
+      'Çeviriyi / Çift Satırlı Sözleri Göster';
+
+  @override
+  String get desktopLyricsShowTranslationDescription =>
+      'Geçerli şarkının çevirisi varsa masaüstü sözlerinde iki satırı aynı anda göster';
+
+  @override
+  String get desktopLyricsShowBackground => 'Kalıcı Koyu Arka Plan';
+
+  @override
+  String get desktopLyricsShowBackgroundDescription =>
+      'Açık renkli duvar kağıtlarında okunabilirliği artırmak için masaüstü sözlerinin altında yarı saydam bir kapsül arka plan göster';
+
+  @override
+  String desktopLyricsFontSize(int size) {
+    return 'Söz Yazı Tipi Boyutu ($size px)';
+  }
+
+  @override
+  String get noTranslationAiPrompt =>
+      'Geçerli şarkının çevirisi yok. Yapay zeka ile çeviri oluşturulsun mu?';
+
+  @override
+  String get noKaraokeAiPrompt =>
+      'Geçerli şarkının kelime kelime sözleri yok. Yapay zeka ile kelime kelime/karaoke sözlere dönüştürülsün mü?';
+
+  @override
+  String get wordByWordLyricsEnabled => 'Kelime kelime sözler etkinleştirildi';
+
+  @override
+  String get wordByWordLyricsDisabled =>
+      'Kelime kelime sözler devre dışı bırakıldı';
+
+  @override
+  String get ignoreSslDescription =>
+      'Kendinden imzalı veya dahili SSL sertifikaları için';
+
+  @override
+  String get copyCoverFailed => 'Kapak kopyalanamadı';
+
+  @override
+  String get folderIsEmpty => 'Klasör boş';
+
+  @override
+  String get openDesktopLyrics => 'Masaüstü Sözlerini Aç';
+
+  @override
+  String get closeDesktopLyrics => 'Masaüstü Sözlerini Kapat';
+
+  @override
+  String get unlockDesktopLyrics =>
+      'Masaüstü Sözlerinin Kilidini Aç (Sürüklemeyi Etkinleştir)';
+
+  @override
+  String get lockDesktopLyricsTray =>
+      'Masaüstü Sözlerini Kilitle (Sabit Konum)';
+
+  @override
+  String get msStoreLaunchFailed =>
+      'Microsoft Store başlatılamadı. Lütfen mağazada arayıp satın alın.';
+
+  @override
+  String get storeConnectFailed =>
+      'Ürün bilgileri için uygulama mağazasına bağlanılamıyor. Lütfen ağı kontrol edip tekrar deneyin.';
+
+  @override
+  String get msStoreSyncSuccess =>
+      'Microsoft Store satın alma ve lisans durumu senkronize edildi';
+
+  @override
+  String get allProFeaturesUnlocked =>
+      'Geçerli sürüm için kod kullanmaya gerek yok. Tüm Pro özelliklerinin kilidi tamamen açıldı.';
+
+  @override
+  String get cannotConnectToMediaServer =>
+      'Medya kitaplığı sunucusuna bağlanılamıyor. Lütfen servisin çalıştığını kontrol edin.';
 }

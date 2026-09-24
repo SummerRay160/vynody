@@ -26,6 +26,8 @@ import 'package:vynody/player/metadata/metadata_database.dart';
 import 'package:vynody/player/platform/desktop_tray_service.dart';
 import 'package:vynody/player/lyrics/custom_font_service.dart';
 import 'package:vynody/player/pro/iap_service.dart';
+import 'package:vynody/player/pro/pro_license_service.dart';
+import 'package:vynody/player/pro/app_channel.dart';
 import 'widgets/app_global_shortcuts.dart';
 import 'widgets/volume_controls.dart';
 import 'pages/main_layout_riverpod.dart';
@@ -432,6 +434,17 @@ class _MyAppState extends ConsumerState<MyApp>
       windowManager.removeListener(this);
     }
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      final license = ref.read(proLicenseServiceProvider).state;
+      if (!license.isPermanentlyUnlocked && !AppChannel.isGitHubRelease) {
+        ref.read(iapServiceProvider).syncPurchasesSilently();
+      }
+    }
   }
 
   @override

@@ -133,7 +133,7 @@ class PlaybackControls extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(l10n.translateLyrics),
-        content: const Text('当前歌曲暂无翻译，是否使用 AI 生成翻译？'),
+        content: Text(l10n.noTranslationAiPrompt),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
@@ -188,7 +188,11 @@ class PlaybackControls extends ConsumerWidget {
       final settings = ref.read(settingsServiceProvider);
       final nextState = !settings.showLyricsWordByWord;
       settings.showLyricsWordByWord = nextState;
-      showToast(nextState ? '已开启逐字歌词' : '已关闭逐字歌词');
+      showToast(
+        nextState
+            ? l10n.wordByWordLyricsEnabled
+            : l10n.wordByWordLyricsDisabled,
+      );
       return;
     }
 
@@ -201,7 +205,7 @@ class PlaybackControls extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(l10n.convertToKaraoke),
-        content: const Text('当前歌曲暂无逐字歌词，是否使用 AI 转换为逐字/卡拉OK歌词？'),
+        content: Text(l10n.noKaraokeAiPrompt),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),

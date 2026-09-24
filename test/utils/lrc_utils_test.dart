@@ -73,7 +73,7 @@ void main() {
       final lastWordLine1 = line1.words!.last;
       expect(lastWordLine1.text.trim(), 'city');
       // city starts at 00:09.52 (9520ms), next line at 00:09.87 (9870ms).
-      // availableMs = 350ms < 1000ms, so duration is capped at 350ms.
+      // availableMs = 350ms.
       expect(lastWordLine1.durationMs, 350);
 
       final line2 = parsed[1];

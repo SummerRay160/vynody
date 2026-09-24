@@ -1367,26 +1367,26 @@ class AppLocalizationsKo extends AppLocalizations {
   String get saveFailed => '저장 실패. 나중에 다시 시도해주세요.';
 
   @override
-  String get batchEditSongTagsTitle => '批量编辑歌曲标签';
+  String get batchEditSongTagsTitle => '곡 태그 일괄 편집';
 
   @override
   String get batchEditSongTagsDescription =>
-      '修改后可以只保存到 App，也可以同步写回源文件。值为 <keep> 的字段将保持原值。';
+      '변경 사항을 앱에만 저장하거나 원본 파일에 다시 쓸 수 있습니다. <keep>으로 표시된 필드는 원래 값을 유지합니다.';
 
   @override
-  String get keepFieldHint => '提示：值为 <keep> 的属性将保留每首歌曲的原值';
+  String get keepFieldHint => '팁: <keep> 값의 속성은 각 곡의 원래 값을 유지합니다.';
 
   @override
-  String get multipleArtworkKeep => '保留各歌曲原封面';
+  String get multipleArtworkKeep => '각 곡의 원래 커버 유지';
 
   @override
   String batchSongTagsSavedToApp(int count) {
-    return '已将 $count 首歌曲标签保存到 App';
+    return '$count개 곡 태그를 앱에 저장했습니다';
   }
 
   @override
   String batchSongTagsSavedToSourceFileAndApp(int count) {
-    return '已将 $count 首歌曲标签保存到源文件和 App';
+    return '$count개 곡 태그를 원본 파일 및 앱에 저장했습니다';
   }
 
   @override
@@ -4819,68 +4819,159 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proxyHostPortInvalid => '유효한 프록시 주소와 포트를 입력하세요';
 
   @override
-  String get sortPlaylists => '播放列表排序';
+  String get sortPlaylists => '재생목록 정렬';
 
   @override
-  String get sortRecentlyUpdated => '最近更新';
+  String get sortRecentlyUpdated => '최근 업데이트';
 
   @override
-  String get sortRecentlyCreated => '最近创建';
+  String get sortRecentlyCreated => '최근 생성';
 
   @override
-  String get sortCustom => '自定义排序';
+  String get sortCustom => '사용자 지정 정렬';
 
   @override
-  String get addToMediaLibrary => '加入媒体库索引';
+  String get addToMediaLibrary => '미디어 라이브러리에 추가';
 
   @override
-  String get removeFromMediaLibrary => '从媒体库索引移除';
+  String get removeFromMediaLibrary => '미디어 라이브러리에서 제거';
 
   @override
-  String get addedToMediaLibrary => '已加入媒体库索引，正在后台扫描...';
+  String get addedToMediaLibrary => '미디어 라이브러리에 추가됨, 백그라운드에서 스캔 중...';
 
   @override
-  String get removedFromMediaLibrary => '已从媒体库索引移除';
+  String get removedFromMediaLibrary => '미디어 라이브러리에서 제거됨';
 
   @override
-  String get indexingRemoteFolders => '正在索引远程目录...';
+  String get indexingRemoteFolders => '원격 폴더 인덱싱 중...';
 
   @override
-  String get remoteMediaFolders => '远程网络目录';
+  String get remoteMediaFolders => '원격 네트워크 폴더';
 
   @override
-  String get remoteFolderAlreadyIndexed => '该目录已在媒体库索引中';
+  String get remoteFolderAlreadyIndexed => '해당 폴더는 이미 미디어 라이브러리에 인덱싱되어 있습니다';
 
   @override
-  String get remoteLibraryBadge => '云端';
+  String get remoteLibraryBadge => '클라우드';
 
   @override
-  String get remoteLibraryTooltip => '来自远程媒体库';
+  String get remoteLibraryTooltip => '원격 미디어 라이브러리 출처';
 
   @override
-  String get remoteSourceTitle => '远程媒体来源';
+  String get remoteSourceTitle => '원격 미디어 소스';
 
   @override
-  String get remoteServer => '服务器';
+  String get remoteServer => '서버';
 
   @override
-  String get remoteChannel => '渠道类型';
+  String get remoteChannel => '채널 유형';
 
   @override
-  String get remoteFolder => '所在文件夹';
+  String get remoteFolder => '원격 폴더';
 
   @override
-  String get remoteFilePath => '远程路径';
+  String get remoteFilePath => '원격 경로';
 
   @override
-  String get copyPath => '复制路径';
+  String get copyPath => '경로 복사';
 
   @override
-  String get pathCopied => '已复制路径到剪贴板';
+  String get pathCopied => '경로가 클립보드에 복사되었습니다';
 
   @override
-  String get viewInRemoteFolder => '在网络目录中查看';
+  String get viewInRemoteFolder => '네트워크 폴더에서 보기';
 
   @override
-  String get remoteServerNotFound => '未找到关联的媒体服务器';
+  String get remoteServerNotFound => '연결된 미디어 서버를 찾을 수 없습니다';
+
+  @override
+  String get visualizerCapDropSpeed => '캡 낙하 속도';
+
+  @override
+  String get desktopLyrics => '데스크톱 가사';
+
+  @override
+  String get enableDesktopLyrics => '데스크톱 가사 활성화';
+
+  @override
+  String get enableDesktopLyricsDescription => '바탕화면에 항상 위에 표시되는 반투명 플로팅 가사 표시';
+
+  @override
+  String get lockDesktopLyrics => '가사 위치 잠금';
+
+  @override
+  String get lockDesktopLyricsDescription =>
+      '가사 창 위치를 고정하여 드래그를 비활성화합니다. 마우스를 올리면 컨트롤이 표시됩니다';
+
+  @override
+  String get desktopLyricsShowTranslation => '번역 / 2줄 가사 표시';
+
+  @override
+  String get desktopLyricsShowTranslationDescription =>
+      '현재 곡에 번역이 있는 경우 데스크톱 가사에 두 줄로 동시에 표시합니다';
+
+  @override
+  String get desktopLyricsShowBackground => '항상 어두운 배경 표시';
+
+  @override
+  String get desktopLyricsShowBackgroundDescription =>
+      '데스크톱 가사 아래에 반투명 캡슐 배경을 항상 표시하여 밝은 배경화면에서의 가독성을 높입니다';
+
+  @override
+  String desktopLyricsFontSize(int size) {
+    return '가사 글꼴 크기 ($size px)';
+  }
+
+  @override
+  String get noTranslationAiPrompt => '현재 곡에 번역이 없습니다. AI를 사용하여 번역을 생성하시겠습니까?';
+
+  @override
+  String get noKaraokeAiPrompt =>
+      '현재 곡에 단어별 가사가 없습니다. AI를 사용하여 단어별/노래방 가사로 변환하시겠습니까?';
+
+  @override
+  String get wordByWordLyricsEnabled => '단어별 가사가 활성화되었습니다';
+
+  @override
+  String get wordByWordLyricsDisabled => '단어별 가사가 비활성화되었습니다';
+
+  @override
+  String get ignoreSslDescription => '자체 서명 또는 내부 SSL 인증서용';
+
+  @override
+  String get copyCoverFailed => '커버 복사 실패';
+
+  @override
+  String get folderIsEmpty => '폴더가 비어 있습니다';
+
+  @override
+  String get openDesktopLyrics => '데스크톱 가사 열기';
+
+  @override
+  String get closeDesktopLyrics => '데스크톱 가사 닫기';
+
+  @override
+  String get unlockDesktopLyrics => '데스크톱 가사 잠금 해제 (드래그 가능)';
+
+  @override
+  String get lockDesktopLyricsTray => '데스크톱 가사 잠금 (위치 고정)';
+
+  @override
+  String get msStoreLaunchFailed =>
+      'Microsoft Store를 실행하지 못했습니다. 스토어에서 검색하여 구매해 주세요.';
+
+  @override
+  String get storeConnectFailed =>
+      '앱 스토어에 연결하여 상품 정보를 가져올 수 없습니다. 네트워크를 확인한 후 다시 시도해 주세요.';
+
+  @override
+  String get msStoreSyncSuccess => 'Microsoft Store 구매 및 라이선스 상태가 동기화되었습니다';
+
+  @override
+  String get allProFeaturesUnlocked =>
+      '현재 버전에서는 교환이 필요하지 않습니다. 모든 Pro 기능이 완전히 잠금 해제되었습니다.';
+
+  @override
+  String get cannotConnectToMediaServer =>
+      '미디어 라이브러리 서버에 연결할 수 없습니다. 서비스가 실행 중인지 확인하세요.';
 }

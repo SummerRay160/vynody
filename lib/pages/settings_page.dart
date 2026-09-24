@@ -49,13 +49,16 @@ class SettingsPageState extends ConsumerState<SettingsPage> {
   final FocusNode _portraitSearchFocusNode = FocusNode();
   final FocusNode _landscapeSearchFocusNode = FocusNode();
   String _searchQuery = '';
+  late final IsSettingsPageActiveNotifier _isSettingsActiveNotifier;
 
   @override
   void initState() {
     super.initState();
+    _isSettingsActiveNotifier =
+        ref.read(isSettingsPageActiveProvider.notifier);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        ref.read(isSettingsPageActiveProvider.notifier).set(true);
+        _isSettingsActiveNotifier.set(true);
       }
     });
   }
@@ -65,9 +68,7 @@ class SettingsPageState extends ConsumerState<SettingsPage> {
     _searchController.dispose();
     _portraitSearchFocusNode.dispose();
     _landscapeSearchFocusNode.dispose();
-    Future.microtask(() {
-      ref.read(isSettingsPageActiveProvider.notifier).set(false);
-    });
+    _isSettingsActiveNotifier.set(false);
     super.dispose();
   }
 

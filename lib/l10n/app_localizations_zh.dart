@@ -4799,6 +4799,91 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get remoteServerNotFound => '未找到关联的媒体服务器';
+
+  @override
+  String get visualizerCapDropSpeed => '浮帽下落速度';
+
+  @override
+  String get desktopLyrics => '桌面歌词';
+
+  @override
+  String get enableDesktopLyrics => '启用桌面歌词';
+
+  @override
+  String get enableDesktopLyricsDescription => '在操作系统桌面上显示置顶半透明悬浮歌词';
+
+  @override
+  String get lockDesktopLyrics => '锁定歌词位置';
+
+  @override
+  String get lockDesktopLyricsDescription => '开启后固定歌词窗口位置禁止拖拽移动；悬停依然可呼出控制条及解锁';
+
+  @override
+  String get desktopLyricsShowTranslation => '显示翻译 / 双行歌词';
+
+  @override
+  String get desktopLyricsShowTranslationDescription =>
+      '若当前歌曲包含翻译，则在桌面歌词中以双行形式同时展示';
+
+  @override
+  String get desktopLyricsShowBackground => '常驻暗色背景';
+
+  @override
+  String get desktopLyricsShowBackgroundDescription =>
+      '在桌面歌词底层常驻显示半透明胶囊背景，改善浅色壁纸或复杂窗口下的文字可读性';
+
+  @override
+  String desktopLyricsFontSize(int size) {
+    return '歌词字号大小 ($size px)';
+  }
+
+  @override
+  String get noTranslationAiPrompt => '当前歌曲暂无翻译，是否使用 AI 生成翻译？';
+
+  @override
+  String get noKaraokeAiPrompt => '当前歌曲暂无逐字歌词，是否使用 AI 转换为逐字/卡拉OK歌词？';
+
+  @override
+  String get wordByWordLyricsEnabled => '已开启逐字歌词';
+
+  @override
+  String get wordByWordLyricsDisabled => '已关闭逐字歌词';
+
+  @override
+  String get ignoreSslDescription => '适用于自签名证书或内网 SSL 证书';
+
+  @override
+  String get copyCoverFailed => '复制封面失败';
+
+  @override
+  String get folderIsEmpty => '文件夹为空';
+
+  @override
+  String get openDesktopLyrics => '开启桌面歌词';
+
+  @override
+  String get closeDesktopLyrics => '关闭桌面歌词';
+
+  @override
+  String get unlockDesktopLyrics => '解锁桌面歌词 (恢复拖拽)';
+
+  @override
+  String get lockDesktopLyricsTray => '锁定桌面歌词 (固定位置)';
+
+  @override
+  String get msStoreLaunchFailed => '唤起微软商店失败，请前往商店搜索购买';
+
+  @override
+  String get storeConnectFailed => '无法连接应用商店获取商品信息，请检查网络后重试';
+
+  @override
+  String get msStoreSyncSuccess => '已同步微软商店购买与授权状态';
+
+  @override
+  String get allProFeaturesUnlocked => '当前版本无需兑换，所有 Pro 功能已完全开放';
+
+  @override
+  String get cannotConnectToMediaServer => '无法连接到媒体库服务器，请检查服务是否开启';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -9544,6 +9629,27 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get sortCustom => '自訂排序';
 
   @override
+  String get addToMediaLibrary => '加入媒體庫索引';
+
+  @override
+  String get removeFromMediaLibrary => '從媒體庫索引移除';
+
+  @override
+  String get addedToMediaLibrary => '已加入媒體庫索引，正在背景掃描...';
+
+  @override
+  String get removedFromMediaLibrary => '已從媒體庫索引移除';
+
+  @override
+  String get indexingRemoteFolders => '正在索引遠端目錄...';
+
+  @override
+  String get remoteMediaFolders => '遠端網路目錄';
+
+  @override
+  String get remoteFolderAlreadyIndexed => '該目錄已在媒體庫索引中';
+
+  @override
   String get remoteLibraryBadge => '雲端';
 
   @override
@@ -9575,4 +9681,89 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get remoteServerNotFound => '未找到關聯的媒體伺服器';
+
+  @override
+  String get visualizerCapDropSpeed => '浮帽下落速度';
+
+  @override
+  String get desktopLyrics => '桌面歌詞';
+
+  @override
+  String get enableDesktopLyrics => '啟用桌面歌詞';
+
+  @override
+  String get enableDesktopLyricsDescription => '在作業系統桌面上顯示置頂半透明懸浮歌詞';
+
+  @override
+  String get lockDesktopLyrics => '鎖定歌詞位置';
+
+  @override
+  String get lockDesktopLyricsDescription => '開啟後固定歌詞視窗位置禁止拖曳移動；懸停依然可呼出控制列及解鎖';
+
+  @override
+  String get desktopLyricsShowTranslation => '顯示翻譯 / 雙行歌詞';
+
+  @override
+  String get desktopLyricsShowTranslationDescription =>
+      '若當前歌曲包含翻譯，則在桌面歌詞中以雙行形式同時展示';
+
+  @override
+  String get desktopLyricsShowBackground => '常駐暗色背景';
+
+  @override
+  String get desktopLyricsShowBackgroundDescription =>
+      '在桌面歌詞底層常駐顯示半透明膠囊背景，改善淺色桌布或複雜視窗下的文字可讀性';
+
+  @override
+  String desktopLyricsFontSize(int size) {
+    return '歌詞字級大小 ($size px)';
+  }
+
+  @override
+  String get noTranslationAiPrompt => '當前歌曲暫無翻譯，是否使用 AI 生成翻譯？';
+
+  @override
+  String get noKaraokeAiPrompt => '當前歌曲暫無逐字歌詞，是否使用 AI 轉換為逐字/卡拉OK歌詞？';
+
+  @override
+  String get wordByWordLyricsEnabled => '已開啟逐字歌詞';
+
+  @override
+  String get wordByWordLyricsDisabled => '已關閉逐字歌詞';
+
+  @override
+  String get ignoreSslDescription => '適用於自簽名憑證或內網 SSL 憑證';
+
+  @override
+  String get copyCoverFailed => '複製封面失敗';
+
+  @override
+  String get folderIsEmpty => '資料夾為空';
+
+  @override
+  String get openDesktopLyrics => '開啟桌面歌詞';
+
+  @override
+  String get closeDesktopLyrics => '關閉桌面歌詞';
+
+  @override
+  String get unlockDesktopLyrics => '解鎖桌面歌詞 (恢復拖曳)';
+
+  @override
+  String get lockDesktopLyricsTray => '鎖定桌面歌詞 (固定位置)';
+
+  @override
+  String get msStoreLaunchFailed => '開啟微軟商店失敗，請前往商店搜尋購買';
+
+  @override
+  String get storeConnectFailed => '無法連線至應用程式商店獲取商品資訊，請檢查網路後重試';
+
+  @override
+  String get msStoreSyncSuccess => '已同步微軟商店購買與授權狀態';
+
+  @override
+  String get allProFeaturesUnlocked => '當前版本無需兌換，所有 Pro 功能已完全開放';
+
+  @override
+  String get cannotConnectToMediaServer => '無法連線至媒體庫伺服器，請檢查服務是否開啟';
 }
